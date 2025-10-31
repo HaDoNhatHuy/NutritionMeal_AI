@@ -1,0 +1,186 @@
+﻿@model List<NutritionWebApp.Models.Entities.ExerciseVideo>
+@{
+    ViewData["Title"] = "Bài tập";
+    var groups = new[] { "Đùi", "Lưng", "Ngực", "Bụng", "Vai", "Tay trước", "Tay sau" };
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles{
+    <style>
+        .exercise-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            margin-bottom: 40px;
+            border-radius: 0 0 50px 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+            .exercise-header h1 {
+                color: white;
+                font-weight: 700;
+                font-size: 2.5rem;
+                margin: 0;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            }
+
+        .filter-pills {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+            .filter-pills .btn {
+                border-radius: 25px;
+                padding: 10px 28px;
+                font-weight: 600;
+                border: 2px solid #e0e0e0;
+                background: white;
+                color: #555;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                .filter-pills .btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+                    border-color: #667eea;
+                    color: #667eea;
+                }
+
+                .filter-pills .btn.active {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border-color: transparent;
+                    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                }
+
+        .video-card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            height: 100%;
+            background: white;
+        }
+
+            .video-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            }
+
+        .video-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+        }
+
+            .video-wrapper::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.3));
+                pointer-events: none;
+            }
+
+            .video-wrapper iframe {
+                border: none;
+            }
+
+        .video-card .card-body {
+            padding: 25px;
+            background: white;
+        }
+
+        .video-card h5 {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .video-duration {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #718096;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: #f7fafc;
+            padding: 8px 16px;
+            border-radius: 12px;
+        }
+
+            .video-duration::before {
+                content: '⏱️';
+                font-size: 1.1rem;
+            }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 0 15px;
+        }
+
+        @@media (max-width: 768px) {
+            .exercise-header h1 {
+                font-size: 2rem;
+            }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-pills {
+                flex-direction: column;
+            }
+
+                .filter-pills .btn {
+                    width: 100%;
+                }
+        }
+    </style>
+}
+
+<div class="exercise-header">
+    <div class="container">
+        <h1 class="text-center">💪 Bài tập theo nhóm cơ</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="filter-pills">
+        <a asp-action="Index" class="btn">Tất cả</a>
+        @foreach (var g in groups)
+        {
+            <a asp-action="Index" asp-route-group="@g" class="btn">@g</a>
+        }
+    </div>
+
+    <div class="videos-grid">
+        @foreach (var v in Model)
+        {
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <div class="ratio ratio-16x9">
+                        <iframe width="560" height="315" src="@v.YoutubeVideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+               @*  <div class="card-body">
+                    <h5>@v.Title</h5>
+                    <span class="video-duration">@v.Duration</span>
+                </div> *@
+            </div>
+        }
+    </div>
+</div>

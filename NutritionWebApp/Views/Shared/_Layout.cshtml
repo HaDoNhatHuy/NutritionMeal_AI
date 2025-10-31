@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NutritionWebApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/NutritionWebApp.styles.css" asp-append-version="true" /> *@
+    @await RenderSectionAsync("Styles", required: false)    
+</head>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js');
+    }
+</script>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg modern-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-icon">🥗</span>
+                    NutritionWebApp
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                🏠 Trang chủ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Exercise" asp-action="Index">
+                                💪 Bài tập
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Settings" asp-action="Index">
+                                ⚙️ Cài đặt
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center">
+                        @if (Context.Session.GetInt32("UserId").HasValue)
+                        {
+                            <div class="user-info me-3">
+                                <span class="user-greeting">👋 Xin chào,</span>
+                                <span class="user-name">@Context.Session.GetString("FullName")</span>
+                            </div>
+                            <a asp-controller="Account" asp-action="Logout" class="btn btn-modern btn-logout">
+                                🚪 Đăng xuất
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="auth-buttons">
+                                <a asp-controller="Account" asp-action="Login" class="btn btn-modern btn-login">
+                                    🔐 Đăng nhập
+                                </a>
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-modern btn-register">
+                                    ✨ Đăng ký
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-content">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="modern-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h5>🥗 NutritionWebApp</h5>
+                    <p>
+                        Ứng dụng dinh dưỡng thông minh giúp bạn theo dõi
+                        chế độ ăn uống và đạt được mục tiêu sức khỏe.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">📷</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">💼</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h5>Liên kết nhanh</h5>
+                    <ul class="footer-links">
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Index">
+                                → Trang chủ
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Exercise" asp-action="Index">
+                                → Bài tập
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Settings" asp-action="Index">
+                                → Cài đặt
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy">
+                                → Chính sách bảo mật
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h5>Liên hệ</h5>
+                    <ul class="footer-links">
+                        <li>
+                            <a href="mailto:support@nutritionwebapp.com">
+                                ✉️ support@nutritionwebapp.com
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tel:+84123456789">
+                                📞 +84 123 456 789
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                📍 Hồ Chí Minh, Việt Nam
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>
+                    &copy; 2025 NutritionWebApp. All rights reserved. |
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a> |
+                    Made with ❤️ in Vietnam
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Active nav link
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
