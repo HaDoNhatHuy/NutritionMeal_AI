@@ -2,7 +2,7 @@
     ViewData["Title"] = "Phân tích món ăn";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@section Styles{
+@section Styles {
     <style>
         .analyze-section {
             min-height: 100vh;
@@ -41,6 +41,10 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            display: flex; /* Dùng flex để căn giữa nội dung */
+            justify-content: center;
+            align-items: center;
+            min-height: 300px; /* Đặt chiều cao tối thiểu cho khung */
         }
 
             .upload-area:hover {
@@ -76,12 +80,28 @@
             display: none;
         }
 
-        .preview-image {
+        /* .preview-image {
             max-width: 100%;
             max-height: 300px;
             border-radius: 15px;
             margin: 20px 0;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none;
+        } */
+        /* STYLE MỚI CHO ẢNH BÊN TRONG */
+        .preview-image-inside {
+            width: 100%; /* Chiếm toàn bộ chiều rộng của khung cha (.upload-area) */
+            height: 100%; /* Chiếm toàn bộ chiều cao của khung cha */
+            object-fit: cover; /* Quan trọng: Đảm bảo ảnh lấp đầy khung mà không bị méo */
+            position: absolute; /* Đặt ảnh lên trên nền */
+            top: 0;
+            left: 0;
+            border-radius: 18px; /* Giữ bo góc giống khung cha */
+            display: none; /* Mặc định ẩn */
+        }
+
+        /* Ẩn nội dung chữ khi có ảnh */
+        .upload-area.has-preview #uploadPrompt {
             display: none;
         }
 
@@ -289,10 +309,30 @@
         <h1 class="page-title">📸 Phân tích món ăn của bạn</h1>
 
         <div class="upload-card">
-            <div class="upload-area" onclick="document.getElementById('foodImage').click()">
-                <span class="upload-icon">📷</span>
-                <div class="upload-text">Nhấn để chọn ảnh hoặc chụp ảnh</div>
-                <div class="upload-hint">Hỗ trợ: JPG, PNG (tối đa 10MB)</div>
+            <!-- KHỐI BỔ SUNG: CHỌN LOẠI BỮA ĂN -->
+            <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 20px;">1. Chọn Loại Bữa Ăn</h4>
+            <select id="mealTypeSelect" class="form-select mb-4" style="
+                    border: 2px solid #e2e8f0;
+                    border-radius: 15px;
+                    padding: 14px 20px;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;">
+                <option value="ChuaChon">--- Chọn loại bữa ăn ---</option>
+                <option value="BuaSang">☀️ Bữa Sáng</option>
+                <option value="BuaTrua">🍔 Bữa Trưa</option>
+                <option value="BuaToi">🌙 Bữa Tối</option>
+                <option value="AnVat">🍭 Ăn Vặt / Khác</option>
+            </select>
+            <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 20px;">2. Tải ảnh món ăn</h4>
+
+            <div class="upload-area" id="uploadAreaContainer" onclick="document.getElementById('foodImage').click()">
+                <div id="uploadPrompt">
+                    <span class="upload-icon">📷</span>
+                    <div class="upload-text">Nhấn để chọn ảnh hoặc chụp ảnh</div>
+                    <div class="upload-hint">Hỗ trợ: JPG, PNG (tối đa 10MB)</div>
+                </div>
+                <!-- ẢNH PREVIEW (SẼ HIỂN THỊ TRONG KHUNG) -->
+                <img id="preview" class="preview-image-inside" alt="Preview" />
             </div>
 
             @* <input type="file" id="foodImage" accept="image/*" capture="environment" class="file-input" /> *@
@@ -300,7 +340,7 @@
             <input type="file" id="foodImage" accept="image/*" capture="camera" class="file-input" />
 
             <div class="text-center">
-                <img id="preview" class="preview-image" alt="Preview" />
+                @* <img id="preview" class="preview-image" alt="Preview" /> *@
                 <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">
                     🔍 Phân tích ngay
                 </button>
@@ -320,12 +360,46 @@
             <div class="spinner-ring"></div>
         </div>
         <div class="loading-text">🤖 AI đang phân tích...</div>
-        <div class="loading-subtext">Vui lòng chờ trong giây lát</div>
+        <div class="loading-subtext" id="loadingSubtext">Vui lòng chờ trong giây lát</div>
     </div>
 </div>
 
-@section Scripts{
+@section Scripts {
     <script>
+                // Khai báo biến toàn cục để kiểm soát interval (Chức năng 6b)
+        let loadingTextInterval;
+        const loadingMessages = [
+            "AI đang nhận diện món ăn...",
+            "Đang tính toán giá trị dinh dưỡng...",
+            "Đang cá nhân hóa lời khuyên dựa trên mục tiêu...",
+            "Gần xong rồi, chỉ vài giây nữa thôi!"
+        ];
+
+        // Hàm Khởi tạo hiệu ứng Loading Text (Chức năng 6b)
+        function startLoadingAnimation() {
+            const subtextElement = document.getElementById('loadingSubtext');
+            let index = 0;
+
+            // Đặt nội dung ban đầu
+            subtextElement.textContent = loadingMessages[index];
+            index = (index + 1) % loadingMessages.length;
+
+            // Thiết lập interval để thay đổi nội dung mỗi 2000ms (2 giây)
+            loadingTextInterval = setInterval(() => {
+                subtextElement.textContent = loadingMessages[index];
+                index = (index + 1) % loadingMessages.length;
+            }, 2000);
+        }
+
+        // Hàm Dừng hiệu ứng Loading Text (Chức năng 6b)
+        function stopLoadingAnimation() {
+            if (loadingTextInterval) {
+                clearInterval(loadingTextInterval);
+                // Đặt lại văn bản về trạng thái mặc định
+                document.getElementById('loadingSubtext').textContent = "Vui lòng chờ trong giây lát";
+            }
+        }
+
         // Preview image
         document.getElementById('foodImage').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -336,65 +410,85 @@
                     const uploadArea = document.querySelector('.upload-area');
                     const analyzeBtn = document.getElementById('analyzeBtn');
 
+                    // THÊM: Lấy element chứa nội dung hướng dẫn
+                    const uploadPrompt = document.getElementById('uploadPrompt');
+
                     preview.src = e.target.result;
+                    preview.className = 'preview-image-inside'; // Đảm bảo sử dụng class mới
                     preview.style.display = 'block';
+                    uploadPrompt.style.display = 'none'; // ẨN NỘI DUNG HƯỚNG DẪN
+                    uploadArea.classList.add('active'); // Style mặc định
+                    uploadArea.classList.add('has-preview'); // Thêm class để ẩn border dashed (Tùy chọn)
                     analyzeBtn.style.display = 'inline-block';
-                    uploadArea.classList.add('active');
+                    // uploadArea.classList.add('active');
                 };
                 reader.readAsDataURL(file);
             }
         });
                 // Tự động preview khi chọn/chụp ảnh
-        function previewImage(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('preview');
-                    const uploadArea = document.querySelector('.upload-area');
-                    const analyzeBtn = document.getElementById('analyzeBtn');
+        // function previewImage(input) {
+        //     const file = input.files[0];
+        //     if (file) {
+        //         const reader = new FileReader();
+        //         reader.onload = function(e) {
+        //             const preview = document.getElementById('preview');
+        //             const uploadArea = document.querySelector('.upload-area');
+        //             const analyzeBtn = document.getElementById('analyzeBtn');
 
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    analyzeBtn.style.display = 'inline-block';
-                    uploadArea.classList.add('active');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-                // Gắn sự kiện vào input
-        document.getElementById('foodImage').addEventListener('change', function() {
-            previewImage(this);
-        });
+        //             preview.src = e.target.result;
+        //             preview.style.display = 'block';
+        //             analyzeBtn.style.display = 'inline-block';
+        //             uploadArea.classList.add('active');
+        //         };
+        //         reader.readAsDataURL(file);
+        //     }
+        // }
+        //         // Gắn sự kiện vào input
+        // document.getElementById('foodImage').addEventListener('change', function() {
+        //     previewImage(this);
+        // });
 
         async function analyze() {
-            const file = document.getElementById('foodImage').files[0];
-            if (!file) {
-                alert("Vui lòng chọn ảnh!");
-                return;
-            }
+        const files = document.getElementById('foodImage').files[0];
+        const mealType = document.getElementById('mealTypeSelect').value; // <--- LẤY MEAL TYPE
 
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const analyzeBtn = document.getElementById('analyzeBtn');
+        if (!files) {
+            alert("Vui lòng chọn ảnh!");
+            return;
+        }
+        // Lấy tệp đầu tiên (file) để gửi đi
+        // const fileToSend = files;
+        // KIỂM TRA BẮT BUỘC CHỌN MEAL TYPE
+        if (mealType === 'ChuaChon') {
+            alert("Vui lòng chọn loại bữa ăn trước khi phân tích!");
+            return;
+        }
 
-            // Show loading
-            loadingOverlay.classList.add('show');
-            analyzeBtn.disabled = true;
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const analyzeBtn = document.getElementById('analyzeBtn');
 
-            try {
-                const form = new FormData();
-                form.append('image', file);
+        // Show loading
+        loadingOverlay.classList.add('show');
+        analyzeBtn.disabled = true;
+        startLoadingAnimation();
 
-                const res = await fetch('/Home/Analyze', {
-                    method: 'POST',
-                    body: form
-                });
+        try {
+            const form = new FormData();
+            form.append('image', files);
+            // THÊM MEAL TYPE VÀO FORM DATA
+            form.append('mealType', mealType);
 
-                const data = await res.json();
+            // [4] Call API
+            const res = await fetch('/Home/Analyze', {
+                method: 'POST',
+                body: form
+            });
+            const data = await res.json();
 
-                // Hide loading
-                loadingOverlay.classList.remove('show');
-                analyzeBtn.disabled = false;
+            // Hide loading
+            loadingOverlay.classList.remove('show');
+            analyzeBtn.disabled = false;
+            stopLoadingAnimation();
 
                 if (data.error) {
                     document.getElementById('result').innerHTML = `

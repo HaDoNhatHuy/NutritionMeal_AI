@@ -1,0 +1,135 @@
+﻿@model NutritionWebApp.ViewModels.AddVideoViewModel
+@{
+    ViewData["Title"] = "Thêm Bài Tập (Admin)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var groups = ViewBag.Groups as string[];
+}
+
+@section Styles {
+    <!-- Tái sử dụng CSS từ auth-wrapper và auth-card [5, 6] -->
+    <style>
+        .admin-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start; /* Thay đổi để tránh căn giữa quá sát */
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 60px 20px;
+        }
+
+        .admin-container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.6s ease;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2d3748;
+        }
+        /* Tái sử dụng styles cho form control và submit-btn từ [7, 8] */
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                outline: none;
+            }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4);
+            transition: all 0.3s ease;
+        }
+
+            .submit-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(72, 187, 120, 0.5);
+            }
+    </style>
+}
+
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="page-header">
+            <h1 style="font-weight: 700;">🎥 Thêm Video Bài Tập Mới</h1>
+            <p class="text-secondary">Chỉ dành cho quản trị viên. Hệ thống sẽ tự động lấy Tiêu đề và Thời lượng từ YouTube.</p>
+        </div>
+
+        <div class="admin-card">
+            <form asp-action="AddVideo" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger" style="border-radius: 15px;"></div>
+
+                <!-- 1. CHỌN NHÓM CƠ -->
+                <div class="form-group mb-4">
+                    <label asp-for="MuscleGroup" class="form-label">
+                        Nhóm Cơ
+                    </label>
+                    <select asp-for="MuscleGroup" class="form-select">
+                        <option value="">--- Chọn nhóm cơ ---</option>
+                        @foreach (var group in groups)
+                        {
+                            <option value="@group">@group</option>
+                        }
+                    </select>
+                    <span asp-validation-for="MuscleGroup" class="text-danger"></span>
+                </div>
+
+                <!-- 2. URL YOUTUBE -->
+                <div class="form-group mb-4">
+                    <label asp-for="YoutubeVideoUrl" class="form-label">
+                        URL Video YouTube (Link Embed hoặc Watch)
+                    </label>
+                    <input asp-for="YoutubeVideoUrl" class="form-control"
+                           placeholder="Ví dụ: https://www.youtube.com/embed/XXXXXX" />
+                    <span asp-validation-for="YoutubeVideoUrl" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    ➕ Thêm Video vào Kho
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

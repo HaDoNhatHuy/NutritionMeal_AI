@@ -7,5 +7,6 @@
         public float? Weight { get; set; }
         public bool? Gender { get; set; }
         public string? Goal { get; set; }
+        public string? ActivityLevel { get; set; }
     }
 }

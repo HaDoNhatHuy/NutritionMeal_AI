@@ -1,0 +1,506 @@
+﻿@model List<NutritionWebApp.Models.Entities.FoodHistory>
+@{
+    ViewData["Title"] = "Thống kê Dinh dưỡng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f8fafc 0%, #e8f5e9 100%);
+            min-height: 100vh;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 50px 0;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .report-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -10%;
+                width: 500px;
+                height: 500px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+            }
+
+            .report-header::after {
+                content: '';
+                position: absolute;
+                bottom: -30%;
+                left: -5%;
+                width: 400px;
+                height: 400px;
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 50%;
+            }
+
+            .report-header h1 {
+                color: white;
+                font-weight: 700;
+                font-size: 2.8rem;
+                text-shadow: 0 2px 20px rgba(0,0,0,0.15);
+                position: relative;
+                z-index: 1;
+                margin: 0;
+            }
+
+            .report-header .subtitle {
+                color: rgba(255, 255, 255, 0.95);
+                font-size: 1.1rem;
+                margin-top: 10px;
+                position: relative;
+                z-index: 1;
+            }
+
+        .card {
+            border-radius: 24px;
+            border: none;
+            background: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+            }
+
+        .card-title {
+            color: #1f2937;
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0fdf4;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .nutrition-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .nutrition-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, currentColor, transparent);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .nutrition-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            }
+
+                .nutrition-card:hover::before {
+                    opacity: 1;
+                }
+
+            .nutrition-card.protein {
+                border-color: #fb923c;
+                color: #fb923c;
+            }
+
+            .nutrition-card.carbs {
+                border-color: #10b981;
+                color: #10b981;
+            }
+
+            .nutrition-card.fat {
+                border-color: #8b5cf6;
+                color: #8b5cf6;
+            }
+
+        .nutrition-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .nutrition-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .goal-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 15px 0;
+        }
+
+        .history-scroll {
+            height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+            .history-scroll::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .history-scroll::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 10px;
+            }
+
+            .history-scroll::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+                .history-scroll::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                }
+
+        .history-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: none;
+            border-left: 4px solid #10b981;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+            .history-item:hover {
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border-left-color: #059669;
+                transform: translateX(5px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            }
+
+            .history-item strong {
+                color: #1f2937;
+                font-size: 1.05rem;
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .history-item small {
+                color: #64748b;
+                font-size: 0.85rem;
+            }
+
+        .calorie-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .chart-container {
+            position: relative;
+            padding: 20px;
+            background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+            border-radius: 16px;
+            margin-top: 10px;
+        }
+
+        .alert-custom {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: none;
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, #10b981 0%, transparent 100%);
+            margin: 30px 0;
+            border-radius: 2px;
+        }
+
+        @@media (max-width: 768px) {
+            .nutrition-grid
+
+        {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .report-header h1 {
+            font-size: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+        }
+
+        }
+    </style>
+}
+
+<div class="report-header">
+    <div class="container text-center">
+        <h1>📊 Báo cáo Dinh dưỡng</h1>
+        <p class="subtitle">Theo dõi lộ trình sức khỏe của bạn trong 30 ngày qua</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- BIỂU ĐỒ CALORIE -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm p-4">
+                <h4 class="card-title">🔥 Lượng Calo nạp vào vs Mục tiêu</h4>
+                <p class="text-muted mb-3">Mục tiêu TDEE: <strong>@ViewBag.TDEE kcal/ngày</strong></p>
+                <div class="chart-container">
+                    <canvas id="calorieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- BIỂU ĐỒ MACROS -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm p-4">
+                <h4 class="card-title">🥗 Phân bổ Macros Trung bình</h4>
+                <div class="chart-container">
+                    <canvas id="macroPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- MỤC TIÊU VÀ LỊCH SỬ -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm p-4">
+                <h4 class="card-title">🎯 Mục tiêu Macros Hàng ngày</h4>
+
+                @if (ViewBag.MacroGoals != null)
+                {
+                    var goals = (NutritionWebApp.Controllers.SettingsController.MacroGoals)ViewBag.MacroGoals;
+                    string goalName = ViewBag.UserGoal == "TangCan" ? "Tăng cân" :
+                    ViewBag.UserGoal == "GiamCan" ? "Giảm cân" :
+                    ViewBag.UserGoal == "AnChay" ? "Ăn chay" :
+                    ViewBag.UserGoal == "EatClean" ? "Eat Clean" : "Duy trì";
+
+                    <div class="text-center">
+                        <span class="goal-badge">
+                            @goalName • @goals.ProteinPct.ToString("F0")% P • @goals.CarbPct.ToString("F0")% C • @goals.FatPct.ToString("F0")% F
+                        </span>
+                    </div>
+
+                    <div class="nutrition-grid">
+                        <div class="nutrition-card protein">
+                            <div class="nutrition-label">Protein</div>
+                            <h5 class="nutrition-value">@goals.ProteinGrams.ToString("F0")g</h5>
+                        </div>
+                        <div class="nutrition-card carbs">
+                            <div class="nutrition-label">Carbs</div>
+                            <h5 class="nutrition-value">@goals.CarbGrams.ToString("F0")g</h5>
+                        </div>
+                        <div class="nutrition-card fat">
+                            <div class="nutrition-label">Fat</div>
+                            <h5 class="nutrition-value">@goals.FatGrams.ToString("F0")g</h5>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert-custom">
+                        ⚠️ Vui lòng cập nhật Tuổi, Chiều cao, Cân nặng và Mục tiêu trong trang <strong>Cài đặt</strong> để xem Mục tiêu Macros.
+                    </div>
+                }
+
+                <div class="section-divider"></div>
+
+                <h4 class="card-title">📝 Lịch sử 30 ngày</h4>
+                <div class="history-scroll">
+                    @foreach (var item in Model)
+                    {
+                        <div class="history-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@item.FoodName</strong>
+                                    <small class="d-block">@item.AnalyzedAt.ToString("dd/MM/yyyy - HH:mm")</small>
+                                </div>
+                                <span class="calorie-badge">@item.Calories.ToString("F0") kcal</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const dataJson = '@Html.Raw(ViewBag.AggregatedDataJson)';
+        const aggregatedData = JSON.parse(dataJson);
+        const tdeeTarget = parseFloat('@ViewBag.TDEE');
+
+        // --- Biểu đồ Calorie ---
+        const dates = aggregatedData.map(d => d.Date);
+        const calories = aggregatedData.map(d => d.TotalCalories);
+        const tdeeLine = dates.map(() => tdeeTarget);
+
+        const calorieCtx = document.getElementById('calorieChart').getContext('2d');
+        new Chart(calorieCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Calo nạp vào',
+                    data: calories,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Mục tiêu TDEE',
+                    data: tdeeLine,
+                    borderColor: '#f59e0b',
+                    borderDash: [10, 5],
+                    tension: 0,
+                    pointRadius: 0,
+                    fill: false,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: { size: 12 }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- Biểu đồ Macros ---
+        const totalProtein = aggregatedData.reduce((sum, d) => sum + d.TotalProtein, 0);
+        const totalCarbs = aggregatedData.reduce((sum, d) => sum + d.TotalCarbs, 0);
+        const totalFat = aggregatedData.reduce((sum, d) => sum + d.TotalFat, 0);
+
+        const macroCtx = document.getElementById('macroPieChart').getContext('2d');
+        new Chart(macroCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Protein', 'Carbs', 'Fat'],
+                datasets: [{
+                    data: [totalProtein, totalCarbs, totalFat],
+                    backgroundColor: ['#fb923c', '#10b981', '#8b5cf6'],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value.toFixed(1)}g (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    </script>
+}

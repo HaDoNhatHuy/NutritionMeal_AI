@@ -11,6 +11,7 @@ namespace NutritionWebApp.Models.DataAccess
         public DbSet<User> Users { get; set; }
         public DbSet<FoodHistory> FoodHistory { get; set; }
         public DbSet<ExerciseVideo> ExerciseVideos { get; set; }
+        public DbSet<ChatHistory> ChatHistory { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -23,13 +23,39 @@ namespace NutritionWebApp.Controllers
         {
             if (image == null || image.Length == 0)
                 return Json(new { error = "Vui lòng chọn ảnh" });
+            // Lấy MealType từ FormData
+            var mealType = Request.Form["mealType"].ToString(); // <-- Lấy giá trị từ form data
 
             try
             {
+                // Khai báo TDEE và tính toán
+                var userId = HttpContext.Session.GetInt32("UserId");
+                float tdeeValue = 0;
+                string userGoal = "Chưa thiết lập"; // Khởi tạo Goal mặc định
+                if (userId.HasValue)
+                {
+                    var user = await _context.Users.FindAsync(userId.Value);
+                    if (user != null && user.Age.HasValue && user.Height.HasValue && user.Weight.HasValue)
+                    {
+                        // Cần khởi tạo SettingsController để tính toán BMR/TDEE
+                        var settingsController = new SettingsController(_context);
+                        var bmr = settingsController.CalculateBMR(user);
+                        // Dùng hàm TDEE động
+                        tdeeValue = (float)settingsController.CalculateTDEE(bmr, user.ActivityLevel);
+
+                        // Lấy Mục tiêu người dùng [5]
+                        userGoal = user.Goal ?? "Chưa thiết lập";
+                    }
+                }
+
                 using var client = new HttpClient();
                 using var content = new MultipartFormDataContent();
                 using var stream = image.OpenReadStream();
                 content.Add(new StreamContent(stream), "image", image.FileName);
+
+                // THÊM TDEE VÀ GOAL VÀO CONTENT GỬI ĐI
+                content.Add(new StringContent(tdeeValue.ToString()), "tdee");                
+                content.Add(new StringContent(userGoal), "goal");
 
                 var response = await client.PostAsync("http://localhost:5000/analyze", content);
                 var jsonString = await response.Content.ReadAsStringAsync();
@@ -37,10 +63,10 @@ namespace NutritionWebApp.Controllers
                 if (!response.IsSuccessStatusCode)
                     return Json(new { error = "AI lỗi: " + jsonString });
 
-                // Lưu vào DB nếu đã login
-                var userId = HttpContext.Session.GetInt32("UserId");
+                // Lưu vào DB nếu đã login 
                 if (userId.HasValue)
                 {
+                    // ... (Phần lưu FoodHistory giữ nguyên logic cũ) 
                     dynamic result = System.Text.Json.JsonSerializer.Deserialize<object>(jsonString);
                     var food = new FoodHistory
                     {
@@ -51,10 +77,11 @@ namespace NutritionWebApp.Controllers
                         Carbs = (float)result.GetProperty("carbs").GetDouble(),
                         Fat = (float)result.GetProperty("fat").GetDouble(),
                         ImageUrl = $"/uploads/{Guid.NewGuid()}_{image.FileName}",
-                        AnalyzedAt = DateTime.Now
+                        AnalyzedAt = DateTime.Now,
+                        MealType = mealType
                     };
 
-                    // Lưu ảnh
+                    // ... (Phần lưu ảnh và database giữ nguyên) 
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", food.ImageUrl.Split('/').Last());
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
                     using var fileStream = new FileStream(path, FileMode.Create);
@@ -72,11 +99,6 @@ namespace NutritionWebApp.Controllers
             }
         }
         public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
         {
             return View();
         }

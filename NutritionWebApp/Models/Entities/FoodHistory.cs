@@ -18,6 +18,7 @@ namespace NutritionWebApp.Models.Entities
         public float Carbs { get; set; }
         public float Fat { get; set; }
         public string? ImageUrl { get; set; }
+        public string? MealType { get; set; }
         public DateTime AnalyzedAt { get; set; } = DateTime.Now;
     }
 }

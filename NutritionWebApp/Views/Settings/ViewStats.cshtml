@@ -1,0 +1,473 @@
+﻿@model NutritionWebApp.Models.Entities.User
+@{
+    ViewData["Title"] = "Chỉ số sức khỏe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .profile-wrapper {
+            background: linear-gradient(to bottom, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+            min-height: 100vh;
+            padding: 50px 0 80px 0;
+        }
+
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .profile-title {
+            color: #1e3a8a;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.15);
+        }
+
+        .profile-subtitle {
+            color: #1e40af;
+            font-size: 1.1rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .success-message-view {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideDown 0.5s ease;
+        }
+
+        @@keyframes slideDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .success-icon {
+            font-size: 2.2rem;
+            flex-shrink: 0;
+        }
+
+        .success-message-view p {
+            color: #1e3a8a;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin: 0;
+        }
+
+        .stats-summary-card {
+            background: white;
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+            .stats-summary-card:hover {
+                box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #eff6ff;
+        }
+
+        .card-header-icon {
+            font-size: 2rem;
+        }
+
+        .card-header-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 25px;
+            border-radius: 16px;
+            border: 2px solid #e0e7ff;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .info-item::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+                transform: scaleY(0);
+                transition: transform 0.3s ease;
+            }
+
+            .info-item:hover {
+                border-color: #3b82f6;
+                background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+            }
+
+                .info-item:hover::before {
+                    transform: scaleY(1);
+                }
+
+        .info-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .info-icon {
+            font-size: 1.2rem;
+            margin-right: 6px;
+            opacity: 0.7;
+        }
+
+        .update-btn-container {
+            text-align: center;
+            margin-top: 35px;
+        }
+
+        .update-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+            .update-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                color: white;
+            }
+
+            .update-btn:active {
+                transform: translateY(-1px);
+            }
+
+        .health-stats-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .health-stats-card::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 400px;
+                height: 400px;
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 50%;
+            }
+
+            .health-stats-card::after {
+                content: '';
+                position: absolute;
+                bottom: -40%;
+                left: -15%;
+                width: 350px;
+                height: 350px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 50%;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        .stats-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 18px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .stat-item:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-unit {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .stats-description {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+        }
+
+            .stats-description p {
+                margin: 0 0 10px 0;
+                opacity: 0.95;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+                .stats-description p:last-child {
+                    margin-bottom: 0;
+                }
+
+        .goal-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e3a8a;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        @@media (max-width: 768px) {
+            .profile-title
+
+        {
+            font-size: 2.2rem;
+        }
+
+        .stats-summary-card {
+            padding: 30px 25px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .update-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        }
+    </style>
+}
+
+<div class="profile-wrapper">
+    <div class="container profile-container">
+        <div class="profile-header">
+            <h1 class="profile-title">👤 Hồ sơ Dinh dưỡng</h1>
+            <p class="profile-subtitle">Thông tin cá nhân và chỉ số sức khỏe của bạn</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+        {
+            <div class="success-message-view">
+                <span class="success-icon">✅</span>
+                <p>@ViewBag.SuccessMessage</p>
+            </div>
+        }
+
+        <div class="stats-summary-card">
+            <div class="card-header">
+                <span class="card-header-icon">📋</span>
+                <h4 class="card-header-title">Thông tin cơ thể</h4>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">👤</span>Họ và Tên</div>
+                    <div class="info-value">@Model.FullName</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">🎂</span>Tuổi</div>
+                    <div class="info-value">@Model.Age tuổi</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">📏</span>Chiều cao</div>
+                    <div class="info-value">@Model.Height m</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">⚖️</span>Cân nặng</div>
+                    <div class="info-value">@Model.Weight kg</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">🎯</span>Mục tiêu</div>
+                    <div class="info-value">
+                        @{
+                            string goalText = Model.Goal == "TangCan" ? "Tăng cân" :
+                            Model.Goal == "GiamCan" ? "Giảm cân" :
+                            Model.Goal == "AnChay" ? "Ăn chay" :
+                            Model.Goal == "EatClean" ? "Eat Clean" : "Chưa đặt";
+                            string goalIcon = Model.Goal == "TangCan" ? "💪" :
+                            Model.Goal == "GiamCan" ? "🔥" :
+                            Model.Goal == "AnChay" ? "🥗" :
+                            Model.Goal == "EatClean" ? "🥑" : "❓";
+                        }
+                        <span class="goal-badge">@goalIcon @goalText</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">🏋️</span>Hoạt động</div>
+                    <div class="info-value">
+                        @{
+                            string activityText = Model.ActivityLevel == "Sedentary" ? "Ít vận động" :
+                            Model.ActivityLevel == "Light" ? "Nhẹ (1-3 buổi/tuần)" :
+                            Model.ActivityLevel == "Moderate" ? "Vừa phải (3-5 buổi/tuần)" :
+                            Model.ActivityLevel == "Heavy" ? "Nặng (6-7 buổi/tuần)" :
+                            Model.ActivityLevel == "Extreme" ? "Vận động viên" : Model.ActivityLevel;
+                        }
+                        @activityText
+                    </div>
+                </div>
+            </div>
+
+            <div class="update-btn-container">
+                <a asp-action="Index" class="update-btn">
+                    ✏️ Cập nhật Thông tin
+                </a>
+            </div>
+        </div>
+
+        @if (ViewBag.BMR != null)
+        {
+            <div class="health-stats-card">
+                <h4 class="stats-title">✨ Chỉ số sức khỏe</h4>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">BMR</div>
+                        <span class="stat-value">@(((double)ViewBag.BMR).ToString("F0"))</span>
+                        <div class="stat-unit">kcal/ngày</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">TDEE</div>
+                        <span class="stat-value">@(((double)ViewBag.TDEE).ToString("F0"))</span>
+                        <div class="stat-unit">kcal/ngày</div>
+                    </div>
+                </div>
+                <div class="stats-description">
+                    <p><strong>💡 BMR (Basal Metabolic Rate):</strong> Lượng năng lượng cơ bản mà cơ thể bạn cần để duy trì các chức năng sống khi nghỉ ngơi hoàn toàn.</p>
+                    <p><strong>🔥 TDEE (Total Daily Energy Expenditure):</strong> Tổng lượng calo bạn đốt cháy mỗi ngày, bao gồm cả hoạt động thể chất và vận động hàng ngày.</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

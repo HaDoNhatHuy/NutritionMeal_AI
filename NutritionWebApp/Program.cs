@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NutritionWebApp.Models.DataAccess;
+using NutritionWebApp.Services;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+// Đăng ký Service API YouTube
+builder.Services.AddHttpClient<IYoutubeService, YoutubeDataService>();
+// Sử dụng AddHttpClient để tự động quản lý HttpClient instance
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -35,6 +39,11 @@ app.UseRouting();
 app.UseSession();  // Dùng Session
 
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "root",
+    pattern: "/",
+    defaults: new { controller = "Home", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",

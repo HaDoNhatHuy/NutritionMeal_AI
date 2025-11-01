@@ -3,51 +3,83 @@
     ViewData["Title"] = "Cài đặt cá nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@section Styles{
+@section Styles {
     <style>
         .settings-wrapper {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(to bottom, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
             min-height: 100vh;
-            padding: 60px 0;
+            padding: 50px 0 80px 0;
         }
 
         .settings-header {
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
         }
 
         .settings-title {
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
+            color: #065f46;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.15);
         }
 
         .settings-subtitle {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.1rem;
+            color: #047857;
+            font-size: 1.15rem;
+            font-weight: 500;
+            opacity: 0.9;
         }
 
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 2px solid #10b981;
+            color: #10b981;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+
+            .back-btn:hover {
+                background: #10b981;
+                color: white;
+                transform: translateX(-5px);
+                box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+            }
+
         .settings-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
         .settings-card {
             background: white;
-            border-radius: 25px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            transition: all 0.3s ease;
         }
 
+            .settings-card:hover {
+                box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            }
+
         .success-message {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 2px solid #28a745;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 35px;
             display: flex;
             align-items: center;
             gap: 15px;
@@ -55,61 +87,75 @@
         }
 
         @@keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .success-icon {
-            font-size: 2rem;
+            font-size: 2.2rem;
+            flex-shrink: 0;
         }
 
         .success-text {
-            color: #155724;
+            color: #065f46;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             margin: 0;
         }
 
         .form-section {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 35px;
+            border-bottom: 2px solid #f0fdf4;
         }
 
+            .form-section:last-of-type {
+                border-bottom: none;
+                margin-bottom: 20px;
+            }
+
         .section-title {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 20px;
+            color: #064e3b;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .form-label {
             font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 8px;
+            color: #374151;
+            margin-bottom: 10px;
             font-size: 0.95rem;
+            display: block;
         }
 
         .form-control, .form-select {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 16px;
+            border: 2px solid #d1fae5;
+            border-radius: 14px;
+            padding: 14px 18px;
             font-size: 1rem;
             transition: all 0.3s ease;
+            background-color: #f9fafb;
         }
 
             .form-control:focus, .form-select:focus {
-                border-color: #667eea;
-                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                border-color: #10b981;
+                box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
                 outline: none;
+                background-color: white;
             }
 
         .input-group-custom {
@@ -118,29 +164,30 @@
 
         .input-icon {
             position: absolute;
-            right: 15px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             pointer-events: none;
             z-index: 10;
         }
 
         .form-control.with-icon {
-            padding-right: 45px;
+            padding-right: 50px;
         }
 
         .text-danger {
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 6px;
             display: block;
+            font-weight: 500;
         }
 
         .goal-options {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 10px;
+            gap: 18px;
+            margin-top: 15px;
         }
 
         .goal-option {
@@ -148,137 +195,208 @@
         }
 
         .goal-label {
-            display: block;
-            padding: 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 15px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 20px;
+            border: 3px solid #d1fae5;
+            border-radius: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f7fafc;
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            min-height: 140px;
         }
 
             .goal-label:hover {
-                border-color: #667eea;
-                background: #eef2ff;
-                transform: translateY(-2px);
+                border-color: #10b981;
+                background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
             }
 
         .goal-option:checked + .goal-label {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            transform: translateY(-5px);
         }
 
         .goal-icon {
-            font-size: 2rem;
+            font-size: 3rem;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .goal-text {
-            font-weight: 600;
-            font-size: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
-            border-radius: 15px;
-            padding: 16px;
-            font-size: 1.2rem;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 1.15rem;
             font-weight: 700;
             color: white;
             width: 100%;
-            margin-top: 20px;
-            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+            margin-top: 25px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
             .submit-btn:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 15px 35px rgba(72, 187, 120, 0.4);
+                box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            }
+
+            .submit-btn:active {
+                transform: translateY(-1px);
             }
 
         .health-stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
-            border-radius: 20px;
-            padding: 35px;
+            border-radius: 24px;
+            padding: 40px;
             color: white;
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
             animation: fadeIn 0.5s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
+            .health-stats-card::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 400px;
+                height: 400px;
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 50%;
             }
 
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         }
 
         .stats-title {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 18px;
+            padding: 25px;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
+            .stat-item:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            }
+
         .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 8px;
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             display: block;
+            line-height: 1;
         }
 
         .stat-unit {
-            font-size: 0.85rem;
-            opacity: 0.8;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .stats-note {
+            margin-top: 25px;
+            opacity: 0.95;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
         }
 
         @@media (max-width: 768px) {
-            .settings-title {
-                font-size: 2rem;
-            }
+            .settings-title
 
-            .settings-card {
-                padding: 25px;
-            }
+        {
+            font-size: 2.2rem;
+        }
 
-            .goal-options {
-                grid-template-columns: 1fr;
-            }
+        .settings-card {
+            padding: 30px 25px;
+        }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        .goal-options {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .goal-label {
+            min-height: 120px;
+            padding: 22px 15px;
+        }
+
+        .goal-icon {
+            font-size: 2.5rem;
+        }
+
         }
     </style>
 }
@@ -286,8 +404,11 @@
 <div class="settings-wrapper">
     <div class="container settings-container">
         <div class="settings-header">
-            <h1 class="settings-title">⚙️ Cài đặt cá nhân</h1>
-            <p class="settings-subtitle">Cập nhật thông tin để nhận gợi ý dinh dưỡng phù hợp</p>
+            <h1 class="settings-title">⚙️ Cài đặt Cá nhân</h1>
+            <p class="settings-subtitle">Cập nhật thông tin và mục tiêu sức khỏe của bạn</p>
+            <a asp-action="ViewStats" class="back-btn">
+                ← Quay lại Hồ sơ
+            </a>
         </div>
 
         <div class="settings-card">
@@ -301,12 +422,12 @@
 
             <form asp-action="Index" method="post">
                 <div class="form-section">
-                    <h3 class="section-title">📋 Thông tin cơ bản</h3>
-                    <div class="row g-3">
+                    <h3 class="section-title">👤 Thông tin cơ bản</h3>
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <label class="form-label">Tuổi</label>
+                            <label class="form-label">Tuổi của bạn</label>
                             <div class="input-group-custom">
-                                <input asp-for="Age" class="form-control with-icon" type="number" placeholder="Nhập tuổi của bạn" />
+                                <input asp-for="Age" class="form-control with-icon" type="number" placeholder="VD: 25" />
                                 <span class="input-icon">🎂</span>
                             </div>
                             <span asp-validation-for="Age" class="text-danger"></span>
@@ -324,22 +445,40 @@
 
                 <div class="form-section">
                     <h3 class="section-title">📏 Chỉ số cơ thể</h3>
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <label class="form-label">Chiều cao</label>
+                            <label class="form-label">Chiều cao (cm)</label>
                             <div class="input-group-custom">
-                                <input asp-for="Height" class="form-control with-icon" type="number" step="0.1" placeholder="VD: 170" />
+                                <input asp-for="Height" class="form-control with-icon"
+                                       type="number" step="0.1" placeholder="VD: 170" />
                                 <span class="input-icon">📏</span>
                             </div>
                             <span asp-validation-for="Height" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Cân nặng</label>
+                            <label class="form-label">Cân nặng (kg)</label>
                             <div class="input-group-custom">
                                 <input asp-for="Weight" class="form-control with-icon" type="number" step="0.1" placeholder="VD: 65" />
                                 <span class="input-icon">⚖️</span>
                             </div>
                             <span asp-validation-for="Weight" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">🏋️ Mức độ hoạt động</h3>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label">Tần suất vận động hàng tuần</label>
+                            <select asp-for="ActivityLevel" class="form-select">
+                                <option value="">Chọn mức độ hoạt động</option>
+                                <option value="Sedentary">🪑 Ít vận động (Ngồi nhiều)</option>
+                                <option value="Light">🚶 Hoạt động nhẹ (1-3 buổi/tuần)</option>
+                                <option value="Moderate">🏃 Hoạt động vừa phải (3-5 buổi/tuần)</option>
+                                <option value="Heavy">💪 Hoạt động nặng (6-7 buổi/tuần)</option>
+                                <option value="Extreme">🏆 Vận động viên (2 lần/ngày)</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -400,8 +539,8 @@
                         <div class="stat-unit">kcal/ngày</div>
                     </div>
                 </div>
-                <p style="margin-top: 20px; opacity: 0.9; font-size: 0.9rem; text-align: center; margin-bottom: 0;">
-                    💡 TDEE dựa trên mức hoạt động trung bình
+                <p class="stats-note">
+                    💡 <strong>BMR</strong>: Năng lượng cơ bản cơ thể cần • <strong>TDEE</strong>: Tổng năng lượng tiêu hao hàng ngày
                 </p>
             </div>
         }
