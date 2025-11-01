@@ -6,6 +6,7 @@ using NutritionWebApp.Services;
 using NutritionWebApp.ViewModels;
 using System;
 using System.Text.Json;
+using System.Text.RegularExpressions; 
 
 namespace NutritionWebApp.Controllers
 {
@@ -69,46 +70,50 @@ namespace NutritionWebApp.Controllers
             return Json(videos);
         }
         /// <summary>
-        /// Trích xuất giá trị SRC từ chuỗi IFRAME hoặc trả về chuỗi nếu nó đã là URL.
-        /// </summary>
-        /// <summary>
         /// Trích xuất giá trị SRC (link embed) từ chuỗi IFRAME hoặc URL thô.
         /// </summary>
         private string? ExtractEmbedSrc(string rawInput)
         {
             if (string.IsNullOrWhiteSpace(rawInput)) return null;
 
-            // 1. Xử lý trường hợp người dùng nhập HTML IFRAME đầy đủ
+            // 1. Xử lý trường hợp người dùng nhập HTML IFRAME đầy đủ             
             if (rawInput.Contains("<iframe"))
             {
                 int srcStart = rawInput.IndexOf("src=\"");
                 if (srcStart == -1) return null;
-
-                srcStart += 5; // Bỏ qua src="
-
+                srcStart += 5;
                 int srcEnd = rawInput.IndexOf("\"", srcStart);
                 if (srcEnd == -1) return null;
-
                 string srcUrl = rawInput.Substring(srcStart, srcEnd - srcStart);
 
-                // Loại bỏ các tham số query string không cần thiết (như ?si=...)
-                int qIndex = srcUrl.IndexOf('?');
-                if (qIndex != -1)
-                {
-                    srcUrl = srcUrl.Substring(0, qIndex); // FIX: Lấy phần tử trước dấu '?'
-                }
+                // Code gốc đang cắt ?si= (theo [1]), nhưng nếu bạn muốn giữ nó:
+                // Cần kiểm tra lại: Nếu bạn muốn giữ ?si= (để theo dõi nguồn chia sẻ), 
+                // BẠN KHÔNG ĐƯỢC CẮT NÓ Ở ĐÂY. 
+                // Nếu bạn đã xóa logic cắt ?si= ở các bước trước, giữ nguyên.
+                // Logic gốc:
+                // int qIndex = srcUrl.IndexOf('?'); 
+                // if (qIndex != -1) { srcUrl = srcUrl.Substring(0, qIndex); } 
 
-                // BẮT BUỘC: Đảm bảo link là link embed để tránh lỗi "refused to connect"
                 if (srcUrl.Contains("youtube.com/embed/"))
                 {
-                    return srcUrl;
+                    return srcUrl; // Trả về nguyên URL nhúng từ IFRAME
                 }
-                return null; // Trích xuất từ IFRAME nhưng không phải link embed hợp lệ
+                return null;
             }
 
-            // 2. Nếu người dùng chỉ nhập URL thô (không phải IFRAME), trả về luôn
-            // Logic ExtractVideoId sẽ tự chuyển URL thô thành Video ID
-            return rawInput;
+            // 2. Nếu người dùng chỉ nhập URL thô (youtu.be/ID, watch?v=ID)
+
+            // --> FIX LỖI: Lấy ID và chuyển thành URL nhúng chuẩn
+            // Gọi hàm ExtractVideoId (đã sửa ở Bước 1)
+            var videoId = _youtubeService.ExtractVideoId(rawInput);
+
+            if (videoId == null)
+            {
+                return null; // Không trích xuất được ID
+            }
+
+            // TẠO URL NHÚNG CHUẨN và trả về để lưu vào DB [4]
+            return $"https://www.youtube.com/embed/{videoId}";
         }
         [HttpGet]
         public async Task<IActionResult> AddVideo()

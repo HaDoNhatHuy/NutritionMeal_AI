@@ -11,7 +11,6 @@ namespace NutritionWebApp.Models.Entities
         [ForeignKey("UserId")]
         public int UserId { get; set; }
         public virtual User User { get; set; } = null!;
-
         public string FoodName { get; set; } = string.Empty;
         public float Calories { get; set; }
         public float Protein { get; set; }

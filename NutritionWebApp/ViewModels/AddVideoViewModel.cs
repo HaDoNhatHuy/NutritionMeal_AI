@@ -5,7 +5,7 @@ namespace NutritionWebApp.ViewModels
     public class AddVideoViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập URL YouTube.")]
-        [Url(ErrorMessage = "URL không hợp lệ.")]
+        //[Url(ErrorMessage = "URL không hợp lệ.")]
         public string YoutubeVideoUrl { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng chọn nhóm cơ.")]

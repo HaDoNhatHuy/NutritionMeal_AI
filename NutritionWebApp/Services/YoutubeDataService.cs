@@ -15,49 +15,86 @@ namespace NutritionWebApp.Services
             _httpClient = httpClient;
         }
 
-        private string? ExtractVideoId(string youtubeUrl)
+        public string? ExtractVideoId(string youtubeUrl)
         {
             if (string.IsNullOrEmpty(youtubeUrl)) return null;
 
-            // Đảm bảo URL hợp lệ để Uri() có thể phân tích
+            // Đảm bảo URL hợp lệ
             if (!youtubeUrl.StartsWith("http")) youtubeUrl = "https://" + youtubeUrl;
 
             try
             {
                 var uri = new Uri(youtubeUrl);
+                string? videoIdWithQuery = null;
 
-                // 1. Xử lý link dạng watch?v=ID (Query string: ?v=...)
+                // 1. Xử lý link dạng watch?v=ID
                 var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
                 if (query["v"] != null) return query["v"];
 
                 // 2. Xử lý link dạng /embed/ID (Segments)
-                // Ví dụ: https://www.youtube.com/embed/VIDEO_ID
-                // Segments sẽ là: {"/", "embed/", "VIDEO_ID"}
-
-                if (uri.Segments.Length >= 3 && uri.Segments[3].ToLower() == "embed/")
+                // Segment 0 là /; Segment 1 là embed/; Segment 2 là ID
+                if (uri.Segments.Length >= 3 && uri.Segments[1].ToLower() == "embed/")
                 {
-                    // Lấy segment thứ 2 (index 2) và loại bỏ dấu '/' cuối cùng (nếu có)
-                    string videoId = uri.Segments[2].TrimEnd('/');
-                    if (!string.IsNullOrEmpty(videoId))
-                    {
-                        return videoId;
-                    }
+                    // FIX LỖI CÚ PHÁP: Lấy phần tử chuỗi ở index 2, sau đó mới TrimEnd
+                    videoIdWithQuery = uri.Segments[2].TrimEnd('/');
                 }
 
                 // 3. Xử lý link rút gọn youtu.be/ID (ID là segment cuối cùng)
-                if (uri.Host.Contains("youtu.be") && uri.Segments.Length >= 2)
+                else if (uri.Host.Contains("youtu.be") && uri.Segments.Length >= 2)
                 {
-                    // Lấy segment cuối cùng và loại bỏ dấu '/' cuối cùng
-                    return uri.Segments.Last().TrimEnd('/');
+                    // FIX LỖI CÚ PHÁP: Lấy phần tử chuỗi cuối cùng, sau đó mới TrimEnd
+                    videoIdWithQuery = uri.Segments.Last().TrimEnd('/');
+                }
+
+                // --- CHUẨN HÓA ID: LOẠI BỎ CÁC THAM SỐ TRUY VẤN (?si=...) ---
+                if (videoIdWithQuery != null)
+                {
+                    int qIndex = videoIdWithQuery.IndexOf('?');
+                    if (qIndex != -1)
+                    {
+                        // Chỉ lấy phần trước dấu '?'
+                        return videoIdWithQuery.Substring(0, qIndex);
+                    }
+                    return videoIdWithQuery; // Trả về ID nếu không có query string
                 }
             }
             catch (Exception)
             {
-                // Xử lý nếu URL không thể phân tích
                 return null;
             }
 
             return null;
+        }
+        private string FormatDuration(string isoDuration)
+        {
+            // Sử dụng XmlConvert để chuyển đổi chuỗi ISO 8601 thành TimeSpan
+            TimeSpan duration;
+            try
+            {
+                // PT10M30S -> TimeSpan
+                duration = System.Xml.XmlConvert.ToTimeSpan(isoDuration);
+            }
+            catch
+            {
+                return "Không xác định"; // Trả về mặc định nếu chuỗi không hợp lệ
+            }
+
+            string formatted = "";
+            if (duration.Hours > 0)
+            {
+                formatted += $"{duration.Hours} giờ ";
+            }
+            if (duration.Minutes > 0)
+            {
+                formatted += $"{duration.Minutes} phút ";
+            }
+            // Chỉ hiển thị giây nếu không có giờ/phút, hoặc nếu nó là video siêu ngắn
+            if (duration.Seconds > 0 || formatted == "")
+            {
+                formatted += $"{duration.Seconds} giây";
+            }
+
+            return formatted.Trim();
         }
 
         public async Task<(string? Title, string? Duration, string? Error)> GetVideoMetadataAsync(string youtubeUrl)
@@ -103,11 +140,13 @@ namespace NutritionWebApp.Services
 
                 string title = snippet.GetProperty("title").GetString()!;
                 string durationIso = contentDetails.GetProperty("duration").GetString()!;
+                // GỌI HÀM CHUYỂN ĐỔI MỚI
+                string formattedDuration = FormatDuration(durationIso);
 
                 // Ở đây bạn có thể thêm logic chuyển đổi ISO 8601 Duration (VD: PT10M30S)
                 // thành định dạng dễ đọc hơn (VD: 10 phút 30 giây) nếu cần.
                 // Tạm thời trả về chuỗi ISO
-                return (title, durationIso, null);
+                return (title, formattedDuration, null);
 
             }
             catch (Exception ex)
