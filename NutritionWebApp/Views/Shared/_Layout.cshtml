@@ -248,7 +248,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
-        // --- LOGIC CHATBOT NỔI (CẢI TIẾN) ---
+        // --- BIẾN TOÀN CỤC ---
         const chatIcon = document.getElementById('chatIcon');
         const chatPopup = document.getElementById('chatPopup');
         const closeChatBtn = document.getElementById('closeChatBtn');
@@ -264,7 +264,14 @@
 
         let isWaitingForAI = false;
 
-        // Hàm chuyển đổi giữa Chat và Recipe
+        // --- HÀM CUỘN XUỐNG ĐÁY (TỐI ƯU) ---
+        function scrollToBottom() {
+            requestAnimationFrame(() => {
+                chatBody.scrollTop = chatBody.scrollHeight;
+            });
+        }
+
+        // --- HÀM CHUYỂN ĐỔI CHẾ ĐỘ CHAT / RECIPE ---
         function switchChatMode(mode) {
             if (mode === 'chat') {
                 chatModeContent.style.display = 'flex';
@@ -281,34 +288,31 @@
                 showChatBtn.classList.remove('btn-warning');
                 showChatBtn.classList.add('btn-outline-warning');
             }
+            scrollToBottom();
         }
 
-        // Gắn sự kiện chuyển đổi
-        showChatBtn.addEventListener('click', () => switchChatMode('chat'));
-        showRecipeBtn.addEventListener('click', () => switchChatMode('recipe'));
-
-        // 1. Logic Mở/Đóng Popup
-        chatIcon.addEventListener('click', function() {
+        // --- MỞ / ĐÓNG CHAT ---
+        chatIcon.addEventListener('click', function () {
             chatPopup.classList.toggle('open');
             if (chatPopup.classList.contains('open')) {
-                switchChatMode('chat'); // Luôn mở lại chế độ Chat
+                switchChatMode('chat');
                 loadChatHistory();
-                chatInput.focus();
+                setTimeout(() => chatInput.focus(), 300); // Focus input
             }
         });
 
-        closeChatBtn.addEventListener('click', function() {
+        closeChatBtn.addEventListener('click', function () {
             chatPopup.classList.remove('open');
         });
 
-        // Đóng chat khi click bên ngoài (tùy chọn)
-        document.addEventListener('click', function(e) {
+        // Đóng khi click ngoài
+        document.addEventListener('click', function (e) {
             if (!chatPopup.contains(e.target) && !chatIcon.contains(e.target) && chatPopup.classList.contains('open')) {
                 chatPopup.classList.remove('open');
             }
         });
 
-        // 2. Hàm Thêm tin nhắn (CẢI TIẾN)
+        // --- THÊM TIN NHẮN (CẢI TIẾN) ---
         function appendMessage(sender, message, isTyping = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `chat-message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
@@ -321,79 +325,51 @@
                     <span class="typing-dot"></span>
                 `;
             } else {
-                // Format tin nhắn với markdown-like syntax
                 let formattedMessage = message
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n/g, '<br>');
-
                 msgDiv.innerHTML = formattedMessage;
             }
 
             chatBody.appendChild(msgDiv);
-
-            // Smooth scroll đến tin nhắn mới
-            setTimeout(() => {
-                msgDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }, 100);
-
+            scrollToBottom(); // Cuộn ngay
             return msgDiv;
         }
 
-        // 3. Hiệu ứng chữ đánh máy (CẢI TIẾN)
+        // --- HIỆU ỨNG GÕ CHỮ (CUỘN THEO TỪNG KÝ TỰ) ---
         function typeResponse(element, text) {
             let index = 0;
             element.innerHTML = '';
-            element.classList.remove('typing-indicator');
 
             const interval = setInterval(() => {
                 if (index < text.length) {
-                    // Xử lý markdown khi gõ
                     const char = text.charAt(index);
-                    element.innerHTML += char;
-
-                    // Format lại toàn bộ khi gặp dấu **
-                    if (char === '*' && text.charAt(index + 1) === '*') {
-                        const currentHtml = element.innerHTML;
-                        element.innerHTML = currentHtml.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    }
-
+                    element.innerHTML += char === '\n' ? '<br>' : char;
+                    scrollToBottom(); // Cuộn mỗi ký tự
                     index++;
-                    chatBody.scrollTop = chatBody.scrollHeight;
                 } else {
-                    // Hoàn thiện format khi kết thúc
                     element.innerHTML = element.innerHTML
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                         .replace(/\n/g, '<br>');
-
                     clearInterval(interval);
                     isWaitingForAI = false;
                     sendBtn.disabled = false;
                     chatInput.disabled = false;
+                    scrollToBottom(); // Cuối cùng
                 }
-            }, 20); // Tốc độ đánh máy
+            }, 20);
         }
 
-        // 4. Tải lịch sử chat
-
+        // --- TẢI LỊCH SỬ CHAT ---
         function loadChatHistory() {
-            // Chỉ hiển thị lời chào nếu cửa sổ chat đang rỗng (bắt đầu phiên live mới)
-            try
-            {
-                if (chatBody.children.length === 0) {
-                    // Tin nhắn chào mừng
-                    appendMessage('ai', 'Chào bạn! 👋 Tôi là **NutritionAI**. Hãy cho tôi biết bạn muốn hỏi gì về chế độ ăn uống hoặc mục tiêu của mình nhé. 🥗', false);
-                }
+            if (chatBody.children.length === 0) {
+                appendMessage('ai', 'Chào bạn! 👋 Tôi là **NutritionAI**. Hãy cho tôi biết bạn muốn hỏi gì về chế độ ăn uống hoặc mục tiêu của mình nhé. 🥗', false);
             }
-            catch (error) {
-                console.error("Lỗi tải lịch sử chat:", error);
-                appendMessage('ai', '⚠️ Không thể tải lịch sử trò chuyện. Vui lòng kiểm tra kết nối mạng và đảm bảo bạn đã đăng nhập.', false);
-            }
-            
-        }        
+        }
 
-        // 5. Logic Gửi tin nhắn (CẢI TIẾN)
+        // --- GỬI TIN NHẮN ---
         sendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', function(e) {
+        chatInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
@@ -404,16 +380,12 @@
             const question = chatInput.value.trim();
             if (question === "" || isWaitingForAI) return;
 
-            // Ẩn bàn phím di động
-            chatInput.blur();
-
             appendMessage('user', question);
             chatInput.value = '';
             sendBtn.disabled = true;
             chatInput.disabled = true;
             isWaitingForAI = true;
 
-            // Thêm typing indicator
             const typingElement = appendMessage('ai', '', true);
 
             try {
@@ -424,30 +396,25 @@
                 });
 
                 const data = await response.json();
-
-                // Loại bỏ typing indicator
                 typingElement.remove();
 
                 if (data.error) {
-                    appendMessage('ai', `❌ **Lỗi AI:** ${data.error}`, false);
-                    isWaitingForAI = false;
-                    sendBtn.disabled = false;
-                    chatInput.disabled = false;
+                    appendMessage('ai', `Lỗi AI: ${data.error}`, false);
                 } else {
-                    // Thêm tin nhắn mới với hiệu ứng đánh máy
                     const newAiMessage = appendMessage('ai', '', false);
                     typeResponse(newAiMessage, data.advice);
                 }
             } catch (error) {
                 typingElement.remove();
-                appendMessage('ai', '❌ Lỗi kết nối dịch vụ AI hoặc Backend. Vui lòng thử lại sau.', false);
+                appendMessage('ai', 'Lỗi kết nối dịch vụ AI hoặc Backend. Vui lòng thử lại sau.', false);
+            } finally {
                 isWaitingForAI = false;
                 sendBtn.disabled = false;
                 chatInput.disabled = false;
             }
         }
 
-        // 6. Gửi yêu cầu đề xuất chủ động (CẢI TIẾN)
+        // --- LỜI KHUYÊN CHỦ ĐỘNG ---
         async function getProactiveAdvice() {
             if (isWaitingForAI) return;
 
@@ -456,7 +423,7 @@
             chatInput.disabled = true;
             sendBtn.disabled = true;
 
-            appendMessage('user', '✨ Hãy cho tôi lời khuyên dinh dưỡng chủ động hôm nay!');
+            appendMessage('user', 'Hãy cho tôi lời khuyên dinh dưỡng chủ động hôm nay!');
             const typingElement = appendMessage('ai', '', true);
 
             try {
@@ -470,31 +437,25 @@
                 typingElement.remove();
 
                 if (data.error) {
-                    appendMessage('ai', `❌ **Lỗi AI:** ${data.error}`, false);
-                    isWaitingForAI = false;
-                    proactiveAdviceBtn.disabled = false;
-                    chatInput.disabled = false;
-                    sendBtn.disabled = false;
+                    appendMessage('ai', `Lỗi AI: ${data.error}`, false);
                 } else {
                     const newAiMessage = appendMessage('ai', '', false);
                     typeResponse(newAiMessage, data.advice);
                 }
             } catch (error) {
                 typingElement.remove();
-                appendMessage('ai', '❌ Lỗi kết nối dịch vụ AI. Vui lòng thử lại.', false);
+                appendMessage('ai', 'Lỗi kết nối dịch vụ AI. Vui lòng thử lại.', false);
+            } finally {
                 isWaitingForAI = false;
                 proactiveAdviceBtn.disabled = false;
                 chatInput.disabled = false;
                 sendBtn.disabled = false;
-            } finally {
-                proactiveAdviceBtn.disabled = false;
             }
         }
 
         proactiveAdviceBtn.addEventListener('click', getProactiveAdvice);
 
-        // --- LOGIC RECIPE GENERATOR ---
-
+        // --- RECIPE GENERATOR ---
         async function requestRecipe() {
             const request = document.getElementById('recipeRequest').value.trim();
             const resultContainer = document.getElementById('recipeResultContainer');
@@ -514,7 +475,6 @@
             generateBtn.disabled = true;
 
             try {
-                // Gọi Action GenerateRecipe đã được thêm vào ChatController
                 const response = await fetch('/Chat/GenerateRecipe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -538,12 +498,9 @@
 
         function renderRecipeResult(data) {
             const resultContainer = document.getElementById('recipeResultContainer');
-
-            // Đảm bảo danh sách được định dạng đúng cách cho hiển thị trong ChatBox nhỏ
             const ingredientsHtml = data.Ingredients.map(item => `<li>${item}</li>`).join('');
             const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');
 
-            // Điều chỉnh style để phù hợp với kích thước ChatBox (padding nhỏ hơn)
             resultContainer.innerHTML = `
                 <div class="card p-3 mb-3" style="border-left: 5px solid #f59e0b; border-radius: 12px;">
                     <h5 style="color: #78350f; font-weight: 700; font-size: 1.1rem;">${data.Title}</h5>
@@ -571,15 +528,17 @@
                     </div>
                 </div>
             `;
-            // Cuộn Recipe Mode lên đầu để thấy kết quả
             document.getElementById('recipeModeContent').scrollTop = 0;
         }
 
-        // 7. Active nav link (giữ nguyên)
-        document.addEventListener('DOMContentLoaded', function() {
+        // --- CHUYỂN ĐỔI CHẾ ĐỘ ---
+        showChatBtn.addEventListener('click', () => switchChatMode('chat'));
+        showRecipeBtn.addEventListener('click', () => switchChatMode('recipe'));
+
+        // --- ACTIVE NAV LINK ---
+        document.addEventListener('DOMContentLoaded', function () {
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.nav-link');
-
             navLinks.forEach(link => {
                 if (link.getAttribute('href') === currentPath) {
                     link.classList.add('active');

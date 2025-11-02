@@ -87,18 +87,15 @@
         }
 
         @@keyframes slideDown {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .success-icon {
@@ -283,18 +280,15 @@
             }
 
         @@keyframes fadeIn {
-            from
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
 
-        {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .stats-title {
@@ -370,33 +364,30 @@
         }
 
         @@media (max-width: 768px) {
-            .settings-title
+            .settings-title {
+                font-size: 2.2rem;
+            }
 
-        {
-            font-size: 2.2rem;
-        }
+            .settings-card {
+                padding: 30px 25px;
+            }
 
-        .settings-card {
-            padding: 30px 25px;
-        }
+            .goal-options {
+                grid-template-columns: 1fr;
+            }
 
-        .goal-options {
-            grid-template-columns: 1fr;
-        }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
+            .goal-label {
+                min-height: 120px;
+                padding: 22px 15px;
+            }
 
-        .goal-label {
-            min-height: 120px;
-            padding: 22px 15px;
-        }
-
-        .goal-icon {
-            font-size: 2.5rem;
-        }
-
+            .goal-icon {
+                font-size: 2.5rem;
+            }
         }
     </style>
 }
@@ -513,6 +504,22 @@
                                 <span class="goal-icon">🥑</span>
                                 <span class="goal-text">Eat Clean</span>
                             </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">  Tình trạng Sức khỏe / Bệnh lý</h3>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label asp-for="Pathology" class="form-label">
+                                Các bệnh lý (Ví dụ: Tiểu đường type 2, dị ứng gluten, cao
+                                huyết áp)
+                            </label>
+                            <textarea asp-for="Pathology" class="form-control" rows="3"
+                                      placeholder="Nhập chi tiết các vấn đề sức khỏe hoặc dị ứng (nếu có)">
+                            </textarea>
+                            <span asp-validation-for="Pathology" class="text-danger"></span>
                         </div>
                     </div>
                 </div>

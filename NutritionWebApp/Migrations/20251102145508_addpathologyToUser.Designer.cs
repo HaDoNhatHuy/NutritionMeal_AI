@@ -12,8 +12,8 @@ using NutritionWebApp.Models.DataAccess;
 namespace NutritionWebApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251029124327_createDB")]
-    partial class createDB
+    [Migration("20251102145508_addpathologyToUser")]
+    partial class addpathologyToUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,35 @@ namespace NutritionWebApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.ChatHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatHistory");
+                });
+
             modelBuilder.Entity("NutritionWebApp.Models.Entities.ExerciseVideo", b =>
                 {
                     b.Property<int>("Id")
@@ -34,7 +63,6 @@ namespace NutritionWebApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Duration")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MuscleGroup")
@@ -42,10 +70,9 @@ namespace NutritionWebApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("VideoUrl")
+                    b.Property<string>("YoutubeVideoUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -81,6 +108,9 @@ namespace NutritionWebApp.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MealType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float>("Protein")
                         .HasColumnType("real");
 
@@ -101,6 +131,9 @@ namespace NutritionWebApp.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+
+                    b.Property<string>("ActivityLevel")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Age")
                         .HasColumnType("int");
@@ -129,12 +162,26 @@ namespace NutritionWebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Pathology")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float?>("Weight")
                         .HasColumnType("real");
 
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.ChatHistory", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("NutritionWebApp.Models.Entities.FoodHistory", b =>

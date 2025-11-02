@@ -40,6 +40,7 @@ namespace NutritionWebApp.Controllers
                 await _context.SaveChangesAsync();
 
                 HttpContext.Session.SetInt32("UserId", user.UserId);
+                HttpContext.Session.SetString("FullName", user.FullName);
                 return RedirectToAction("Index", "Home");
             }
             return View(model);

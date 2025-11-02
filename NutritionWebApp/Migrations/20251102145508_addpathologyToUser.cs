@@ -5,14 +5,14 @@
 namespace NutritionWebApp.Migrations
 {
     /// <inheritdoc />
-    public partial class addMealType : Migration
+    public partial class addpathologyToUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "MealType",
-                table: "FoodHistory",
+                name: "Pathology",
+                table: "Users",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -21,8 +21,8 @@ namespace NutritionWebApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "MealType",
-                table: "FoodHistory");
+                name: "Pathology",
+                table: "Users");
         }
     }
 }

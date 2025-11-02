@@ -159,6 +159,9 @@ namespace NutritionWebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Pathology")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float?>("Weight")
                         .HasColumnType("real");
 

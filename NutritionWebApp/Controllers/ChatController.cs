@@ -171,7 +171,8 @@ namespace NutritionWebApp.Controllers
                     user.Age,
                     user.Weight,
                     user.Goal,
-                    TDEE = tdee.ToString("F0")
+                    TDEE = tdee.ToString("F0"),
+                    Pathology = user.Pathology ?? "Không"
                 },
                 history = recentHistory,
                 // THÊM CHAT HISTORY ĐỂ DUY TRÌ NGỮ CẢNH
@@ -335,7 +336,8 @@ namespace NutritionWebApp.Controllers
                 custom_request = customRequest,
                 TDEE = tdee.ToString("F0"),
                 // Gửi toàn bộ mục tiêu Macros đã tính
-                macro_goals = macroGoals
+                macro_goals = macroGoals,
+                Pathology = user.Pathology ?? "Không"
             };
 
             // --- 3. GỌI FLASK AI SERVICE (Endpoint mới: /generate_recipe) ---

@@ -44,7 +44,8 @@ namespace NutritionWebApp.Controllers
                 Weight = user.Weight,
                 Gender = user.Gender,
                 Goal = user.Goal,
-                ActivityLevel = user.ActivityLevel
+                ActivityLevel = user.ActivityLevel,
+                Pathology = user.Pathology
             };
 
             // TÍNH BMR/TDEE TẠI ĐÂY
@@ -108,6 +109,7 @@ namespace NutritionWebApp.Controllers
                 user.Gender = model.Gender;
                 user.Goal = model.Goal;
                 user.ActivityLevel = model.ActivityLevel;
+                user.Pathology = model.Pathology;
 
                 // Sửa lỗi cú pháp trong nguồn [2]
                 // user.Weight = user.Weight; -> user.Weight = model.Weight;

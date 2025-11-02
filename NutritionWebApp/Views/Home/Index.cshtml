@@ -501,36 +501,43 @@
                     return;
                 }
 
-                let html = `
-                    <div class="result-card ${data.warning ? 'warning' : ''}">
-                        <div class="food-name">
-                            🍽️ ${data.food_name}
+            let html = `
+                <div class="result-card ${data.warning ? 'warning' : ''}">
+                    <div class="food-name">
+                        ${data.food_name}
+                    </div>
+
+                    <!-- Hiển thị Grid Dinh Dưỡng (Calories, Protein, Carbs, Fat) -->
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">  Calo</div>
+                            <div class="nutrition-value">${data.calories}</div>
                         </div>
-                        <div class="nutrition-grid">
-                            <div class="nutrition-item">
-                                <div class="nutrition-label">🔥 Calo</div>
-                                <div class="nutrition-value">${data.calories}</div>
-                            </div>
-                            <div class="nutrition-item">
-                                <div class="nutrition-label">💪 Protein</div>
-                                <div class="nutrition-value">${data.protein}g</div>
-                            </div>
-                            <div class="nutrition-item">
-                                <div class="nutrition-label">🍚 Carbs</div>
-                                <div class="nutrition-value">${data.carbs}g</div>
-                            </div>
-                            <div class="nutrition-item">
-                                <div class="nutrition-label">🥑 Fat</div>
-                                <div class="nutrition-value">${data.fat}g</div>
-                            </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">  Protein</div>
+                            <div class="nutrition-value">${data.protein}g</div>
                         </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">  Carbs</div>
+                            <div class="nutrition-value">${data.carbs}g</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">  Fat</div>
+                            <div class="nutrition-value">${data.fat}g</div>
+                        </div>
+                    </div>
                 `;
 
+                // KIỂM TRA CẢNH BÁO (BỆNH LÝ HOẶC CHUNG)
                 if (data.warning) {
+                    // Thêm cảnh báo (warning-box được định nghĩa trong style [8])
                     html += `
                         <div class="warning-box">
-                            <p class="warning-text">
-                                ⚠️ ${data.burn_time}
+                            <p class="warning-text" style="color: #c53030; font-size: 1.1rem; margin-bottom: 10px;">
+                                ⚠️ Cảnh báo: ${data.advice} <!-- HIỂN THỊ LỜI KHUYÊN/CẢNH BÁO BỆNH LÝ -->
+                            </p>
+                            <p class="warning-text" style="font-size: 1rem;">
+                                ⏳ ${data.burn_time} <!-- HIỂN THỊ THỜI GIAN TIÊU HAO CALO -->
                             </p>
                         </div>
                     `;

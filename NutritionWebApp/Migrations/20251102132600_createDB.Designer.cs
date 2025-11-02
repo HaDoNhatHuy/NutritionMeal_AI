@@ -12,8 +12,8 @@ using NutritionWebApp.Models.DataAccess;
 namespace NutritionWebApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251031124414_UpdateDB")]
-    partial class UpdateDB
+    [Migration("20251102132600_createDB")]
+    partial class createDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,8 +62,14 @@ namespace NutritionWebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MuscleGroup")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("YoutubeVideoUrl")
@@ -100,6 +106,9 @@ namespace NutritionWebApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MealType")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("Protein")

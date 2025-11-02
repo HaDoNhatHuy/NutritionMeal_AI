@@ -438,6 +438,20 @@
                         @activityText
                     </div>
                 </div>
+                <!-- THÊM MỤC BỆNH LÝ (Pathology) -->
+                <div class="info-item">
+                    <div class="info-label"><span class="info-icon">🏥</span>Tình trạng Bệnh lý</div>
+                    <div class="info-value">
+                        @{
+                            // Kiểm tra xem trường Pathology có dữ liệu không
+                            string pathologyText = string.IsNullOrEmpty(Model.Pathology)
+                            ? "Không có bệnh lý nào được cập nhật"
+                            : Model.Pathology;
+                        }
+                        @pathologyText
+                    </div>
+                </div>
+                <!-- KẾT THÚC MỤC BỆNH LÝ -->
             </div>
 
             <div class="update-btn-container">

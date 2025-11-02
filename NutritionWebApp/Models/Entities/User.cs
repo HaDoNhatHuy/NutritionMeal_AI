@@ -21,6 +21,7 @@ namespace NutritionWebApp.Models.Entities
         public bool? Gender { get; set; } // true: Nam
         public string? Goal { get; set; }
         public string? ActivityLevel { get; set; }
+        public string? Pathology { get; set; } 
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

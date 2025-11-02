@@ -37,6 +37,7 @@ def analyze_food():
     # Lấy TDEE và Goal từ C#
     tdee_input = request.form.get('tdee', '0')
     goal_input = request.form.get('goal', 'Chưa thiết lập') 
+    pathology_input = request.form.get('pathology', 'Không có')
 
     tdee = 0
     if tdee_input and tdee_input != '0':
@@ -61,6 +62,7 @@ def analyze_food():
         prompt = f"""
         Bạn là chuyên gia dinh dưỡng. Phân tích ảnh món ăn và trả về đúng định dạng JSON sau, KHÔNG thêm bất kỳ giải thích nào:
         {tdee_str}
+        YÊU CẦU QUAN TRỌNG: Nếu món ăn có warning=true (calo cao/đồ ăn vặt, nhiều đường, chiên rán) HOẶC món ăn **KHÔNG PHÙ HỢP VỚI TÌNH TRẠNG BỆNH LÝ**, hãy tính burn_time VÀ mô tả cảnh báo dựa trên TDEE, Mục tiêu và Bệnh lý của người dùng.
         YÊU CẦU: Nếu món ăn có warning=true (calo cao/đồ ăn vặt), hãy tính burn_time VÀ mô tả cảnh báo dựa trên TDEE của người dùng (Ví dụ: Món này chiếm 30% TDEE hàng ngày của bạn).
         {{
         "food_name": "Tên món ăn bằng tiếng Việt (ví dụ: Phở bò, Trà sữa trân châu)", 
@@ -70,7 +72,7 @@ def analyze_food():
         "fat": số thực (gram), 
         "warning": true hoặc false (true nếu là đồ ăn vặt, trà sữa, chiên rán, nhiều đường),         
         "burn_time": "Cần chạy bộ X phút để tiêu hao" (chỉ nếu warning=true, X = calories / 10), 
-        "advice": "Lời khuyên cá nhân hóa ngắn gọn dựa trên TDEE và mục tiêu người dùng" (chỉ nếu warning=true)
+        "advice": "Lời khuyên cá nhân hóa ngắn gọn dựa trên TDEE, mục tiêu người dùng và tình trạng bệnh lý của người dùng" (chỉ nếu warning=true)
         }}
         BẮT BUỘC: Chỉ trả JSON, không xuống dòng, không giải thích. 
         """
@@ -103,6 +105,7 @@ def advise_chat():
         user_stats = data.get('stats')
         food_history = data.get('history')
         chat_context = data.get('chat_context', []) 
+        pathology = user_stats.get('Pathology', 'Không có')
 
         if not user_question:
             return jsonify({"error": "Vui lòng nhập câu hỏi."}), 400
@@ -118,6 +121,9 @@ def advise_chat():
         - Cân nặng: {user_stats.get('Weight')}kg
         - Mục tiêu: {user_stats.get('Goal')}
         - TDEE: {user_stats.get('TDEE')} kcal/ngày
+        - Tình trạng Bệnh lý: {pathology}
+
+        RÀNG BUỘC QUAN TRỌNG: NẾU NGƯỜI DÙNG CÓ BỆNH LÝ, MỌI LỜI KHUYÊN PHẢI TUÂN THỦ NGHIÊM NGẶT CÁC KIÊNG KỴ CỦA BỆNH LÝ ĐÓ (Ví dụ: Nếu bị Tiểu đường, KHÔNG gợi ý đồ ăn nhiều đường).
 
         --- LỊCH SỬ ĂN UỐNG GẦN ĐÂY (5 bữa):
         {json.dumps(food_history, ensure_ascii=False, indent=2)}
@@ -200,6 +206,7 @@ def generate_recipe():
         tdee = data['TDEE']
         macros = data['macro_goals']
         custom_request = data['custom_request']
+        pathology = data.get('Pathology', 'Không có')
 
         try:
             target_calories = float(tdee) * 0.3
@@ -213,7 +220,10 @@ def generate_recipe():
         Dữ liệu Mục tiêu người dùng:
         - Mục tiêu: {goal}
         - TDEE: {tdee} kcal
+        - Tình trạng Bệnh lý: {pathology}
         - Mục tiêu Macros HÀNG NGÀY: Protein {macros.get('ProteinGrams', 0):.0f}g, Carbs {macros.get('CarbGrams', 0):.0f}g, Fat {macros.get('FatGrams', 0):.0f}g.
+
+        RÀNG BUỘC CỰC KỲ QUAN TRỌNG: Công thức phải tuyệt đối an toàn và phù hợp với Tình trạng Bệnh lý: **{pathology}**.
 
         RÀNG BUỘC CALO: Món ăn này phải có tổng Calo KHÔNG VƯỢT QUÁ {target_calories:.0f} kcal và cân bằng Macros phù hợp với mục tiêu '{goal}'.
 
