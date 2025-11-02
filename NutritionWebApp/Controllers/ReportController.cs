@@ -22,7 +22,7 @@ namespace NutritionWebApp.Controllers
             // Lấy dữ liệu 30 ngày gần nhất 
             var history = await _context.FoodHistory
                 .Where(f => f.UserId == userId.Value && f.AnalyzedAt >= DateTime.Now.AddDays(-30))
-                .OrderBy(f => f.AnalyzedAt)
+                .OrderByDescending(f => f.AnalyzedAt)
                 .ToListAsync();
 
             // Tính TDEE mục tiêu (để so sánh)

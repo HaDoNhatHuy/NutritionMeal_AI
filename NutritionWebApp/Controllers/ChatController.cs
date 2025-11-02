@@ -16,12 +16,6 @@ namespace NutritionWebApp.Controllers
             // Khởi tạo SettingsController để tính TDEE
             _settingsController = new SettingsController(context);
         }
-        [HttpGet]
-        public IActionResult Index()
-        {
-            if (!HttpContext.Session.GetInt32("UserId").HasValue) return RedirectToAction("Login", "Account"); 
-            return View();
-        }
         //[HttpGet]
         //public async Task<IActionResult> History()
         //{
@@ -79,32 +73,32 @@ namespace NutritionWebApp.Controllers
             // (View History.cshtml hiện đang nhận Model là List<ChatHistory> [3])
             return View("ConversationDetail", messages);
         }
-        [HttpGet]
-        public async Task<IActionResult> GetRecentHistory()
-        {
-            // Kiểm tra Session [1]
-            var userId = HttpContext.Session.GetInt32("UserId");
+        //[HttpGet]
+        //public async Task<IActionResult> GetRecentHistory()
+        //{
+        //    // Kiểm tra Session [1]
+        //    var userId = HttpContext.Session.GetInt32("UserId");
 
-            if (!userId.HasValue)
-                // Trả về danh sách rỗng an toàn nếu chưa đăng nhập 
-                return Json(new List<object>());
+        //    if (!userId.HasValue)
+        //        // Trả về danh sách rỗng an toàn nếu chưa đăng nhập 
+        //        return Json(new List<object>());
 
-            // Truy vấn 10 tin nhắn gần nhất [2]
-            var history = await _context.ChatHistory
-                .Where(c => c.UserId == userId.Value)
-                .OrderByDescending(c => c.Timestamp) // Lấy từ mới nhất về
-                .Take(10) // Chỉ lấy 10
-                .OrderBy(c => c.Timestamp) // Đảo ngược lại để hiển thị theo thứ tự thời gian (từ cũ đến mới)
-                .Select(c => new
-                {
-                    c.Role, // "User" hoặc "AI" [2]
-                    c.Content
-                })
-                .ToListAsync();
+        //    // Truy vấn 10 tin nhắn gần nhất [2]
+        //    var history = await _context.ChatHistory
+        //        .Where(c => c.UserId == userId.Value)
+        //        .OrderByDescending(c => c.Timestamp) // Lấy từ mới nhất về
+        //        .Take(10) // Chỉ lấy 10
+        //        .OrderBy(c => c.Timestamp) // Đảo ngược lại để hiển thị theo thứ tự thời gian (từ cũ đến mới)
+        //        .Select(c => new
+        //        {
+        //            c.Role, // "User" hoặc "AI" [2]
+        //            c.Content
+        //        })
+        //        .ToListAsync();
 
-            // Trả về JSON chứa 10 tin nhắn
-            return Json(history);
-        }
+        //    // Trả về JSON chứa 10 tin nhắn
+        //    return Json(history);
+        //}
 
 
         [HttpPost]
@@ -306,6 +300,59 @@ namespace NutritionWebApp.Controllers
 
             // AI Response chỉ là một Advice, không cần lưu vào ChatHistory nếu không phải là cuộc trò chuyện
 
+            return Content(jsonString, "application/json");
+        }
+        [HttpPost]
+        public async Task<IActionResult> GenerateRecipe([FromBody] Dictionary<string, string> payload)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return Json(new { error = "Chưa đăng nhập" });
+
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId.Value);
+
+            // Kiểm tra thông tin cá nhân cần thiết để tính TDEE
+            if (user == null || !user.Age.HasValue || !user.Weight.HasValue || !user.Height.HasValue)
+                return Json(new { error = "Vui lòng cập nhật đầy đủ Tuổi, Chiều cao, Cân nặng và Mục tiêu trong Cài đặt." });
+
+            // Lấy yêu cầu tùy chỉnh từ người dùng (ví dụ: "dùng thịt gà" hoặc "bữa sáng nhanh")
+            var customRequest = payload.GetValueOrDefault("request", "một bữa ăn nhẹ giàu Protein");
+
+            // --- 1. TÍNH TOÁN TDEE & MACRO GOALS (KHÔNG DÙNG DI) ---
+            double tdee = 0;
+            // Khởi tạo SettingsController thủ công theo cấu trúc hiện tại [1, 2]
+            // Sử dụng _settingsController đã được khởi tạo trong constructor
+            var bmr = _settingsController.CalculateBMR(user);
+            tdee = _settingsController.CalculateTDEE(bmr, user.ActivityLevel);
+            // Lấy Mục tiêu Macro [3, 4]
+            SettingsController.MacroGoals? macroGoals = _settingsController.GetMacroGoalsInGrams(tdee, user.Goal);
+
+            // --- 2. CHUẨN BỊ PAYLOAD GỬI ĐẾN PYTHON FLASK ---
+            var recipePayload = new
+            {
+                goal = user.Goal, // Giảm cân/Tăng cân
+                custom_request = customRequest,
+                TDEE = tdee.ToString("F0"),
+                // Gửi toàn bộ mục tiêu Macros đã tính
+                macro_goals = macroGoals
+            };
+
+            // --- 3. GỌI FLASK AI SERVICE (Endpoint mới: /generate_recipe) ---
+            using var client = new HttpClient();
+            var jsonContent = new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(recipePayload),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            );
+            // Lưu ý: ApplicationUrl mặc định là http://localhost:5196 [5]
+            var response = await client.PostAsync("http://localhost:5000/generate_recipe", jsonContent);
+            var jsonString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                return Json(new { error = "Lỗi AI Recipe: " + jsonString });
+
+            // Trả về JSON từ AI (sẽ được JavaScript phân tích và hiển thị)
             return Content(jsonString, "application/json");
         }
     }

@@ -11,11 +11,11 @@
     @* <link rel="stylesheet" href="~/NutritionWebApp.styles.css" asp-append-version="true" /> *@
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<script>
+@* <script>
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js');
     }
-</script>
+</script> *@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg modern-navbar">
@@ -182,33 +182,67 @@
             <button class="chat-close-btn" id="closeChatBtn" aria-label="Đóng chat">×</button>
         </div>
 
-        <!-- Nút Đề xuất Chủ động -->
-        <button id="proactiveAdviceBtn" class="proactive-btn">
-            ✨ Lời khuyên Dinh dưỡng Hôm nay
-        </button>
-
-        <!-- Chat Body -->
-        <div class="chat-body-content" id="chatBody">
-            <!-- Tin nhắn sẽ được thêm vào đây bằng JavaScript -->
+        <!-- KHỐI NAVIGATOR: THÊM NÚT CHUYỂN ĐỔI CHẾ ĐỘ -->
+        <div id="chatModeToggles" style="display: flex; justify-content: space-around; background: #fef3c7; border-bottom: 1px solid #fcd34d;">
+            <button id="showChatBtn" class="btn btn-sm btn-warning w-50" style="border-radius: 0; font-weight: 700;">💬 Chat</button>
+            <button id="showRecipeBtn" class="btn btn-sm w-50" style="border-radius: 0;">🍽️ Công Thức</button>
         </div>
+        <!-- KHỐI CHỨA NỘI DUNG CHAT (CHẾ ĐỘ MẶC ĐỊNH) -->
+        <div id="chatModeContent" style="display: flex; flex-direction: column; flex: 1; height: 100%;">
 
-        <!-- Chat Footer -->
-        <div class="chat-footer">
-            <div class="input-group">
-                <input type="text"
-                       id="chatInput"
-                       class="form-control"
-                       placeholder="Hỏi AI về dinh dưỡng..."
-                       autocomplete="off"
-                       aria-label="Nhập tin nhắn" />
-                <button class="btn btn-success"
-                        id="sendBtn"
-                        aria-label="Gửi tin nhắn">
-                    Gửi
-                </button>
+            <!-- Nút Đề xuất Chủ động -->
+            <button id="proactiveAdviceBtn" class="proactive-btn">
+                ✨ Lời khuyên Dinh dưỡng Hôm nay
+            </button>
+
+            <!-- Chat Body -->
+            <div class="chat-body-content" id="chatBody">
+                <!-- Tin nhắn sẽ được thêm vào đây bằng JavaScript -->
+            </div>
+
+            <!-- Chat Footer -->
+            <div class="chat-footer">
+                <div class="input-group">
+                    <input type="text"
+                           id="chatInput"
+                           class="form-control"
+                           placeholder="Hỏi AI về dinh dưỡng..."
+                           autocomplete="off"
+                           aria-label="Nhập tin nhắn" />
+                    <button class="btn btn-success"
+                            id="sendBtn"
+                            aria-label="Gửi tin nhắn">
+                        Gửi
+                    </button>
+                </div>
             </div>
         </div>
+        <!-- KHỐI CHỨA NỘI DUNG RECIPE GENERATOR (CHẾ ĐỘ ẨN) -->
+        <div id="recipeModeContent" style="display: none; flex-direction: column; flex: 1; height: 100%; padding: 20px; overflow-y: auto;">
+
+            <h4 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">
+                Nhập Yêu Cầu Công Thức
+            </h4>
+            <div class="mb-3">
+                <label for="recipeRequest" class="form-label" style="font-weight: 600; font-size: 0.9rem;">
+                    Bạn muốn món ăn như thế nào?
+                </label>
+                <input type="text" class="form-control" id="recipeRequest"
+                       placeholder="VD: Dưới 400 kcal, giàu protein, dùng thịt bò"
+                       style="border-radius: 10px; padding: 10px;">
+            </div>
+            <button class="btn btn-success w-100 mb-3" id="generateRecipeBtn" onclick="requestRecipe()"
+                    style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); border: none;">
+                ✨ Gợi ý Công thức
+            </button>
+
+            <div id="recipeResultContainer" class="mt-2">
+                <!-- Kết quả sẽ hiển thị ở đây -->
+            </div>
+
+        </div>
     </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -222,18 +256,43 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const proactiveAdviceBtn = document.getElementById('proactiveAdviceBtn');
+        const chatModeContent = document.getElementById('chatModeContent');
+        const recipeModeContent = document.getElementById('recipeModeContent');
+        const showChatBtn = document.getElementById('showChatBtn');
+        const showRecipeBtn = document.getElementById('showRecipeBtn');
+        const generateRecipeBtn = document.getElementById('generateRecipeBtn');
 
         let isWaitingForAI = false;
-        let isHistoryLoaded = false;
+
+        // Hàm chuyển đổi giữa Chat và Recipe
+        function switchChatMode(mode) {
+            if (mode === 'chat') {
+                chatModeContent.style.display = 'flex';
+                recipeModeContent.style.display = 'none';
+                showChatBtn.classList.add('btn-warning');
+                showChatBtn.classList.remove('btn-outline-warning');
+                showRecipeBtn.classList.remove('btn-warning');
+                showRecipeBtn.classList.add('btn-outline-warning');
+            } else if (mode === 'recipe') {
+                chatModeContent.style.display = 'none';
+                recipeModeContent.style.display = 'flex';
+                showRecipeBtn.classList.add('btn-warning');
+                showRecipeBtn.classList.remove('btn-outline-warning');
+                showChatBtn.classList.remove('btn-warning');
+                showChatBtn.classList.add('btn-outline-warning');
+            }
+        }
+
+        // Gắn sự kiện chuyển đổi
+        showChatBtn.addEventListener('click', () => switchChatMode('chat'));
+        showRecipeBtn.addEventListener('click', () => switchChatMode('recipe'));
 
         // 1. Logic Mở/Đóng Popup
         chatIcon.addEventListener('click', function() {
             chatPopup.classList.toggle('open');
             if (chatPopup.classList.contains('open')) {
-                // Tải lịch sử chat khi mở lần đầu
-                if (!isHistoryLoaded) {
-                    loadChatHistory();
-                }
+                switchChatMode('chat'); // Luôn mở lại chế độ Chat
+                loadChatHistory();
                 chatInput.focus();
             }
         });
@@ -315,30 +374,22 @@
         }
 
         // 4. Tải lịch sử chat
-        async function loadChatHistory() {
-            isHistoryLoaded = true;
 
-            try {
-                const response = await fetch('/Chat/GetRecentHistory', {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                const history = await response.json();
-
-                if (history && history.length > 0) {
-                    history.forEach(msg => {
-                        appendMessage(msg.role.toLowerCase(), msg.content, false);
-                    });
-                } else {
+        function loadChatHistory() {
+            // Chỉ hiển thị lời chào nếu cửa sổ chat đang rỗng (bắt đầu phiên live mới)
+            try
+            {
+                if (chatBody.children.length === 0) {
                     // Tin nhắn chào mừng
                     appendMessage('ai', 'Chào bạn! 👋 Tôi là **NutritionAI**. Hãy cho tôi biết bạn muốn hỏi gì về chế độ ăn uống hoặc mục tiêu của mình nhé. 🥗', false);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Lỗi tải lịch sử chat:", error);
                 appendMessage('ai', '⚠️ Không thể tải lịch sử trò chuyện. Vui lòng kiểm tra kết nối mạng và đảm bảo bạn đã đăng nhập.', false);
             }
-        }
+            
+        }        
 
         // 5. Logic Gửi tin nhắn (CẢI TIẾN)
         sendBtn.addEventListener('click', sendMessage);
@@ -441,6 +492,88 @@
         }
 
         proactiveAdviceBtn.addEventListener('click', getProactiveAdvice);
+
+        // --- LOGIC RECIPE GENERATOR ---
+
+        async function requestRecipe() {
+            const request = document.getElementById('recipeRequest').value.trim();
+            const resultContainer = document.getElementById('recipeResultContainer');
+            const generateBtn = document.getElementById('generateRecipeBtn');
+
+            if (request === "") {
+                resultContainer.innerHTML = `<div class="alert alert-danger p-2" style="border-radius: 10px; font-size: 0.9rem;">Vui lòng nhập yêu cầu cho món ăn!</div>`;
+                return;
+            }
+
+            resultContainer.innerHTML = `
+                <div class="alert alert-info d-flex align-items-center p-2" role="alert" style="border-radius: 10px; font-size: 0.9rem;">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    Đang tạo công thức cá nhân hóa...
+                </div>
+            `;
+            generateBtn.disabled = true;
+
+            try {
+                // Gọi Action GenerateRecipe đã được thêm vào ChatController
+                const response = await fetch('/Chat/GenerateRecipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request: request })
+                });
+
+                const data = await response.json();
+                generateBtn.disabled = false;
+
+                if (data.error) {
+                    resultContainer.innerHTML = `<div class="alert alert-danger p-2" style="border-radius: 10px; font-size: 0.9rem;">${data.error}</div>`;
+                    return;
+                }
+                renderRecipeResult(data);
+
+            } catch (error) {
+                generateBtn.disabled = false;
+                resultContainer.innerHTML = `<div class="alert alert-danger p-2" style="border-radius: 10px; font-size: 0.9rem;">Lỗi kết nối dịch vụ AI.</div>`;
+            }
+        }
+
+        function renderRecipeResult(data) {
+            const resultContainer = document.getElementById('recipeResultContainer');
+
+            // Đảm bảo danh sách được định dạng đúng cách cho hiển thị trong ChatBox nhỏ
+            const ingredientsHtml = data.Ingredients.map(item => `<li>${item}</li>`).join('');
+            const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');
+
+            // Điều chỉnh style để phù hợp với kích thước ChatBox (padding nhỏ hơn)
+            resultContainer.innerHTML = `
+                <div class="card p-3 mb-3" style="border-left: 5px solid #f59e0b; border-radius: 12px;">
+                    <h5 style="color: #78350f; font-weight: 700; font-size: 1.1rem;">${data.Title}</h5>
+                    <p class="text-muted" style="font-size: 0.9rem;">${data.Description}</p>
+
+                    <div style="border-top: 1px dashed #fef3c7; padding-top: 10px; margin-top: 10px;">
+                        <div class="row text-center" style="font-size: 0.85rem;">
+                            <div class="col-3"><strong>Calo</strong><br>${data.CaloriesTotal.toFixed(0)}</div>
+                            <div class="col-3" style="color: #fb923c;"><strong>P</strong><br>${data.ProteinGrams.toFixed(1)}g</div>
+                            <div class="col-3" style="color: #10b981;"><strong>C</strong><br>${data.CarbGrams.toFixed(1)}g</div>
+                            <div class="col-3" style="color: #8b5cf6;"><strong>F</strong><br>${data.FatGrams.toFixed(1)}g</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6 style="font-weight: 600; font-size: 1rem; color: #2d3748;">Nguyên liệu</h6>
+                        <ul style="list-style-type: disc; padding-left: 20px; font-size: 0.9rem;">${ingredientsHtml}</ul>
+
+                        <h6 style="font-weight: 600; font-size: 1rem; color: #2d3748; margin-top: 10px;">Hướng dẫn</h6>
+                        <ol style="padding-left: 20px; font-size: 0.9rem;">${instructionsHtml}</ol>
+
+                        <div class="alert alert-warning p-2 mt-3" style="border-radius: 10px; font-size: 0.9rem;">
+                            <strong>Lời khuyên AI:</strong> ${data.Advice}
+                        </div>
+                    </div>
+                </div>
+            `;
+            // Cuộn Recipe Mode lên đầu để thấy kết quả
+            document.getElementById('recipeModeContent').scrollTop = 0;
+        }
 
         // 7. Active nav link (giữ nguyên)
         document.addEventListener('DOMContentLoaded', function() {

@@ -423,6 +423,180 @@
                     }
                 </div>
             }
+            <!-- BỔ SUNG: KHỐI CHAT FOOTER (INPUT VÀ NÚT GỬI) -->
+            <div class="chat-footer">
+                <div class="input-group">
+                    <input type="text"
+                           id="detailChatInput"
+                           class="form-control"
+                           placeholder="Tiếp tục trò chuyện với AI..."
+                           autocomplete="off"
+                           aria-label="Nhập tin nhắn" />
+                    <button class="btn btn-success"
+                            id="detailSendBtn"
+                            aria-label="Gửi tin nhắn">
+                        Gửi
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        // Đổi tên biến để tránh xung đột với các biến toàn cục trong _Layout.cshtml
+        const detailChatBody = document.querySelector('.chat-body-content');
+        const detailChatInput = document.getElementById('detailChatInput'); // ID đã đặt trong HTML
+        const detailSendBtn = document.getElementById('detailSendBtn'); // ID đã đặt trong HTML
+        let isDetailWaitingForAI = false;
+
+        // --- 1. HÀM THÊM TIN NHẮN ---
+        function appendMessage(sender, message, isTyping = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+
+            // Gán Avatar dựa trên Role
+            const avatar = sender === 'user' ? '👤' : '🤖';
+
+            if (isTyping) {
+                msgDiv.innerHTML = `
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-content">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                `;
+                // Sử dụng ID tạm thời duy nhất cho trang Detail
+                msgDiv.id = 'typingIndicatorDetail';
+            } else {
+                // Định dạng markdown-like syntax và ngắt dòng
+                let formattedMessage = message
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+
+                const timestamp = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+                msgDiv.innerHTML = `
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-content">
+                        ${formattedMessage}
+                    </div>
+                    <span class="timestamp">${timestamp}</span>
+                `;
+            }
+
+            detailChatBody.appendChild(msgDiv);
+            // Cuộn xuống tin nhắn mới
+            setTimeout(() => {
+                msgDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+            return msgDiv;
+        }
+
+        // --- 2. HIỆU ỨNG GÕ CHỮ ---
+        function typeResponse(element, text) {
+            let index = 0;
+            element.querySelector('.message-content').innerHTML = '';
+
+            const timestampEl = element.querySelector('.timestamp');
+            if (timestampEl) timestampEl.style.display = 'none';
+
+            const interval = setInterval(() => {
+                if (index < text.length) {
+                    const char = text.charAt(index);
+                    const contentDiv = element.querySelector('.message-content');
+
+                    contentDiv.innerHTML += char;
+
+                    // Cập nhật định dạng in đậm
+                    if (char === '*' && text.charAt(index + 1) === '*') {
+                         contentDiv.innerHTML = contentDiv.innerHTML.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    }
+
+                    index++;
+                    detailChatBody.scrollTop = detailChatBody.scrollHeight; // Sử dụng detailChatBody
+                } else {
+                    clearInterval(interval);
+                    isDetailWaitingForAI = false; // Sử dụng isDetailWaitingForAI
+                    detailSendBtn.disabled = false;
+                    detailChatInput.disabled = false;
+
+                    // Hoàn thiện format cuối cùng
+                    const contentDiv = element.querySelector('.message-content');
+                    contentDiv.innerHTML = contentDiv.innerHTML
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\n/g, '<br>');
+
+                    if (timestampEl) timestampEl.style.display = 'block';
+                }
+            }, 20); // Tốc độ gõ 20ms
+        }
+
+        // --- 3. HÀM GỬI TIN NHẮN ---
+        async function sendMessageDetail() { // Đổi tên hàm để tránh xung đột
+            const question = detailChatInput.value.trim();
+            if (question === "" || isDetailWaitingForAI) return; // Sử dụng isDetailWaitingForAI
+
+            detailChatInput.blur();
+            appendMessage('user', question);
+            detailChatInput.value = '';
+
+            // Khóa input và nút gửi
+            detailSendBtn.disabled = true;
+            detailChatInput.disabled = true;
+            isDetailWaitingForAI = true;
+
+            // Thêm typing indicator
+            const typingElement = appendMessage('ai', '', true);
+
+            try {
+                const response = await fetch('/Chat/GetAdvice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // Endpoint này sẽ lưu tin nhắn vào DB và trả về phản hồi AI
+                    body: JSON.stringify({ question: question })
+                });
+                const data = await response.json();
+
+                // Loại bỏ typing indicator
+                typingElement.remove();
+
+                if (data.error) {
+                    appendMessage('ai', `**Lỗi AI:** ${data.error}`, false);
+                    isDetailWaitingForAI = false;
+                    detailSendBtn.disabled = false;
+                    detailChatInput.disabled = false;
+                } else {
+                    // Thêm tin nhắn mới với hiệu ứng đánh máy
+                    const newAiMessage = appendMessage('ai', '', false);
+                    typeResponse(newAiMessage, data.advice);
+                }
+            } catch (error) {
+                // Xử lý lỗi kết nối
+                if (document.getElementById('typingIndicatorDetail')) {
+                     typingElement.remove();
+                }
+                appendMessage('ai', 'Lỗi kết nối dịch vụ AI hoặc Backend. Vui lòng thử lại sau.', false);
+                isDetailWaitingForAI = false;
+                detailSendBtn.disabled = false;
+                detailChatInput.disabled = false;
+            }
+        }
+
+        // Gắn sự kiện vào nút và Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            detailSendBtn.addEventListener('click', sendMessageDetail);
+            detailChatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessageDetail();
+                }
+            });
+
+            // Đảm bảo cửa sổ chat cuộn về cuối khi load trang
+            detailChatBody.scrollTop = detailChatBody.scrollHeight;
+        });
+
+    </script>
+}
