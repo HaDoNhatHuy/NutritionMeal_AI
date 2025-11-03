@@ -32,6 +32,7 @@ namespace NutritionWebApp.Controllers
                 var userId = HttpContext.Session.GetInt32("UserId");
                 float tdeeValue = 0;
                 string userGoal = "Chưa thiết lập"; // Khởi tạo Goal mặc định
+                string userPathology = "Không có";
                 if (userId.HasValue)
                 {
                     var user = await _context.Users.FindAsync(userId.Value);
@@ -45,6 +46,7 @@ namespace NutritionWebApp.Controllers
 
                         // Lấy Mục tiêu người dùng [5]
                         userGoal = user.Goal ?? "Chưa thiết lập";
+                        userPathology = user.Pathology ?? "Không có";
                     }
                 }
 
@@ -56,6 +58,7 @@ namespace NutritionWebApp.Controllers
                 // THÊM TDEE VÀ GOAL VÀO CONTENT GỬI ĐI
                 content.Add(new StringContent(tdeeValue.ToString()), "tdee");                
                 content.Add(new StringContent(userGoal), "goal");
+                content.Add(new StringContent(userPathology), "pathology");
 
                 var response = await client.PostAsync("http://localhost:5000/analyze", content);
                 var jsonString = await response.Content.ReadAsStringAsync();

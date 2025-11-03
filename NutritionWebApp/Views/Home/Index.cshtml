@@ -81,13 +81,13 @@
         }
 
         /* .preview-image {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 15px;
-            margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            display: none;
-        } */
+                            max-width: 100%;
+                            max-height: 300px;
+                            border-radius: 15px;
+                            margin: 20px 0;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                            display: none;
+                        } */
         /* STYLE MỚI CHO ẢNH BÊN TRONG */
         .preview-image-inside {
             width: 100%; /* Chiếm toàn bộ chiều rộng của khung cha (.upload-area) */
@@ -217,6 +217,23 @@
             animation: slideUp 0.5s ease;
             border-left: 6px solid #48bb78;
         }
+            /* Bổ sung CSS cho trạng thái Thành công (Xanh lá) */
+            .result-card.success {
+                border-left-color: #48bb78; /* Màu xanh lá [4] */
+            }
+
+                .result-card.success .food-name {
+                    color: #48bb78;
+                }
+
+                .result-card.success .nutrition-item {
+                    background: linear-gradient(135deg, #f0fff4 0%, #f0fdf4 100%);
+                    border: 1px solid #d1fae5;
+                }
+
+                .result-card.success .nutrition-value {
+                    color: #059669;
+                }
 
             .result-card.warning {
                 border-left-color: #f56565;
@@ -366,7 +383,7 @@
 
 @section Scripts {
     <script>
-                // Khai báo biến toàn cục để kiểm soát interval (Chức năng 6b)
+        // Khai báo biến toàn cục để kiểm soát interval (Chức năng 6b)
         let loadingTextInterval;
         const loadingMessages = [
             "AI đang nhận diện món ăn...",
@@ -501,49 +518,62 @@
                     return;
                 }
 
-            let html = `
-                <div class="result-card ${data.warning ? 'warning' : ''}">
-                    <div class="food-name">
-                        ${data.food_name}
-                    </div>
 
-                    <!-- Hiển thị Grid Dinh Dưỡng (Calories, Protein, Carbs, Fat) -->
-                    <div class="nutrition-grid">
-                        <div class="nutrition-item">
-                            <div class="nutrition-label">  Calo</div>
-                            <div class="nutrition-value">${data.calories}</div>
-                        </div>
-                        <div class="nutrition-item">
-                            <div class="nutrition-label">  Protein</div>
-                            <div class="nutrition-value">${data.protein}g</div>
-                        </div>
-                        <div class="nutrition-item">
-                            <div class="nutrition-label">  Carbs</div>
-                            <div class="nutrition-value">${data.carbs}g</div>
-                        </div>
-                        <div class="nutrition-item">
-                            <div class="nutrition-label">  Fat</div>
-                            <div class="nutrition-value">${data.fat}g</div>
-                        </div>
-                    </div>
-                `;
+        // *** BỔ SUNG LOGIC XANH/ĐỎ ***
+        const isWarning = data.warning;
+        const cardClass = isWarning ? 'warning' : 'success'; // Màu xanh nếu không có warning
 
-                // KIỂM TRA CẢNH BÁO (BỆNH LÝ HOẶC CHUNG)
-                if (data.warning) {
-                    // Thêm cảnh báo (warning-box được định nghĩa trong style [8])
-                    html += `
-                        <div class="warning-box">
-                            <p class="warning-text" style="color: #c53030; font-size: 1.1rem; margin-bottom: 10px;">
-                                ⚠️ Cảnh báo: ${data.advice} <!-- HIỂN THỊ LỜI KHUYÊN/CẢNH BÁO BỆNH LÝ -->
-                            </p>
-                            <p class="warning-text" style="font-size: 1rem;">
-                                ⏳ ${data.burn_time} <!-- HIỂN THỊ THỜI GIAN TIÊU HAO CALO -->
-                            </p>
-                        </div>
-                    `;
-                }
+        let html = `
+        <div class="result-card ${cardClass}">
+        <div class="food-name">
+        ${isWarning ? '⚠️ ' : '✅ '} ${data.food_name}
+        </div>
 
-                html += `</div>`;
+        <!-- Hiển thị Grid Dinh Dưỡng ... [6, 7] -->
+        <div class="nutrition-grid">
+            <div class="nutrition-item">
+                <div class="nutrition-label">  Calo</div>
+                <div class="nutrition-value">${data.calories}</div>
+            </div>
+            <div class="nutrition-item">
+                <div class="nutrition-label">  Protein</div>
+                <div class="nutrition-value">${data.protein}g</div>
+            </div>
+            <div class="nutrition-item">
+                <div class="nutrition-label">  Carbs</div>
+                <div class="nutrition-value">${data.carbs}g</div>
+            </div>
+            <div class="nutrition-item">
+                <div class="nutrition-label">  Fat</div>
+                <div class="nutrition-value">${data.fat}g</div>
+            </div>
+        </div>
+        `;
+        // KIỂM TRA CẢNH BÁO VÀ HIỂN THỊ HỘP KHUYÊN
+        if (isWarning) { // HIỂN THỊ HỘP CẢNH BÁO ĐỎ [8]
+            html += `
+            <div class="warning-box">
+                <p class="warning-text" style="color: #c53030; font-size: 1.1rem; margin-bottom: 10px;">
+                    ${data.advice}
+                </p>
+                <p class="warning-text" style="font-size: 1rem; color: #718096;">
+                    ${data.burn_time}
+                </p>
+            </div>
+            `;
+        } else { // HIỂN THỊ HỘP THÀNH CÔNG XANH
+            html += `
+            <div class="warning-box" style="
+                background: linear-gradient(135deg, #f0fff4 0%, #d1fae5 100%);
+                border: 2px solid #48bb78;
+            ">
+                <p class="warning-text" style="color: #065f46; font-size: 1.1rem; margin-bottom: 0;">
+                    ${data.advice || '✅ Món ăn này phù hợp với mục tiêu dinh dưỡng hiện tại của bạn. Ăn tốt nhé!'}
+                </p>
+            </div>
+            `;
+        }
+        html += `</div>`;
                 document.getElementById('result').innerHTML = html;
 
                 // Scroll to result
