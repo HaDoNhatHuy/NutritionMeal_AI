@@ -554,7 +554,7 @@
     </div>
 
     <!-- LỊCH SỬ PHÂN TÁCH THEO NGÀY -->
-    <div class="history-section">
+    @* <div class="history-section">
         <h4 class="card-title">📖 Lịch Sử Ăn Uống Chi Tiết</h4>
 
         @if (ViewBag.HistoryByDate != null)
@@ -648,7 +648,43 @@
                 Chưa có dữ liệu lịch sử ăn uống.
             </div>
         }
+    </div> *@
+    <!-- 1. CONTAINER CHỨA LỊCH SỬ -->
+    <div id="historyContainer">
+        @if (ViewBag.HistoryByDate != null)
+        {
+            // Ép kiểu tường minh cho biến cục bộ
+            var historyModel = (Dictionary<DateTime,
+            List<NutritionWebApp.Models.Entities.FoodHistory>>)ViewBag.HistoryByDate;
+
+            // Sử dụng biến đã ép kiểu để gọi Partial View
+            await Html.RenderPartialAsync("_FoodHistoryPartial", historyModel);
+        }
+        else
+        {
+            <div class="alert alert-info">
+                Chưa có dữ liệu lịch sử ăn uống.
+            </div>
+        }
     </div>
+
+    <!-- 2. NÚT TẢI THÊM -->
+    <div class="text-center mt-4" id="loadMoreArea">
+        @* Chúng ta sẽ ẩn nút này bằng JS nếu không còn dữ liệu *@
+        <button id="loadMoreBtn" class="btn btn-primary" style="
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        ">
+            <span id="loadMoreSpinner" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
+            Tải thêm lịch sử trước đó
+        </button>
+        <p id="noMoreHistory" class="text-muted mt-3" style="display: none;">Không còn dữ liệu lịch sử.</p>
+    </div>
+</div>
 </div>
 
 @section Scripts {
@@ -876,5 +912,131 @@
                 }
             }
         });
+    </script>
+    <script>
+        // --- KHAI BÁO BIẾN CẦN THIẾT ---
+        const historyContainer = document.getElementById('historyContainer');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreSpinner = document.getElementById('loadMoreSpinner');
+        const noMoreHistory = document.getElementById('noMoreHistory');
+        let isLoading = false;
+
+        // Mặc định tải 30 ngày. Chúng ta sẽ lấy ngày cũ nhất từ dữ liệu đã tải lần đầu
+        let offsetDate = new Date(); // Khởi tạo tạm thời
+        let hasMoreHistory = true; // Mặc định cho lần tải đầu tiên
+
+        // Hàm lấy ngày cũ nhất từ các thẻ HTML hiện tại (dữ liệu ban đầu)
+        function getOldestDate() {
+            // Chọn thẻ cuối cùng có class .date-group
+            const oldestGroup = historyContainer.querySelector('.date-group:last-child');
+            if (oldestGroup) {
+                // Lấy giá trị data-date đã lưu trong Bước 1.1
+                const dateString = oldestGroup.getAttribute('data-date');
+                if (dateString) {
+                    // Thêm 1 ngày để đảm bảo query chỉ lấy dữ liệu CŨ HƠN
+                    const date = new Date(dateString);
+                    // Đảm bảo không lấy lại ngày này, nên dùng chính ngày đó làm offset (Controller đã xử lý < parsedOffsetDate)
+                    return dateString;
+                }
+            }
+            // Nếu không tìm thấy, trả về null hoặc một ngày rất xa để kết thúc
+            return null;
+        }
+
+        // Hàm kiểm tra và cập nhật trạng thái nút Load More
+        function updateLoadMoreButton() {
+            if (!hasMoreHistory) {
+                loadMoreBtn.style.display = 'none';
+                noMoreHistory.style.display = 'block';
+            } else {
+                loadMoreBtn.style.display = 'inline-block';
+                noMoreHistory.style.display = 'none';
+            }
+        }
+
+        // --- HÀM CHÍNH: TẢI THÊM LỊCH SỬ ---
+        async function loadMoreHistory() {
+            if (isLoading || !hasMoreHistory) return;
+
+            isLoading = true;
+            loadMoreBtn.disabled = true;
+            loadMoreSpinner.style.display = 'inline-block';
+
+            // Lấy ngày offset: Ngày của nhóm dữ liệu cũ nhất hiện tại
+            const currentOffsetDate = getOldestDate();
+            if (!currentOffsetDate) {
+                // Nếu không có ngày cũ nhất (database trống hoặc đã load hết)
+                hasMoreHistory = false;
+                updateLoadMoreButton();
+                return;
+            }
+
+            try {
+                // Gọi AJAX đến Controller LoadHistory
+                const response = await fetch(`/Report/LoadHistory?offsetDate=${currentOffsetDate}&pageSize=30`);
+                // Controller trả về chuỗi HTML đã render
+                const newHtml = await response.text();
+
+                // Kiểm tra xem HTML có nội dung hay không
+                if (newHtml.trim().length === 0) {
+                    hasMoreHistory = false;
+                } else {
+                    // Thêm nội dung HTML mới vào container
+                    historyContainer.insertAdjacentHTML('beforeend', newHtml);
+
+                    // Tạm thời, chúng ta sẽ giả định nếu lượng data trả về
+                    // ÍT HƠN PageSize (30 ngày), tức là đã load hết.
+                    // (Đây là một cách kiểm tra nhanh, bạn có thể cần kiểm tra chính xác hơn)
+                    // Do chúng ta đang sử dụng Partial View, việc kiểm tra hasMore trên server
+                    // và truyền qua AJAX Header/JSON wrapper phức tạp hơn.
+
+                    // Cách đơn giản nhất: Nếu sau khi load, getOldestDate() không thay đổi,
+                    // tức là không có thêm dữ liệu.
+                    // Tuy nhiên, vì chúng ta không thể kiểm tra HasMore trên PartialView,
+                    // ta sẽ dựa vào việc nếu lần tải tiếp theo không có nội dung.
+                    // Đối với lần tải này, nếu HTML có nội dung, chúng ta tạm giữ hasMore = true.
+                }
+
+            } catch (e) {
+                console.error("Lỗi tải lịch sử:", e);
+                // Xử lý lỗi
+                noMoreHistory.textContent = "Đã xảy ra lỗi khi tải dữ liệu.";
+                noMoreHistory.style.display = 'block';
+                hasMoreHistory = false;
+            } finally {
+                isLoading = false;
+                loadMoreBtn.disabled = false;
+                loadMoreSpinner.style.display = 'none';
+
+                // Cập nhật trạng thái lần cuối
+                updateLoadMoreButton();
+            }
+        }
+
+        // Gắn sự kiện cho nút
+        loadMoreBtn.addEventListener('click', loadMoreHistory);
+
+        // KHI LOAD TRANG BAN ĐẦU:
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bắt buộc mở accordion cho nhóm ngày mới nhất trong lần tải đầu tiên
+            const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
+            if (firstGroup) {
+                 // Mở mặc định ngày gần nhất
+                 firstGroup.classList.add('show');
+            }
+
+            // Kiểm tra xem có đủ 30 ngày để tải thêm không
+            const initialGroups = historyContainer.querySelectorAll('.date-group');
+            // Nếu số lượng nhóm ít hơn 30, khả năng đã load hết
+            if (initialGroups.length === 0) {
+                hasMoreHistory = false;
+            }
+            updateLoadMoreButton();
+
+            // Kiểm tra xem liệu có thể tải thêm ngay sau khi tải lần đầu không (dùng offset cuối cùng)
+            // Nếu getOldestDate() không trả về null, tức là có ít nhất 1 nhóm ngày đã được hiển thị,
+            // cho phép nút Load More được kích hoạt cho lần tải tiếp theo.
+        });
+
     </script>
 }

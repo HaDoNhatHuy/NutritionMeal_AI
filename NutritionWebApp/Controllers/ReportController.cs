@@ -174,5 +174,39 @@ namespace NutritionWebApp.Controllers
 
             return View(history);
         }
+        [HttpGet]
+        public async Task<IActionResult> LoadHistory(string offsetDate, int pageSize = 30)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return Content("");
+
+            if (!DateTime.TryParse(offsetDate, out DateTime parsedOffsetDate))
+            {
+                // Nếu offsetDate không hợp lệ, hãy trả về rỗng (hoặc báo lỗi)
+                return Content("");
+            }
+
+            // 1. Lấy dữ liệu cũ hơn ngày offsetDate
+            var history = await _context.FoodHistory
+                // Lấy ngày nhỏ hơn ngày offset
+                .Where(f => f.UserId == userId.Value && f.AnalyzedAt.Date < parsedOffsetDate.Date)
+                .OrderByDescending(f => f.AnalyzedAt)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // 2. Kiểm tra còn dữ liệu tiếp theo không
+            bool hasMore = history.Count == pageSize; // Kiểm tra nhanh: nếu số lượng trả về bằng PageSize thì có thể còn
+
+            // 3. Nhóm dữ liệu vừa tải theo ngày
+            var historyByDate = history
+                .GroupBy(f => f.AnalyzedAt.Date)
+                .ToDictionary(g => g.Key, g => g.OrderBy(f => f.AnalyzedAt).ToList());
+
+            // 4. Gửi cờ hasMore qua ViewBag để JS nhận biết
+            ViewBag.HasMore = hasMore;
+
+            // 5. Render Partial View và trả về chuỗi HTML
+            return PartialView("_FoodHistoryPartial", historyByDate);
+        }
     }
 }

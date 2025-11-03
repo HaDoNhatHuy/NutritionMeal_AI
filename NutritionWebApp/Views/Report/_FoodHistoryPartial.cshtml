@@ -1,0 +1,96 @@
+﻿@model Dictionary<DateTime, List<NutritionWebApp.Models.Entities.FoodHistory>>
+@foreach (var dateGroup in Model)
+{
+    var totalCal = dateGroup.Value.Sum(f => f.Calories);
+    var totalProtein = dateGroup.Value.Sum(f => f.Protein);
+    var totalCarbs = dateGroup.Value.Sum(f => f.Carbs);
+    var totalFat = dateGroup.Value.Sum(f => f.Fat);
+
+    // Tạo ID duy nhất và kiểm tra nếu đây là lần tải đầu tiên, ngày mới nhất sẽ mở
+    var uniqueId = "collapse-" + dateGroup.Key.ToString("yyyyMMdd");
+    // Lần tải tiếp theo, mặc định ngày cũ sẽ ĐÓNG (bỏ class 'show')
+
+    <div class="date-group" data-date="@dateGroup.Key.ToString("yyyy-MM-dd")">
+
+        <div class="date-header"
+             data-bs-toggle="collapse"
+             data-bs-target="#@uniqueId"
+             aria-expanded="false"
+             aria-controls="@uniqueId">
+            <span>  @dateGroup.Key.ToString("dddd, dd/MM/yyyy")</span>
+            <span class="date-total">@totalCal.ToString("F0") kcal</span>
+        </div>
+
+        <div class="collapse" id="@uniqueId">
+
+            @foreach (var item in dateGroup.Value)
+            {
+                string mealClass = item.MealType switch
+                {
+                    "BuaSang" => "breakfast",
+                    "BuaTrua" => "lunch",
+                    "BuaToi" => "dinner",
+                    _ => "snack"
+                };
+                string mealLabel = item.MealType switch
+                {
+                    "BuaSang" => "  Sáng",
+                    "BuaTrua" => "  Trưa",
+                    "BuaToi" => "  Tối",
+                    _ => "  Ăn vặt"
+                };
+
+                <div class="meal-item @mealClass">
+                    <div class="meal-info">
+                        <div class="meal-name">
+                            @item.FoodName
+                            <span class="meal-type-badge @mealClass">@mealLabel</span>
+                        </div>
+                        <div class="meal-time">
+                            @item.AnalyzedAt.ToString("HH:mm")
+                        </div>
+                    </div>
+                    <div class="meal-nutrition">
+                        <div class="nutrition-badge">
+                            <div class="nutrition-badge-value">@item.Protein.ToString("F0")g</div>
+                            <div class="nutrition-badge-label">Protein</div>
+                        </div>
+                        <div class="nutrition-badge">
+                            <div class="nutrition-badge-value">@item.Carbs.ToString("F0")g</div>
+                            <div class="nutrition-badge-label">Carbs</div>
+                        </div>
+                        <div class="nutrition-badge">
+                            <div class="nutrition-badge-value">@item.Fat.ToString("F0")g</div>
+                            <div class="nutrition-badge-label">Fat</div>
+                        </div>
+                        <span class="calorie-badge">@item.Calories.ToString("F0") kcal</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Tổng kết ngày -->
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 12px;
+            margin-top: 10px;">
+                <div class="d-flex justify-content-around text-center">
+                    <div>
+                        <strong style="color: #fb923c;">@totalProtein.ToString("F0")g</strong>
+                        <small class="d-block text-muted">Protein</small>
+                    </div>
+                    <div>
+                        <strong style="color: #10b981;">@totalCarbs.ToString("F0")g</strong>
+                        <small class="d-block text-muted">Carbs</small>
+                    </div>
+                    <div>
+                        <strong style="color: #8b5cf6;">@totalFat.ToString("F0")g</strong>
+                        <small class="d-block text-muted">Fat</small>
+                    </div>
+                    <div>
+                        <strong style="color: #10b981;">@totalCal.ToString("F0") kcal</strong>
+                        <small class="d-block text-muted">Tổng Calo</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
