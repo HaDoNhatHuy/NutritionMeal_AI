@@ -40,3 +40,4 @@ MANIFEST
 *.temp
 node_modules/  # Nếu có JS dependencies
 wwwroot/lib/   # Nếu có thư viện JS trong wwwroot
+/NutritionWebApp/.vs/NutritionWebApp/FileContentIndex/29e4404c-f3f7-4536-beae-31b72283f2bd.vsidx
