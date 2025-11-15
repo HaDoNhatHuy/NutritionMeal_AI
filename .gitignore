@@ -41,3 +41,6 @@ MANIFEST
 node_modules/  # Nếu có JS dependencies
 wwwroot/lib/   # Nếu có thư viện JS trong wwwroot
 /NutritionWebApp/.vs/NutritionWebApp/FileContentIndex/29e4404c-f3f7-4536-beae-31b72283f2bd.vsidx
+/NutritionWebApp/.vs/NutritionWebApp/FileContentIndex/377954a5-2b1e-4297-8d30-3e8dcce18933.vsidx
+/NutritionWebApp/.vs/NutritionWebApp/FileContentIndex/4dccf5d2-a194-4ca3-87d5-7dca424d6e74.vsidx
+/NutritionWebApp/.vs/NutritionWebApp/FileContentIndex/d8e9701d-997c-42c6-a3e7-6b98f22e5d0f.vsidx
