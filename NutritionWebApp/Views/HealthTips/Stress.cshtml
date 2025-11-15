@@ -1,0 +1,484 @@
+﻿@{
+    ViewData["Title"] = "Quản Lý Stress";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .stress-hero {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .stress-hero h1 {
+                font-size: 2.25rem;
+                font-weight: 800;
+                color: #92400e;
+                margin-bottom: 1rem;
+            }
+
+            .stress-hero .lead {
+                font-size: 1.125rem;
+                color: #b45309;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 3px dashed #fbbf24;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d97706;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0;
+        }
+
+        .impact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .impact-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .impact-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+                border-color: #f59e0b;
+            }
+
+            .impact-card.negative {
+                border-left: 4px solid #ef4444;
+            }
+
+        .impact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .impact-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.625rem;
+        }
+
+        .impact-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .techniques-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+        }
+
+        .techniques-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .technique-card {
+            border: 2px solid #fbbf24;
+            padding: 1.75rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+            transition: all 0.3s ease;
+        }
+
+            .technique-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(251, 191, 36, 0.2);
+                border-color: #f59e0b;
+            }
+
+            .technique-card h4 {
+                color: #92400e;
+                margin-bottom: 1rem;
+                font-weight: 700;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .technique-card ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .technique-card li {
+                padding: 0.625rem 0;
+                color: var(--text-secondary);
+                line-height: 1.6;
+                border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+            }
+
+                .technique-card li:last-child {
+                    border-bottom: none;
+                }
+
+                .technique-card li::before {
+                    content: "→ ";
+                    color: #f59e0b;
+                    font-weight: bold;
+                    margin-right: 0.5rem;
+                }
+
+        .breathing-exercise {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+            .breathing-exercise h3 {
+                color: #1e3a8a;
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+                text-align: center;
+            }
+
+        .breathing-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .breathing-step {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+
+        .breathing-step h4 {
+            color: #1e3a8a;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .breathing-step p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .warning-signs {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+            .warning-signs h3 {
+                color: #991b1b;
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+            }
+
+            .warning-signs ul {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+                list-style: none;
+                padding: 0;
+            }
+
+            .warning-signs li {
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                color: #991b1b;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+                .warning-signs li::before {
+                    content: "⚠️";
+                    font-size: 1.2rem;
+                    flex-shrink: 0;
+                }
+
+        @@media (max-width: 768px) {
+            .stress-hero
+
+        {
+            padding: 2rem 0;
+        }
+
+        .stress-hero h1 {
+            font-size: 1.75rem;
+        }
+
+        .impact-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .techniques-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .breathing-steps {
+            grid-template-columns: 1fr;
+        }
+
+        .image-placeholder {
+            height: 250px;
+            font-size: 1rem;
+        }
+
+        }
+    </style>
+}
+
+<div class="stress-hero text-center">
+    <div class="container">
+        <h1>🧘 Quản Lý Stress Hiệu Quả</h1>
+        <p class="lead">
+            Stress là phản ứng tự nhiên của cơ thể, nhưng stress kéo dài có thể ảnh hưởng nghiêm trọng đến sức khỏe. Học cách quản lý stress là kỹ năng sống quan trọng.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="image-placeholder">
+        📸 Thêm ảnh thiền/yoga/thư giãn
+    </div>
+
+    <div class="impact-cards">
+        <div class="impact-card negative">
+            <span class="impact-icon">🧠</span>
+            <h3>Ảnh hưởng não bộ</h3>
+            <p>Giảm trí nhớ, khó tập trung, lo âu, trầm cảm, mất ngủ</p>
+        </div>
+
+        <div class="impact-card negative">
+            <span class="impact-icon">❤️</span>
+            <h3>Tim mạch yếu</h3>
+            <p>Tăng huyết áp, nhịp tim nhanh, nguy cơ đột quỵ, bệnh tim</p>
+        </div>
+
+        <div class="impact-card negative">
+            <span class="impact-icon">💪</span>
+            <h3>Cơ bắp căng cứng</h3>
+            <p>Đau đầu, đau lưng, đau cổ vai, co thắt cơ</p>
+        </div>
+
+        <div class="impact-card negative">
+            <span class="impact-icon">🍽️</span>
+            <h3>Tiêu hóa kém</h3>
+            <p>Đau dạ dày, buồn nôn, ợ chua, tiêu chảy hoặc táo bón</p>
+        </div>
+
+        <div class="impact-card negative">
+            <span class="impact-icon">🛡️</span>
+            <h3>Miễn dịch giảm</h3>
+            <p>Dễ bị nhiễm trùng, bệnh tật, vết thương lâu lành</p>
+        </div>
+
+        <div class="impact-card negative">
+            <span class="impact-icon">⚖️</span>
+            <h3>Cân nặng thất thường</h3>
+            <p>Tăng hoặc giảm cân đột ngột do thay đổi hormone</p>
+        </div>
+    </div>
+
+    <div class="breathing-exercise">
+        <h3>🌬️ Kỹ Thuật Thở Sâu 4-7-8 (Giảm Stress Nhanh)</h3>
+        <div class="breathing-steps">
+            <div class="breathing-step">
+                <div class="step-number">1</div>
+                <h4>Thở ra hoàn toàn</h4>
+                <p>Thở ra qua miệng, làm rỗng phổi</p>
+            </div>
+
+            <div class="breathing-step">
+                <div class="step-number">2</div>
+                <h4>Hít vào 4 giây</h4>
+                <p>Đóng miệng, hít vào qua mũi, đếm 4</p>
+            </div>
+
+            <div class="breathing-step">
+                <div class="step-number">3</div>
+                <h4>Nín thở 7 giây</h4>
+                <p>Giữ hơi thở trong 7 giây</p>
+            </div>
+
+            <div class="breathing-step">
+                <div class="step-number">4</div>
+                <h4>Thở ra 8 giây</h4>
+                <p>Thở ra qua miệng trong 8 giây</p>
+            </div>
+        </div>
+        <p style="text-align: center; color: #1e3a8a; margin-top: 1.5rem; font-weight: 600;">
+            Lặp lại 4 lần. Thực hành 2 lần/ngày để giảm lo âu và cải thiện giấc ngủ.
+        </p>
+        <div class="image-placeholder" style="height: 250px; margin-top: 1.5rem; font-size: 1.2rem;">
+            📊 Thêm hình minh họa kỹ thuật thở
+        </div>
+    </div>
+
+    <div class="techniques-section">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary-color);">
+            Kỹ Thuật Quản Lý Stress
+        </h2>
+
+        <div class="techniques-grid">
+            <div class="technique-card">
+                <h4>🧘 Mindfulness & Thiền</h4>
+                <ul>
+                    <li>Tập trung vào hiện tại, không nghĩ quá khứ/tương lai</li>
+                    <li>Thiền 10-15 phút/ngày</li>
+                    <li>Quan sát hơi thở, cảm giác cơ thể</li>
+                    <li>Dùng app: Headspace, Calm, Insight Timer</li>
+                </ul>
+                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                    📸 Ảnh thiền
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <h4>🏃 Vận Động Thể Chất</h4>
+                <ul>
+                    <li>Tập thể dục 30 phút/ngày giảm cortisol (hormone stress)</li>
+                    <li>Chạy bộ, đạp xe, bơi lội</li>
+                    <li>Yoga, Pilates giúp thư giãn sâu</li>
+                    <li>Đi bộ ngoài trời tiếp xúc thiên nhiên</li>
+                </ul>
+                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                    📸 Ảnh tập yoga
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <h4>👥 Kết Nối Xã Hội</h4>
+                <ul>
+                    <li>Chia sẻ cảm xúc với người thân, bạn bè</li>
+                    <li>Tham gia nhóm, câu lạc bộ</li>
+                    <li>Tình nguyện giúp đỡ người khác</li>
+                    <li>Tránh cô lập, xa rời mọi người</li>
+                </ul>
+                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                    📸 Ảnh gặp gỡ bạn bè
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <h4>⏰ Quản Lý Thời Gian</h4>
+                <ul>
+                    <li>Lập danh sách công việc ưu tiên</li>
+                    <li>Chia nhỏ mục tiêu lớn thành bước nhỏ</li>
+                    <li>Học cách từ chối, đặt ranh giới</li>
+                    <li>Nghỉ giải lao 5-10 phút mỗi giờ</li>
+                </ul>
+                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                    📸 Ảnh lập kế hoạch
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <h4>🎨 Sở Thích & Thư Giãn</h4>
+                <ul>
+                    <li>Vẽ, chơi nhạc, đọc sách, làm vườn</li>
+                    <li>Nghe nhạc thư giãn (classical, nature sounds)</li>
+                    <li>Xem phim hài, chơi với thú cưng</li>
+                    <li>Tắm nước ấm, massage, spa</li>
+                </ul>
+                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                    📸 Ảnh đọc sách/thư giãn
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <h4>🍎 Dinh Dưỡng Lành Mạnh</h4>
+                <ul>
+                    <li>Ăn đủ protein, omega-3, vitamin B, C, D</li>
+                    <li>Giảm caffeine, đường, đồ ăn chế biến</li>
+                    <li>Uống đủ nước (2-2.5L/ngày)</li>
+                    <li>Tránh rượu bia, thuốc lá</li>
+                </ul>
+                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                    📸 Ảnh thực phẩm lành mạnh
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="warning-signs">
+        <h3>🚨 Dấu Hiệu Cần Tìm Sự Giúp Đỡ Chuyên Nghiệp</h3>
+        <ul>
+            <li>Lo âu, trầm cảm kéo dài hơn 2 tuần</li>
+            <li>Suy nghĩ tự hại, tự tử</li>
+            <li>Không thể thực hiện công việc hàng ngày</li>
+            <li>Lạm dụng rượu, ma túy để đối phó</li>
+            <li>Các mối quan hệ bị ảnh hưởng nghiêm trọng</li>
+            <li>Triệu chứng thể chất không rõ nguyên nhân</li>
+        </ul>
+        <p style="text-align: center; color: #991b1b; margin-top: 1.5rem; font-weight: 700; font-size: 1.05rem;">
+            Hãy liên hệ bác sĩ, nhà tâm lý học, hoặc đường dây nóng hỗ trợ tâm lý ngay khi cần thiết.
+        </p>
+    </div>
+
+    <div style="background: #d1fae5; border: 2px solid #10b981; border-radius: 10px; padding: 1.5rem; margin-top: 2rem;">
+        <h4 style="color: #065f46; margin-bottom: 1rem;">✅ Lời Khuyên Vàng</h4>
+        <ul style="color: #047857; margin: 0; padding-left: 1.5rem;">
+            <li>Stress vừa phải là bình thường, stress mãn tính mới nguy hiểm</li>
+            <li>Không có cách "đúng" duy nhất - tìm phương pháp phù hợp với bạn</li>
+            <li>Kiên nhẫn - thay đổi thói quen cần thời gian</li>
+            <li>Kết hợp nhiều phương pháp cho hiệu quả tốt nhất</li>
+            <li>Tự chăm sóc bản thân không phải là ích kỷ</li>
+        </ul>
+    </div>
+
+    <div class="text-center" style="margin: 3rem 0;">
+        <a asp-action="Index" class="btn btn-modern btn-login" style="padding: 0.75rem 2rem;">
+            ← Quay lại Kiến Thức Sức Khỏe
+        </a>
+    </div>
+</div>

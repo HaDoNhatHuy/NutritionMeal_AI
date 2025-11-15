@@ -14,6 +14,7 @@ namespace NutritionWebApp.Models.Entities
         public virtual User User { get; set; } = null!;
 
         public string Role { get; set; } = string.Empty; // User hoặc AI
+        public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; } = DateTime.Now;
     }

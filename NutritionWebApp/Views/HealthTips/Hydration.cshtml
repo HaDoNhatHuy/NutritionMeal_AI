@@ -1,0 +1,268 @@
+﻿@{
+    ViewData["Title"] = "Uống Đủ Nước";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .hydration-hero {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .hydration-hero h1 {
+                font-size: 2.25rem;
+                font-weight: 800;
+                color: #1976d2;
+                margin-bottom: 1rem;
+            }
+
+            .hydration-hero .lead {
+                font-size: 1.125rem;
+                color: #37474f;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+        .benefit-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .benefit-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .benefit-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+                border-color: #2196f3;
+            }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.625rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .water-intake-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+        }
+
+        .water-calculator {
+            background: #f0f9ff;
+            border: 2px solid #bae6fd;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+            .water-calculator h3 {
+                color: #0284c7;
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+            }
+
+        .calculator-formula {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin: 1rem 0;
+            border: 1px solid #bae6fd;
+        }
+
+        .tips-list {
+            background: var(--soft-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+            .tips-list h3 {
+                color: var(--primary-color);
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+            }
+
+            .tips-list ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .tips-list li {
+                padding: 0.75rem 0;
+                border-bottom: 1px solid var(--border-color);
+                color: var(--text-secondary);
+                line-height: 1.6;
+            }
+
+                .tips-list li:last-child {
+                    border-bottom: none;
+                }
+
+                .tips-list li::before {
+                    content: "💡 ";
+                    margin-right: 0.5rem;
+                }
+
+        @@media (max-width: 768px) {
+            .hydration-hero
+
+        {
+            padding: 2rem 0;
+        }
+
+        .hydration-hero h1 {
+            font-size: 1.75rem;
+        }
+
+        .benefit-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .water-intake-section {
+            padding: 1.5rem;
+        }
+
+        }
+    </style>
+}
+
+<div class="hydration-hero text-center">
+    <div class="container">
+        <h1>💧 Uống Đủ Nước - Chìa Khóa Sức Khỏe</h1>
+        <p class="lead">
+            Nước chiếm 60-70% trọng lượng cơ thể và đóng vai trò thiết yếu trong mọi quá trình sinh lý. Uống đủ nước mỗi ngày là nền tảng cho một cơ thể khỏe mạnh.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="benefit-cards">
+        <div class="benefit-card">
+            <span class="benefit-icon">🧠</span>
+            <h3>Cải thiện chức năng não</h3>
+            <p>Giúp tập trung tốt hơn, tỉnh táo và cải thiện trí nhớ ngắn hạn</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">⚡</span>
+            <h3>Tăng năng lượng</h3>
+            <p>Phòng ngừa mệt mỏi, duy trì năng lượng ổn định trong ngày</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">🌡️</span>
+            <h3>Điều hòa thân nhiệt</h3>
+            <p>Giúp cơ thể duy trì nhiệt độ ổn định qua đổ mồ hôi</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">🫀</span>
+            <h3>Hỗ trợ tuần hoàn</h3>
+            <p>Giữ máu loãng, giúp tim bơm máu dễ dàng hơn</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">🧼</span>
+            <h3>Thải độc tự nhiên</h3>
+            <p>Giúp thận lọc chất thải và độc tố ra khỏi cơ thể</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">✨</span>
+            <h3>Da đẹp, săn chắc</h3>
+            <p>Giữ độ ẩm cho da, giảm nếp nhăn và mụn</p>
+        </div>
+    </div>
+
+    <div class="water-intake-section">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary-color);">
+            Bạn cần uống bao nhiêu nước?
+        </h2>
+
+        <div class="water-calculator">
+            <h3>📏 Công thức tính nhanh</h3>
+            <div class="calculator-formula">
+                <strong>Lượng nước cần uống =</strong><br>
+                Cân nặng (kg) × 30-40 ml
+            </div>
+            <p style="color: #0369a1; font-size: 0.95rem; margin-top: 1rem;">
+                Ví dụ: Người nặng 60kg cần uống khoảng <strong>1.8 - 2.4 lít</strong> nước mỗi ngày
+            </p>
+        </div>
+
+        <div class="tips-list">
+            <h3>🎯 Mẹo Uống Nước Đều Đặn</h3>
+            <ul>
+                <li>
+                    <strong>Uống ngay khi thức dậy:</strong> 1-2 cốc nước ấm để kích hoạt hệ tiêu hóa
+                </li>
+                <li>
+                    <strong>Mang chai nước bên mình:</strong> Luôn có nước trong tầm tay để nhắc nhở bản thân
+                </li>
+                <li>
+                    <strong>Đặt báo thức nhắc nhở:</strong> Uống mỗi 1-2 giờ một lần
+                </li>
+                <li>
+                    <strong>Uống trước bữa ăn:</strong> 30 phút trước bữa ăn giúp tiêu hóa tốt hơn
+                </li>
+                <li>
+                    <strong>Tăng lượng khi vận động:</strong> Bổ sung thêm 500ml cho mỗi 30 phút tập luyện
+                </li>
+                <li>
+                    <strong>Quan sát màu nước tiểu:</strong> Màu vàng nhạt là dấu hiệu đủ nước
+                </li>
+                <li>
+                    <strong>Ăn nhiều rau củ:</strong> Dưa hấu, dưa chuột, cà chua giàu nước
+                </li>
+            </ul>
+        </div>
+
+        <div style="background: #fef3c7; border: 2px solid #fbbf24; border-radius: 10px; padding: 1.5rem; margin-top: 2rem;">
+            <h4 style="color: #92400e; margin-bottom: 1rem;">⚠️ Dấu hiệu thiếu nước</h4>
+            <ul style="color: #78350f; margin: 0; padding-left: 1.5rem;">
+                <li>Khát nước, khô miệng</li>
+                <li>Nước tiểu màu vàng đậm</li>
+                <li>Mệt mỏi, chóng mặt, đau đầu</li>
+                <li>Da khô, kém đàn hồi</li>
+                <li>Táo bón, khó tiêu</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin: 3rem 0;">
+        <a asp-action="Index" class="btn btn-modern btn-login" style="padding: 0.75rem 2rem;">
+            ← Quay lại Kiến Thức Sức Khỏe
+        </a>
+    </div>
+</div>

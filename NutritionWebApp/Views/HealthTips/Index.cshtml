@@ -1,0 +1,150 @@
+﻿@{
+    ViewData["Title"] = "Mẹo Sức Khỏe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .health-hub-hero {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 4rem 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .health-hub-hero h1 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: var(--primary-color);
+                margin-bottom: 1rem;
+            }
+
+            .health-hub-hero p {
+                font-size: 1.125rem;
+                color: var(--text-secondary);
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+        .health-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 3rem 0;
+        }
+
+        .health-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+            .health-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-lg);
+                border-color: var(--accent-color);
+            }
+
+        .health-card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .health-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .health-card-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        @@media (max-width: 768px) {
+            .health-hub-hero
+
+        {
+            padding: 2.5rem 0;
+        }
+
+        .health-hub-hero h1 {
+            font-size: 2rem;
+        }
+
+        .health-cards-grid {
+            grid-template-columns: 1fr;
+            padding: 2rem 0;
+        }
+
+        }
+    </style>
+}
+
+<div class="health-hub-hero">
+    <div class="container">
+        <h1>💡 Kiến Thức Sức Khỏe</h1>
+        <p>Khám phá các nguyên tắc cơ bản để sống khỏe mạnh, cân bằng và hạnh phúc hơn mỗi ngày</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="health-cards-grid">
+        <a asp-action="NutritionPyramid" class="health-card">
+            <span class="health-card-icon">🥗</span>
+            <h3 class="health-card-title">Tháp Dinh Dưỡng</h3>
+            <p class="health-card-description">
+                Tìm hiểu về tháp dinh dưỡng và cách xây dựng chế độ ăn cân bằng cho cơ thể
+            </p>
+        </a>
+
+        <a asp-action="Hydration" class="health-card">
+            <span class="health-card-icon">💧</span>
+            <h3 class="health-card-title">Uống Đủ Nước</h3>
+            <p class="health-card-description">
+                Tầm quan trọng của việc bổ sung nước và cách duy trì đủ độ ẩm cho cơ thể
+            </p>
+        </a>
+
+        <a asp-action="Exercise" class="health-card">
+            <span class="health-card-icon">🏃</span>
+            <h3 class="health-card-title">Tập Luyện Khoa Học</h3>
+            <p class="health-card-description">
+                Hướng dẫn tập luyện hiệu quả và an toàn để cải thiện sức khỏe tổng thể
+            </p>
+        </a>
+
+        <a asp-action="Sleep" class="health-card">
+            <span class="health-card-icon">😴</span>
+            <h3 class="health-card-title">Giấc Ngủ Chất Lượng</h3>
+            <p class="health-card-description">
+                Vai trò của giấc ngủ đối với sức khỏe và các mẹo để cải thiện chất lượng giấc ngủ
+            </p>
+        </a>
+
+        <a asp-action="Stress" class="health-card">
+            <span class="health-card-icon">🧘</span>
+            <h3 class="health-card-title">Quản Lý Stress</h3>
+            <p class="health-card-description">
+                Kỹ thuật thư giãn và quản lý căng thẳng để duy trì sức khỏe tinh thần
+            </p>
+        </a>
+
+        <a asp-controller="Exercise" asp-action="Index" class="health-card">
+            <span class="health-card-icon">💪</span>
+            <h3 class="health-card-title">Bài Tập Theo Nhóm Cơ</h3>
+            <p class="health-card-description">
+                Thư viện video hướng dẫn tập luyện chi tiết cho từng nhóm cơ
+            </p>
+        </a>
+    </div>
+</div>

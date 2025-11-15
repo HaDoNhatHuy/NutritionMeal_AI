@@ -6,7 +6,7 @@
     <style>
         .analyze-section {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f4f8 100%);
             padding: 60px 0;
         }
 
@@ -16,40 +16,41 @@
         }
 
         .page-title {
-            color: white;
+            color: #2d3748;
             font-size: 2.5rem;
             font-weight: 700;
             text-align: center;
             margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .upload-card {
             background: white;
             border-radius: 25px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
         }
 
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 3px dashed #48bb78;
             border-radius: 20px;
             padding: 50px 30px;
             text-align: center;
             transition: all 0.3s ease;
-            background: linear-gradient(135deg, #f5f7ff 0%, #faf5ff 100%);
+            background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            display: flex; /* Dùng flex để căn giữa nội dung */
+            display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 300px; /* Đặt chiều cao tối thiểu cho khung */
+            min-height: 300px;
         }
 
             .upload-area:hover {
-                border-color: #764ba2;
-                background: linear-gradient(135deg, #eef2ff 0%, #f3e8ff 100%);
+                border-color: #38a169;
+                background: linear-gradient(135deg, #e6f9f0 0%, #f1f5f9 100%);
                 transform: scale(1.02);
             }
 
@@ -80,27 +81,17 @@
             display: none;
         }
 
-        /* .preview-image {
-                            max-width: 100%;
-                            max-height: 300px;
-                            border-radius: 15px;
-                            margin: 20px 0;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                            display: none;
-                        } */
-        /* STYLE MỚI CHO ẢNH BÊN TRONG */
         .preview-image-inside {
-            width: 100%; /* Chiếm toàn bộ chiều rộng của khung cha (.upload-area) */
-            height: 100%; /* Chiếm toàn bộ chiều cao của khung cha */
-            object-fit: cover; /* Quan trọng: Đảm bảo ảnh lấp đầy khung mà không bị méo */
-            position: absolute; /* Đặt ảnh lên trên nền */
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
             top: 0;
             left: 0;
-            border-radius: 18px; /* Giữ bo góc giống khung cha */
-            display: none; /* Mặc định ẩn */
+            border-radius: 18px;
+            display: none;
         }
 
-        /* Ẩn nội dung chữ khi có ảnh */
         .upload-area.has-preview #uploadPrompt {
             display: none;
         }
@@ -137,7 +128,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(255,255,255,0.95);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -149,7 +140,7 @@
 
         .loading-content {
             text-align: center;
-            color: white;
+            color: #2d3748;
         }
 
         .spinner {
@@ -170,41 +161,49 @@
         }
 
             .spinner-ring:nth-child(2) {
-                border-top-color: #667eea;
+                border-top-color: #4299e1;
                 animation-duration: 1.5s;
             }
 
             .spinner-ring:nth-child(3) {
-                border-top-color: #f6ad55;
+                border-top-color: #ed8936;
                 animation-duration: 2s;
             }
 
         @@keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
         }
 
         .loading-text {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 15px;
+            color: #2d3748;
         }
 
         .loading-subtext {
             font-size: 1rem;
             opacity: 0.8;
             animation: pulse 2s ease-in-out infinite;
+            color: #4a5568;
         }
 
         @@keyframes pulse {
-            0%, 100% {
-                opacity: 0.5;
-            }
+            0%, 100%
 
-            50% {
-                opacity: 1;
-            }
+        {
+            opacity: 0.5;
+        }
+
+        50% {
+            opacity: 1;
+        }
+
         }
 
         /* Result Card */
@@ -217,9 +216,9 @@
             animation: slideUp 0.5s ease;
             border-left: 6px solid #48bb78;
         }
-            /* Bổ sung CSS cho trạng thái Thành công (Xanh lá) */
+
             .result-card.success {
-                border-left-color: #48bb78; /* Màu xanh lá [4] */
+                border-left-color: #48bb78;
             }
 
                 .result-card.success .food-name {
@@ -240,15 +239,18 @@
             }
 
         @@keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .food-name {
@@ -307,17 +309,20 @@
         }
 
         @@media (max-width: 768px) {
-            .page-title {
-                font-size: 2rem;
-            }
+            .page-title
 
-            .upload-card {
-                padding: 25px;
-            }
+        {
+            font-size: 2rem;
+        }
 
-            .nutrition-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .upload-card {
+            padding: 25px;
+        }
+
+        .nutrition-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
         }
     </style>
 }

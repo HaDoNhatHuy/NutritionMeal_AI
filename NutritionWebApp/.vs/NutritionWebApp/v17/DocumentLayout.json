@@ -3,6 +3,26 @@
   "WorkspaceRootPath": "D:\\PROJECT_AI\\NutritionWebApp\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\healthtips\\stress.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\healthtips\\stress.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\controllers\\healthtipscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:controllers\\healthtipscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\healthtips\\sleep.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\healthtips\\sleep.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\wwwroot\\js\\chatbox.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:wwwroot\\js\\chatbox.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\wwwroot\\css\\chatbox.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:wwwroot\\css\\chatbox.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -15,16 +35,20 @@
       "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\report\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\report\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\healthtips\\exercise.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\healthtips\\exercise.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\report\\_foodhistorypartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\report\\_foodhistorypartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\controllers\\reportcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:controllers\\reportcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\chat\\conversationlist.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\chat\\conversationlist.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|d:\\project_ai\\nutritionwebapp\\views\\chat\\conversationdetail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5EC5EBC2-5BC0-4A92-8C74-0BDE8031B6FF}|NutritionWebApp.csproj|solutionrelative:views\\chat\\conversationdetail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -51,79 +75,151 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Register.cshtml",
-              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Register.cshtml",
-              "RelativeDocumentMoniker": "Views\\Account\\Register.cshtml",
-              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Register.cshtml",
-              "RelativeToolTip": "Views\\Account\\Register.cshtml",
-              "ViewState": "AgIAAD4BAAAAAAAAAAAAAEgBAAAVAAAAAAAAAA==",
+              "Title": "Stress.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\HealthTips\\Stress.cshtml",
+              "RelativeDocumentMoniker": "Views\\HealthTips\\Stress.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\HealthTips\\Stress.cshtml",
+              "RelativeToolTip": "Views\\HealthTips\\Stress.cshtml",
+              "ViewState": "AgIAAPAAAAAAAAAAAAAiwPcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-03T16:29:11.751Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Login.cshtml",
-              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Login.cshtml",
-              "RelativeDocumentMoniker": "Views\\Account\\Login.cshtml",
-              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Login.cshtml",
-              "RelativeToolTip": "Views\\Account\\Login.cshtml",
-              "ViewState": "AgIAACUBAAAAAAAAAAAAADwBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-03T16:28:26.685Z",
+              "WhenOpened": "2025-11-15T01:43:06.729Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
-              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAACECAAAAAAAAAAAnwC8CAAAoAAAAAAAAAA==",
+              "Title": "Sleep.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\HealthTips\\Sleep.cshtml",
+              "RelativeDocumentMoniker": "Views\\HealthTips\\Sleep.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\HealthTips\\Sleep.cshtml",
+              "RelativeToolTip": "Views\\HealthTips\\Sleep.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOEAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-03T16:24:33.747Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Report\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Report\\Index.cshtml",
-              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Report\\Index.cshtml",
-              "RelativeToolTip": "Views\\Report\\Index.cshtml",
-              "ViewState": "AgIAAIkCAAAAAAAAAAAIwI4CAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-03T16:15:34.178Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "ReportController.cs",
-              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Controllers\\ReportController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ReportController.cs",
-              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Controllers\\ReportController.cs",
-              "RelativeToolTip": "Controllers\\ReportController.cs",
-              "ViewState": "AgIAAMMAAAAAAAAAAAAgwM8AAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-03T16:14:53.998Z",
+              "WhenOpened": "2025-11-15T01:42:27.183Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "_FoodHistoryPartial.cshtml",
-              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Report\\_FoodHistoryPartial.cshtml",
-              "RelativeDocumentMoniker": "Views\\Report\\_FoodHistoryPartial.cshtml",
-              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Report\\_FoodHistoryPartial.cshtml",
-              "RelativeToolTip": "Views\\Report\\_FoodHistoryPartial.cshtml",
-              "ViewState": "AgIAADUAAAAAAAAAAAAAAAAAAABOAAAAAAAAAA==",
+              "Title": "chatbox.css",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\wwwroot\\css\\chatbox.css",
+              "RelativeDocumentMoniker": "wwwroot\\css\\chatbox.css",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\wwwroot\\css\\chatbox.css",
+              "RelativeToolTip": "wwwroot\\css\\chatbox.css",
+              "ViewState": "AgIAAFQBAAAAAAAAAAAcwHMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-11-15T01:41:21.452Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Register.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Register.cshtml",
+              "RelativeDocumentMoniker": "Views\\Account\\Register.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Register.cshtml",
+              "RelativeToolTip": "Views\\Account\\Register.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABTAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-03T16:12:57.997Z",
+              "WhenOpened": "2025-11-14T15:03:31.088Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Login.cshtml",
+              "RelativeDocumentMoniker": "Views\\Account\\Login.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Account\\Login.cshtml",
+              "RelativeToolTip": "Views\\Account\\Login.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-14T15:02:38.724Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "Controllers\\AccountController.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAIwDQAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-14T14:41:36.635Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Exercise.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\HealthTips\\Exercise.cshtml",
+              "RelativeDocumentMoniker": "Views\\HealthTips\\Exercise.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\HealthTips\\Exercise.cshtml",
+              "RelativeToolTip": "Views\\HealthTips\\Exercise.cshtml",
+              "ViewState": "AgIAAMYAAAAAAAAAAAAAANYAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-14T14:39:10.663Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HealthTipsController.cs",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Controllers\\HealthTipsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\HealthTipsController.cs",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Controllers\\HealthTipsController.cs",
+              "RelativeToolTip": "Controllers\\HealthTipsController.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAYwCUAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-14T14:38:57.345Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ConversationList.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Chat\\ConversationList.cshtml",
+              "RelativeDocumentMoniker": "Views\\Chat\\ConversationList.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Chat\\ConversationList.cshtml",
+              "RelativeToolTip": "Views\\Chat\\ConversationList.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-14T14:38:52.852Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ConversationDetail.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Chat\\ConversationDetail.cshtml",
+              "RelativeDocumentMoniker": "Views\\Chat\\ConversationDetail.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Chat\\ConversationDetail.cshtml",
+              "RelativeToolTip": "Views\\Chat\\ConversationDetail.cshtml",
+              "ViewState": "AgIAAI0AAAAAAAAAAAAYwJUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-14T14:38:04.77Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAGwAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-14T14:37:25.526Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "chatbox.js",
+              "DocumentMoniker": "D:\\PROJECT_AI\\NutritionWebApp\\wwwroot\\js\\chatbox.js",
+              "RelativeDocumentMoniker": "wwwroot\\js\\chatbox.js",
+              "ToolTip": "D:\\PROJECT_AI\\NutritionWebApp\\wwwroot\\js\\chatbox.js",
+              "RelativeToolTip": "wwwroot\\js\\chatbox.js",
+              "ViewState": "AgIAADcBAAAAAAAAAAAiwFUBAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-11-14T14:36:49.773Z",
               "EditorCaption": ""
             }
           ]

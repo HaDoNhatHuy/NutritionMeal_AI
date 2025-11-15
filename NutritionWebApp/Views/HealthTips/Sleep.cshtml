@@ -1,0 +1,464 @@
+﻿@{
+    ViewData["Title"] = "Giấc Ngủ Chất Lượng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .sleep-hero {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .sleep-hero h1 {
+                font-size: 2.25rem;
+                font-weight: 800;
+                color: #4c1d95;
+                margin-bottom: 1rem;
+            }
+
+            .sleep-hero .lead {
+                font-size: 1.125rem;
+                color: #5b21b6;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            border: 3px dashed #c084fc;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9333ea;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0;
+        }
+
+        .benefit-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .benefit-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .benefit-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+                border-color: #a855f7;
+            }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.625rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .sleep-stages {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+        }
+
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .stage-card {
+            border-left: 4px solid;
+            padding: 1.5rem;
+            background: var(--soft-bg);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+            .stage-card:hover {
+                transform: translateX(5px);
+                box-shadow: var(--shadow-sm);
+            }
+
+            .stage-card.stage1 {
+                border-color: #06b6d4;
+            }
+
+            .stage-card.stage2 {
+                border-color: #3b82f6;
+            }
+
+            .stage-card.stage3 {
+                border-color: #8b5cf6;
+            }
+
+            .stage-card.stage4 {
+                border-color: #a855f7;
+            }
+
+            .stage-card h4 {
+                color: var(--primary-color);
+                margin-bottom: 0.75rem;
+                font-weight: 700;
+            }
+
+            .stage-card p {
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin: 0;
+            }
+
+        .tips-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+        }
+
+            .tips-section h3 {
+                color: var(--primary-color);
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+            }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tip-item {
+            background: var(--soft-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 3px solid #a855f7;
+        }
+
+            .tip-item h4 {
+                color: var(--primary-color);
+                font-size: 1rem;
+                font-weight: 700;
+                margin-bottom: 0.75rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .tip-item p {
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin: 0;
+            }
+
+        .sleep-schedule {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+            .sleep-schedule h3 {
+                color: #92400e;
+                margin-bottom: 1rem;
+                font-weight: 700;
+            }
+
+        .schedule-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+            .schedule-table th {
+                background: #fbbf24;
+                color: #78350f;
+                padding: 1rem;
+                font-weight: 700;
+                text-align: left;
+            }
+
+            .schedule-table td {
+                padding: 1rem;
+                border-bottom: 1px solid #fde68a;
+                color: #78350f;
+            }
+
+            .schedule-table tr:last-child td {
+                border-bottom: none;
+            }
+
+        @@media (max-width: 768px) {
+            .sleep-hero
+
+        {
+            padding: 2rem 0;
+        }
+
+        .sleep-hero h1 {
+            font-size: 1.75rem;
+        }
+
+        .benefit-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .stage-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tips-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .image-placeholder {
+            height: 250px;
+            font-size: 1rem;
+        }
+
+        }
+    </style>
+}
+
+<div class="sleep-hero text-center">
+    <div class="container">
+        <h1>😴 Giấc Ngủ Chất Lượng</h1>
+        <p class="lead">
+            Giấc ngủ là trụ cột quan trọng của sức khỏe. Một giấc ngủ đủ giấc và sâu giúp cơ thể phục hồi, tái tạo năng lượng và duy trì sức khỏe tối ưu.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="image-placeholder">
+        📸 Thêm ảnh người ngủ ngon/phòng ngủ thoải mái
+    </div>
+
+    <div class="benefit-cards">
+        <div class="benefit-card">
+            <span class="benefit-icon">🧠</span>
+            <h3>Tăng cường trí nhớ</h3>
+            <p>Củng cố ký ức, cải thiện khả năng học tập và tập trung</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">💪</span>
+            <h3>Phục hồi cơ thể</h3>
+            <p>Sửa chữa mô, xây dựng cơ bắp, tăng cường hệ miễn dịch</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">❤️</span>
+            <h3>Bảo vệ tim mạch</h3>
+            <p>Giảm nguy cơ bệnh tim, đột quỵ, huyết áp cao</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">⚖️</span>
+            <h3>Kiểm soát cân nặng</h3>
+            <p>Điều hòa hormone gây đói, giảm thèm ăn vặt</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">😊</span>
+            <h3>Cân bằng cảm xúc</h3>
+            <p>Giảm căng thẳng, lo âu, cải thiện tâm trạng</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">✨</span>
+            <h3>Da đẹp tự nhiên</h3>
+            <p>Tái tạo tế bào da, giảm nếp nhăn, da sáng khỏe</p>
+        </div>
+    </div>
+
+    <div class="sleep-stages">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary-color);">
+            4 Giai Đoạn Của Giấc Ngủ
+        </h2>
+
+        <div class="stage-grid">
+            <div class="stage-card stage1">
+                <h4>🌊 Giai đoạn 1: Ngủ nông (5-10 phút)</h4>
+                <p>Giai đoạn chuyển tiếp giữa thức và ngủ. Cơ thể bắt đầu thư giãn, nhịp tim chậm lại, dễ bị đánh thức.</p>
+            </div>
+
+            <div class="stage-card stage2">
+                <h4>🌙 Giai đoạn 2: Ngủ nhẹ (45-55%)</h4>
+                <p>Nhiệt độ cơ thể giảm, nhịp tim và hô hấp ổn định. Chiếm phần lớn thời gian ngủ.</p>
+            </div>
+
+            <div class="stage-card stage3">
+                <h4>💤 Giai đoạn 3: Ngủ sâu (15-25%)</h4>
+                <p>Giai đoạn quan trọng nhất cho sự phục hồi. Cơ thể sửa chữa mô, xây dựng cơ và xương, tăng cường miễn dịch.</p>
+            </div>
+
+            <div class="stage-card stage4">
+                <h4>👁️ REM Sleep: Ngủ mơ (20-25%)</h4>
+                <p>Não hoạt động mạnh, xử lý cảm xúc và ký ức. Mắt chuyển động nhanh, cơ thể tạm thời bất động.</p>
+            </div>
+        </div>
+
+        <div class="image-placeholder" style="height: 300px; margin-top: 2rem; font-size: 1.2rem;">
+            📊 Thêm biểu đồ chu kỳ giấc ngủ
+        </div>
+    </div>
+
+    <div class="sleep-schedule">
+        <h3>⏰ Nhu Cầu Giấc Ngủ Theo Độ Tuổi</h3>
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Nhóm Tuổi</th>
+                    <th>Thời Gian Ngủ Khuyến Nghị</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Trẻ sơ sinh (0-3 tháng)</strong></td>
+                    <td>14-17 giờ/ngày</td>
+                </tr>
+                <tr>
+                    <td><strong>Trẻ em mẫu giáo (3-5 tuổi)</strong></td>
+                    <td>10-13 giờ/đêm</td>
+                </tr>
+                <tr>
+                    <td><strong>Học sinh (6-13 tuổi)</strong></td>
+                    <td>9-11 giờ/đêm</td>
+                </tr>
+                <tr>
+                    <td><strong>Thanh thiếu niên (14-17 tuổi)</strong></td>
+                    <td>8-10 giờ/đêm</td>
+                </tr>
+                <tr>
+                    <td><strong>Người trưởng thành (18-64 tuổi)</strong></td>
+                    <td>7-9 giờ/đêm</td>
+                </tr>
+                <tr>
+                    <td><strong>Người cao tuổi (65+ tuổi)</strong></td>
+                    <td>7-8 giờ/đêm</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tips-section">
+        <h3>💡 Mẹo Cải Thiện Giấc Ngủ</h3>
+        <div class="tips-grid">
+            <div class="tip-item">
+                <h4>🕐 Giữ giờ giấc đều đặn</h4>
+                <p>Đi ngủ và thức dậy cùng giờ mỗi ngày, kể cả cuối tuần. Giúp đồng hồ sinh học ổn định.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🌡️ Nhiệt độ mát mẻ</h4>
+                <p>Giữ phòng ngủ mát (18-20°C). Nhiệt độ thấp giúp cơ thể ngủ sâu hơn.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🌑 Môi trường tối tăm</h4>
+                <p>Sử dụng rèm che, bịt mắt. Ánh sáng ức chế melatonin - hormone giấc ngủ.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🔇 Yên tĩnh</h4>
+                <p>Giảm thiểu tiếng ồn bằng nút tai, máy phát tiếng ồn trắng hoặc quạt.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>📱 Tránh màn hình</h4>
+                <p>Tắt điện thoại, máy tính, TV 1-2 giờ trước khi ngủ. Ánh sáng xanh làm giảm melatonin.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>☕ Hạn chế caffeine</h4>
+                <p>Không uống cà phê, trà sau 2 giờ chiều. Caffeine tồn tại trong cơ thể 6-8 giờ.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🍽️ Ăn tối nhẹ</h4>
+                <p>Tránh bữa ăn nặng trước khi ngủ 2-3 giờ. Hệ tiêu hóa hoạt động cản trở giấc ngủ.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🧘 Thư giãn trước ngủ</h4>
+                <p>Đọc sách, nghe nhạc nhẹ, thiền, yoga. Tạo thói quen "tín hiệu đi ngủ" cho não.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🛏️ Giường chỉ để ngủ</h4>
+                <p>Không làm việc, xem phim trên giường. Não cần liên kết giường = ngủ.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🏃 Tập thể dục</h4>
+                <p>Vận động 30 phút/ngày nhưng không tập nặng trước khi ngủ 3-4 giờ.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>☀️ Phơi nắng sáng</h4>
+                <p>Tiếp xúc ánh sáng tự nhiên buổi sáng giúp điều hòa nhịp sinh học.</p>
+            </div>
+
+            <div class="tip-item">
+                <h4>🚫 Tránh ngủ trưa dài</h4>
+                <p>Nếu ngủ trưa, chỉ 20-30 phút và trước 3 giờ chiều.</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 10px; padding: 1.5rem; margin-top: 2rem;">
+        <h4 style="color: #991b1b; margin-bottom: 1rem;">⚠️ Dấu Hiệu Rối Loạn Giấc Ngủ</h4>
+        <ul style="color: #b91c1c; margin: 0; padding-left: 1.5rem;">
+            <li>Mất hơn 30 phút mới ngủ được liên tục</li>
+            <li>Thức giấc nhiều lần trong đêm</li>
+            <li>Ngáy to, ngừng thở khi ngủ</li>
+            <li>Mệt mỏi, buồn ngủ quá mức ban ngày</li>
+            <li>Khó tập trung, cáu gắt, trầm cảm</li>
+        </ul>
+        <p style="color: #991b1b; margin-top: 1rem; font-weight: 600;">
+            Nếu gặp các triệu chứng trên, hãy tham khảo bác sĩ chuyên khoa giấc ngủ.
+        </p>
+    </div>
+
+    <div class="text-center" style="margin: 3rem 0;">
+        <a asp-action="Index" class="btn btn-modern btn-login" style="padding: 0.75rem 2rem;">
+            ← Quay lại Kiến Thức Sức Khỏe
+        </a>
+    </div>
+</div>

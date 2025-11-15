@@ -1,71 +1,64 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - NutritionWebApp</title>
+    <title>@ViewData["Title"] - Nutrition AI</title>
     <link rel="icon" type="image/x-icon" href="/icon.ico">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link href="/css/chatbox.css" rel="stylesheet" />
-    @* <link rel="stylesheet" href="~/NutritionWebApp.styles.css" asp-append-version="true" /> *@
     @await RenderSectionAsync("Styles", required: false)
 </head>
-@* <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js');
-    }
-</script> *@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg modern-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <span class="brand-icon">🥗</span>
-                    NutritionWebApp
+                    Nutrition AI
                 </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse" id="navbarContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                🏠 Trang chủ
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                🏠 Phân tích món ăn
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Exercise" asp-action="Index">
+                            <a class="nav-link" asp-controller="HealthTips" asp-action="Index">
+                                💡 Kiến thức sức khỏe
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Exercise" asp-action="Index">
                                 💪 Bài tập
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Settings" asp-action="ViewStats">
-                                <!-- THAY ĐỔI Index thành ViewStats -->
-                                ⚙️ Cài đặt
+                            <a class="nav-link" asp-controller="Settings" asp-action="ViewStats">
+                                ⚙️ Hồ sơ
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Report" asp-action="Index">
+                            <a class="nav-link" asp-controller="Report" asp-action="Index">
                                 📊 Báo cáo
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Chat"
-                               asp-action="History">
-                                💬 Lịch sử trò chuyện
+                            <a class="nav-link" asp-controller="Chat" asp-action="History">
+                                💬 Lịch sử chat
                             </a>
                         </li>
                     </ul>
-
                     <div class="d-flex align-items-center">
                         @if (Context.Session.GetInt32("UserId").HasValue)
                         {
                             <div class="user-info me-3">
-                                <span class="user-greeting">👋 Xin chào,</span>
+                                <span class="user-greeting">👋</span>
                                 <span class="user-name">@Context.Session.GetString("FullName")</span>
                             </div>
                             <a asp-controller="Account" asp-action="Logout" class="btn btn-modern btn-logout">
@@ -99,10 +92,9 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h5>🥗 NutritionWebApp</h5>
+                    <h5>🥗 Nutrition AI</h5>
                     <p>
-                        Ứng dụng dinh dưỡng thông minh giúp bạn theo dõi
-                        chế độ ăn uống và đạt được mục tiêu sức khỏe.
+                        Ứng dụng dinh dưỡng thông minh sử dụng AI để phân tích món ăn và tư vấn sức khỏe cá nhân hóa.
                     </p>
                     <div class="social-links">
                         <a href="#" class="social-link">📘</a>
@@ -111,489 +103,72 @@
                         <a href="#" class="social-link">💼</a>
                     </div>
                 </div>
-
                 <div class="footer-section">
-                    <h5>Liên kết nhanh</h5>
+                    <h5>Tính năng</h5>
                     <ul class="footer-links">
-                        <li>
-                            <a asp-area="" asp-controller="Home" asp-action="Index">
-                                → Trang chủ
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="" asp-controller="Exercise" asp-action="Index">
-                                → Bài tập
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="" asp-controller="Settings" asp-action="Index">
-                                → Cài đặt
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="" asp-controller="Home" asp-action="Privacy">
-                                → Chính sách bảo mật
-                            </a>
-                        </li>
+                        <li><a asp-controller="Home" asp-action="Index">→ Phân tích món ăn</a></li>
+                        <li><a asp-controller="HealthTips" asp-action="Index">→ Kiến thức sức khỏe</a></li>
+                        <li><a asp-controller="Exercise" asp-action="Index">→ Bài tập thể dục</a></li>
+                        <li><a asp-controller="Report" asp-action="Index">→ Báo cáo dinh dưỡng</a></li>
                     </ul>
                 </div>
-
                 <div class="footer-section">
-                    <h5>Liên hệ</h5>
+                    <h5>Hỗ trợ</h5>
                     <ul class="footer-links">
-                        <li>
-                            <a href="mailto:support@nutritionwebapp.com">
-                                ✉️ support@nutritionwebapp.com
-                            </a>
-                        </li>
-                        <li>
-                            <a href="tel:+84123456789">
-                                📞 +84 123 456 789
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                📍 Hồ Chí Minh, Việt Nam
-                            </a>
-                        </li>
+                        <li><a href="mailto:support@nutritionai.com">✉️ support@nutritionai.com</a></li>
+                        <li><a href="tel:+84123456789">📞 +84 123 456 789</a></li>
+                        <li><a href="#">📍 TP. Hồ Chí Minh, Việt Nam</a></li>
                     </ul>
                 </div>
             </div>
-
             <div class="footer-bottom">
                 <p>
-                    &copy; 2025 NutritionWebApp. All rights reserved. |
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a> |
-                    Made with ❤️ in Vietnam
+                    © 2025 Nutrition AI. All rights reserved. | Made with ❤️ in Vietnam
                 </p>
             </div>
         </div>
     </footer>
-    <!-- Nút Kích hoạt Chatbot -->
-    <div class="floating-chat-icon" id="chatIcon" title="Chat với Nutrition AI">
-        💬
-    </div>
 
-    <!-- Cửa sổ Chat Popup -->
+    <!-- Chat Icon & Popup (simplified) -->
+    <div class="floating-chat-icon" id="chatIcon" title="Chat với AI">💬</div>
+
     <div class="chat-popup" id="chatPopup">
-        <!-- Chat Header -->
         <div class="chat-header">
             <h5>🤖 Nutrition AI</h5>
-            <button class="chat-close-btn" id="closeChatBtn" aria-label="Đóng chat">×</button>
+            <button class="chat-close-btn" id="closeChatBtn">×</button>
         </div>
 
-        <!-- KHỐI NAVIGATOR: THÊM NÚT CHUYỂN ĐỔI CHẾ ĐỘ -->
-        <div id="chatModeToggles" style="display: flex; justify-content: space-around; background: #fef3c7; border-bottom: 1px solid #fcd34d;">
-            <button id="showChatBtn" class="btn btn-sm btn-warning w-50" style="border-radius: 0; font-weight: 700;">💬 Chat</button>
-            <button id="showRecipeBtn" class="btn btn-sm w-50" style="border-radius: 0;">🍽️ Công Thức</button>
+        <div id="chatModeToggles">
+            <button id="showChatBtn" class="btn-warning">💬 Chat</button>
+            <button id="showRecipeBtn">🍽️ Công thức</button>
         </div>
-        <!-- KHỐI CHỨA NỘI DUNG CHAT (CHẾ ĐỘ MẶC ĐỊNH) -->
-        <div id="chatModeContent" style="display: flex; flex-direction: column; flex: 1; height: 100%;">
 
-            <!-- Nút Đề xuất Chủ động -->
-            <button id="proactiveAdviceBtn" class="proactive-btn">
-                ✨ Lời khuyên Dinh dưỡng Hôm nay
-            </button>
-
-            <!-- Chat Body -->
-            <div class="chat-body-content" id="chatBody">
-                <!-- Tin nhắn sẽ được thêm vào đây bằng JavaScript -->
-            </div>
-
-            <!-- Chat Footer -->
+        <div id="chatModeContent" style="display: flex; flex-direction: column; flex: 1;">
+            <button id="proactiveAdviceBtn">✨ Lời khuyên hôm nay</button>
+            <div class="chat-body-content" id="chatBody"></div>
             <div class="chat-footer">
                 <div class="input-group">
-                    <input type="text"
-                           id="chatInput"
-                           class="form-control"
-                           placeholder="Hỏi AI về dinh dưỡng..."
-                           autocomplete="off"
-                           aria-label="Nhập tin nhắn" />
-                    <button class="btn btn-success"
-                            id="sendBtn"
-                            aria-label="Gửi tin nhắn">
-                        Gửi
-                    </button>
+                    <input type="text" id="chatInput" class="form-control" placeholder="Hỏi AI về dinh dưỡng..." autocomplete="off" />
+                    <button class="btn" id="sendBtn">Gửi</button>
                 </div>
             </div>
         </div>
-        <!-- KHỐI CHỨA NỘI DUNG RECIPE GENERATOR (CHẾ ĐỘ ẨN) -->
-        <div id="recipeModeContent" style="display: none; flex-direction: column; flex: 1; height: 100%; padding: 20px; overflow-y: auto;">
 
-            <h4 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">
-                Nhập Yêu Cầu Công Thức
-            </h4>
+        <div id="recipeModeContent" style="display: none; flex-direction: column; flex: 1; padding: 1.5rem; overflow-y: auto;">
+            <h4>Nhập Yêu Cầu Công Thức</h4>
             <div class="mb-3">
-                <label for="recipeRequest" class="form-label" style="font-weight: 600; font-size: 0.9rem;">
-                    Bạn muốn món ăn như thế nào?
-                </label>
-                <input type="text" class="form-control" id="recipeRequest"
-                       placeholder="VD: Dưới 400 kcal, giàu protein, dùng thịt bò"
-                       style="border-radius: 10px; padding: 10px;">
+                <label for="recipeRequest" class="form-label">Bạn muốn món ăn như thế nào?</label>
+                <input type="text" class="form-control" id="recipeRequest" placeholder="VD: Dưới 400 kcal, giàu protein">
             </div>
-            <button class="btn btn-success w-100 mb-3" id="generateRecipeBtn" onclick="requestRecipe()"
-                    style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); border: none;">
-                ✨ Gợi ý Công thức
-            </button>
-
-            <div id="recipeResultContainer" class="mt-2">
-                <!-- Kết quả sẽ hiển thị ở đây -->
-            </div>
-
+            <button class="btn w-100 mb-3" id="generateRecipeBtn" onclick="requestRecipe()">✨ Tạo công thức</button>
+            <div id="recipeResultContainer"></div>
         </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <script>
-        // --- BIẾN TOÀN CỤC ---
-        const chatIcon = document.getElementById('chatIcon');
-        const chatPopup = document.getElementById('chatPopup');
-        const closeChatBtn = document.getElementById('closeChatBtn');
-        const chatBody = document.getElementById('chatBody');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const proactiveAdviceBtn = document.getElementById('proactiveAdviceBtn');
-        const chatModeContent = document.getElementById('chatModeContent');
-        const recipeModeContent = document.getElementById('recipeModeContent');
-        const showChatBtn = document.getElementById('showChatBtn');
-        const showRecipeBtn = document.getElementById('showRecipeBtn');
-        const generateRecipeBtn = document.getElementById('generateRecipeBtn');
-
-        let isWaitingForAI = false;
-
-        // --- HÀM CUỘN XUỐNG ĐÁY (TỐI ƯU) ---
-        function scrollToBottom() {
-            requestAnimationFrame(() => {
-                chatBody.scrollTop = chatBody.scrollHeight;
-            });
-        }
-
-        // --- HÀM CHUYỂN ĐỔI CHẾ ĐỘ CHAT / RECIPE ---
-        function switchChatMode(mode) {
-            if (mode === 'chat') {
-                chatModeContent.style.display = 'flex';
-                recipeModeContent.style.display = 'none';
-                showChatBtn.classList.add('btn-warning');
-                showChatBtn.classList.remove('btn-outline-warning');
-                showRecipeBtn.classList.remove('btn-warning');
-                showRecipeBtn.classList.add('btn-outline-warning');
-            } else if (mode === 'recipe') {
-                chatModeContent.style.display = 'none';
-                recipeModeContent.style.display = 'flex';
-                showRecipeBtn.classList.add('btn-warning');
-                showRecipeBtn.classList.remove('btn-outline-warning');
-                showChatBtn.classList.remove('btn-warning');
-                showChatBtn.classList.add('btn-outline-warning');
-            }
-            scrollToBottom();
-        }
-
-        // --- MỞ / ĐÓNG CHAT ---
-        chatIcon.addEventListener('click', function () {
-            chatPopup.classList.toggle('open');
-            if (chatPopup.classList.contains('open')) {
-                switchChatMode('chat');
-                loadChatHistory();
-                setTimeout(() => chatInput.focus(), 300); // Focus input
-            }
-        });
-
-        closeChatBtn.addEventListener('click', function () {
-            chatPopup.classList.remove('open');
-        });
-
-        // Đóng khi click ngoài
-        document.addEventListener('click', function (e) {
-            if (!chatPopup.contains(e.target) && !chatIcon.contains(e.target) && chatPopup.classList.contains('open')) {
-                chatPopup.classList.remove('open');
-            }
-        });
-
-        // Hàm format AI response
-        function formatMarkdown(text) {
-            if (!text) return '';
-
-            let formatted = text;
-
-            // 1. Heading: # H1, ## H2, ### H3
-            formatted = formatted.replace(/^# (.*)$/gm, '<h1>$1</h1>');
-            formatted = formatted.replace(/^## (.*)$/gm, '<h2>$1</h2>');
-            formatted = formatted.replace(/^### (.*)$/gm, '<h3>$1</h3>');
-
-            // 2. Bold: **text**
-            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-            // 3. Italic: *text*
-            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-            // 4. Code block: ```code```
-            formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-
-            // 5. Inline code: `code`
-            formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
-
-            // 6. Quote: > quote
-            formatted = formatted.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
-
-            // 7. Link: [text](url)
-            formatted = formatted.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-
-            // 8. List: - item or * item
-            formatted = formatted.replace(/^[\s]*[\*-][\s](.*)/gm, '<li>$1</li>');
-
-            // Bọc list trong <ul> nếu có <li> liên tiếp
-            formatted = formatted.replace(/(<li>.*?<\/li>(\s*<br>\s*|)*)+/g, (match) => {
-                let listContent = match.replace(/<br>/g, '');
-                listContent = listContent.replace(/<\/li><li>/g, '</li>\n<li>');
-                return `<ul>${listContent}</ul>`;
-            });
-
-            // 9. Paragraph và line break: \n\n -> </p><p>, \n -> <br>
-            formatted = formatted.replace(/\n\n/g, '</p><p>');
-            formatted = formatted.replace(/\n/g, '<br>');
-
-            // Bọc văn bản không phải element đặc biệt trong <p>
-            if (!formatted.match(/^(h[1-3]|ul|ol|pre|blockquote)/)) {
-                formatted = '<p>' + formatted + '</p>';
-            }
-
-            return formatted;
-        }
-
-        // --- THÊM TIN NHẮN (CẢI TIẾN) ---
-        function appendMessage(sender, message, isTyping = false) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `chat-message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
-
-            if (isTyping) {
-                msgDiv.id = 'typingIndicator';
-                msgDiv.innerHTML = `
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                `;
-            } else {
-                let formattedMessage = formatMarkdown(message);
-                msgDiv.innerHTML = formattedMessage;
-            }
-
-            chatBody.appendChild(msgDiv);
-            scrollToBottom(); // Cuộn ngay
-            return msgDiv;
-        }
-
-        // --- HIỆU ỨNG GÕ CHỮ (CUỘN THEO TỪNG KÝ TỰ) ---
-        function typeResponse(element, text) {
-            let index = 0;
-            element.innerHTML = '';
-
-            const interval = setInterval(() => {
-                if (index < text.length) {
-                    const char = text.charAt(index);
-                    element.innerHTML += char === '\n' ? '<br>' : char;
-                    scrollToBottom(); // Cuộn mỗi ký tự
-                    index++;
-                } else {
-                    element.innerHTML = formatMarkdown(text);
-                    clearInterval(interval);
-                    isWaitingForAI = false;
-                    sendBtn.disabled = false;
-                    chatInput.disabled = false;
-                    scrollToBottom(); // Cuối cùng
-                }
-            }, 20);
-        }
-
-        // --- TẢI LỊCH SỬ CHAT ---
-        function loadChatHistory() {
-            if (chatBody.children.length === 0) {
-                appendMessage('ai', 'Chào bạn! 👋 Tôi là **NutritionAI**. Hãy cho tôi biết bạn muốn hỏi gì về chế độ ăn uống hoặc mục tiêu của mình nhé. 🥗', false);
-            }
-        }
-
-        // --- GỬI TIN NHẮN ---
-        sendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        async function sendMessage() {
-            const question = chatInput.value.trim();
-            if (question === "" || isWaitingForAI) return;
-
-            appendMessage('user', question);
-            chatInput.value = '';
-            sendBtn.disabled = true;
-            chatInput.disabled = true;
-            isWaitingForAI = true;
-
-            const typingElement = appendMessage('ai', '', true);
-
-            try {
-                const response = await fetch('/Chat/GetAdvice', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: question })
-                });
-
-                const data = await response.json();
-                typingElement.remove();
-
-                if (data.error) {
-                    appendMessage('ai', `Lỗi AI: ${data.error}`, false);
-                } else {
-                    const newAiMessage = appendMessage('ai', '', false);
-                    typeResponse(newAiMessage, data.advice);
-                }
-            } catch (error) {
-                typingElement.remove();
-                appendMessage('ai', 'Lỗi kết nối dịch vụ AI hoặc Backend. Vui lòng thử lại sau.', false);
-            } finally {
-                isWaitingForAI = false;
-                sendBtn.disabled = false;
-                chatInput.disabled = false;
-            }
-        }
-
-        // --- LỜI KHUYÊN CHỦ ĐỘNG ---
-        async function getProactiveAdvice() {
-            if (isWaitingForAI) return;
-
-            isWaitingForAI = true;
-            proactiveAdviceBtn.disabled = true;
-            chatInput.disabled = true;
-            sendBtn.disabled = true;
-
-            appendMessage('user', 'Hãy cho tôi lời khuyên dinh dưỡng chủ động hôm nay!');
-            const typingElement = appendMessage('ai', '', true);
-
-            try {
-                const response = await fetch('/Chat/GetProactiveAdvice', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({})
-                });
-
-                const data = await response.json();
-                typingElement.remove();
-
-                if (data.error) {
-                    appendMessage('ai', `Lỗi AI: ${data.error}`, false);
-                } else {
-                    const newAiMessage = appendMessage('ai', '', false);
-                    typeResponse(newAiMessage, data.advice);
-                }
-            } catch (error) {
-                typingElement.remove();
-                appendMessage('ai', 'Lỗi kết nối dịch vụ AI. Vui lòng thử lại.', false);
-            } finally {
-                isWaitingForAI = false;
-                proactiveAdviceBtn.disabled = false;
-                chatInput.disabled = false;
-                sendBtn.disabled = false;
-            }
-        }
-
-        proactiveAdviceBtn.addEventListener('click', getProactiveAdvice);
-
-        // --- RECIPE GENERATOR ---
-        async function requestRecipe() {
-            const request = document.getElementById('recipeRequest').value.trim();
-            const resultContainer = document.getElementById('recipeResultContainer');
-            const generateBtn = document.getElementById('generateRecipeBtn');
-
-            if (request === "") {
-                resultContainer.innerHTML = `<div class="alert alert-danger p-2" style="border-radius: 10px; font-size: 0.9rem;">Vui lòng nhập yêu cầu cho món ăn!</div>`;
-                return;
-            }
-
-            resultContainer.innerHTML = `
-                <div class="alert alert-info d-flex align-items-center p-2" role="alert" style="border-radius: 10px; font-size: 0.9rem;">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                    Đang tạo công thức cá nhân hóa...
-                </div>
-            `;
-            generateBtn.disabled = true;
-
-            try {
-                const response = await fetch('/Chat/GenerateRecipe', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ request: request })
-                });
-
-                const data = await response.json();
-                generateBtn.disabled = false;
-
-                if (data.error) {
-                    resultContainer.innerHTML = `<div class="alert alert-danger p-2" style="border-radius: 10px; font-size: 0.9rem;">${data.error}</div>`;
-                    return;
-                }
-                renderRecipeResult(data);
-
-            } catch (error) {
-                generateBtn.disabled = false;
-                resultContainer.innerHTML = `<div class="alert alert-danger p-2" style="border-radius: 10px; font-size: 0.9rem;">Lỗi kết nối dịch vụ AI.</div>`;
-            }
-        }
-
-        function renderRecipeResult(data) {
-            const resultContainer = document.getElementById('recipeResultContainer');
-            const ingredientsHtml = data.Ingredients.map(item => `<li>${item}</li>`).join('');
-            const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');
-
-            resultContainer.innerHTML = `
-                <div class="card p-3 mb-3" style="border-left: 5px solid #f59e0b; border-radius: 12px;">
-                    <h5 style="color: #78350f; font-weight: 700; font-size: 1.1rem;">${data.Title}</h5>
-                    <p class="text-muted" style="font-size: 0.9rem;">${data.Description}</p>
-
-                    <div style="border-top: 1px dashed #fef3c7; padding-top: 10px; margin-top: 10px;">
-                        <div class="row text-center" style="font-size: 0.85rem;">
-                            <div class="col-3"><strong>Calo</strong><br>${data.CaloriesTotal.toFixed(0)}</div>
-                            <div class="col-3" style="color: #fb923c;"><strong>P</strong><br>${data.ProteinGrams.toFixed(1)}g</div>
-                            <div class="col-3" style="color: #10b981;"><strong>C</strong><br>${data.CarbGrams.toFixed(1)}g</div>
-                            <div class="col-3" style="color: #8b5cf6;"><strong>F</strong><br>${data.FatGrams.toFixed(1)}g</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <h6 style="font-weight: 600; font-size: 1rem; color: #2d3748;">Nguyên liệu</h6>
-                        <ul style="list-style-type: disc; padding-left: 20px; font-size: 0.9rem;">${ingredientsHtml}</ul>
-
-                        <h6 style="font-weight: 600; font-size: 1rem; color: #2d3748; margin-top: 10px;">Hướng dẫn</h6>
-                        <ol style="padding-left: 20px; font-size: 0.9rem;">${instructionsHtml}</ol>
-
-                        <div class="alert alert-warning p-2 mt-3" style="border-radius: 10px; font-size: 0.9rem;">
-                            <strong>Lời khuyên AI:</strong> ${data.Advice}
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('recipeModeContent').scrollTop = 0;
-        }
-
-        // --- CHUYỂN ĐỔI CHẾ ĐỘ ---
-        showChatBtn.addEventListener('click', () => switchChatMode('chat'));
-        showRecipeBtn.addEventListener('click', () => switchChatMode('recipe'));
-
-        // --- ACTIVE NAV LINK ---
-        document.addEventListener('DOMContentLoaded', function () {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                }
-            });
-        });
-    </script>
-
+    <script src="~/js/chatbox.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

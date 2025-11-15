@@ -1,0 +1,244 @@
+﻿@{
+    ViewData["Title"] = "Tháp Dinh Dưỡng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .content-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 2.5rem 0;
+            margin-bottom: 3rem;
+        }
+
+            .content-header h1 {
+                font-size: 2.25rem;
+                font-weight: 800;
+                color: var(--primary-color);
+                margin-bottom: 0.75rem;
+            }
+
+            .content-header .lead {
+                font-size: 1.125rem;
+                color: var(--text-secondary);
+                max-width: 800px;
+            }
+
+        .pyramid-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pyramid-visual {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        .pyramid-level {
+            padding: 1.5rem 2rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+            .pyramid-level:hover {
+                transform: translateX(8px);
+            }
+
+        .pyramid-level-1 {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .pyramid-level-2 {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .pyramid-level-3 {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .pyramid-level-4 {
+            background: #fce4ec;
+            border-left: 4px solid #e91e63;
+        }
+
+        .pyramid-level-5 {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .pyramid-level h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .pyramid-level p {
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tip-card {
+            background: var(--soft-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+            .tip-card h4 {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--primary-color);
+                margin-bottom: 0.75rem;
+            }
+
+            .tip-card p {
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+                line-height: 1.6;
+                margin: 0;
+            }
+
+        @@media (max-width: 768px) {
+            .content-header
+
+        {
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .content-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .pyramid-section {
+            padding: 1.5rem;
+        }
+
+        .pyramid-level {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .tips-grid {
+            grid-template-columns: 1fr;
+        }
+
+        }
+    </style>
+}
+
+<div class="content-header">
+    <div class="container">
+        <h1>🥗 Tháp Dinh Dưỡng</h1>
+        <p class="lead">
+            Tháp dinh dưỡng là công cụ hướng dẫn cơ bản giúp bạn xây dựng chế độ ăn cân bằng, đảm bảo cung cấp đầy đủ các chất dinh dưỡng cần thiết cho cơ thể.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="pyramid-section">
+        <div class="pyramid-visual">
+            <svg viewBox="0 0 300 250" style="width: 100%; height: auto;">
+                <polygon points="150,20 50,230 250,230" fill="none" stroke="#ddd" stroke-width="2" />
+                <line x1="60" y1="188" x2="240" y2="188" stroke="#ddd" stroke-width="1" />
+                <line x1="70" y1="146" x2="230" y2="146" stroke="#ddd" stroke-width="1" />
+                <line x1="85" y1="104" x2="215" y2="104" stroke="#ddd" stroke-width="1" />
+                <line x1="105" y1="62" x2="195" y2="62" stroke="#ddd" stroke-width="1" />
+                <text x="150" y="50" text-anchor="middle" font-size="14" fill="#9c27b0">5. Dầu, mỡ, đường</text>
+                <text x="150" y="85" text-anchor="middle" font-size="14" fill="#e91e63">4. Sữa, thịt, cá, trứng</text>
+                <text x="150" y="127" text-anchor="middle" font-size="14" fill="#2196f3">3. Rau, củ, quả</text>
+                <text x="150" y="169" text-anchor="middle" font-size="14" fill="#ff9800">2. Ngũ cốc nguyên hạt</text>
+                <text x="150" y="215" text-anchor="middle" font-size="14" fill="#4caf50">1. Nước</text>
+            </svg>
+        </div>
+
+        <div class="pyramid-level pyramid-level-1">
+            <h3>💧 Tầng 1: Nước (Nền tảng)</h3>
+            <p>
+                Uống đủ 2-2.5 lít nước mỗi ngày. Nước là yếu tố quan trọng nhất, chiếm 60-70% trọng lượng cơ thể và tham gia vào mọi quá trình sinh hóa.
+            </p>
+        </div>
+
+        <div class="pyramid-level pyramid-level-2">
+            <h3>🌾 Tầng 2: Ngũ cốc nguyên hạt</h3>
+            <p>
+                Gạo lứt, yến mạch, bánh mì nguyên cám - nguồn cung cấp năng lượng chính từ carbohydrate phức hợp, giàu chất xơ. Nên ăn 3-5 khẩu phần mỗi ngày.
+            </p>
+        </div>
+
+        <div class="pyramid-level pyramid-level-3">
+            <h3>🥦 Tầng 3: Rau củ quả</h3>
+            <p>
+                Cung cấp vitamin, khoáng chất, chất xơ và chất chống oxy hóa. Nên ăn 300-500g rau và 200-400g trái cây mỗi ngày, ưu tiên nhiều màu sắc.
+            </p>
+        </div>
+
+        <div class="pyramid-level pyramid-level-4">
+            <h3>🥩 Tầng 4: Protein động vật & sữa</h3>
+            <p>
+                Thịt nạc, cá, trứng, sữa và các chế phẩm từ sữa - nguồn protein chất lượng cao và các vi chất thiết yếu. Ăn vừa phải, khoảng 2-3 khẩu phần/ngày.
+            </p>
+        </div>
+
+        <div class="pyramid-level pyramid-level-5">
+            <h3>🧈 Tầng 5: Dầu mỡ & đường (Hạn chế)</h3>
+            <p>
+                Dầu thực vật tốt (dầu ô liu, dầu hạt lanh), hạn chế đường tinh luyện và chất béo bão hòa. Sử dụng tiết kiệm, chỉ đủ để nêm nếm.
+            </p>
+        </div>
+
+        <div class="tips-grid">
+            <div class="tip-card">
+                <h4>✅ Đa dạng thực phẩm</h4>
+                <p>
+                    Không có thực phẩm nào cung cấp đầy đủ mọi chất dinh dưỡng. Ăn nhiều loại thực phẩm khác nhau để đảm bảo cân bằng.
+                </p>
+            </div>
+
+            <div class="tip-card">
+                <h4>🍽️ Khẩu phần hợp lý</h4>
+                <p>
+                    Kiểm soát lượng thực phẩm nạp vào. Ăn đủ no nhưng không quá nhiều, lắng nghe tín hiệu của cơ thể.
+                </p>
+            </div>
+
+            <div class="tip-card">
+                <h4>🥗 Ưu tiên thực phẩm tươi</h4>
+                <p>
+                    Chọn thực phẩm tươi sống, nguyên chất, hạn chế thực phẩm chế biến sẵn có nhiều muối, đường và chất bảo quản.
+                </p>
+            </div>
+
+            <div class="tip-card">
+                <h4>⏰ Ăn đều đặn</h4>
+                <p>
+                    Duy trì 3 bữa chính và 1-2 bữa phụ mỗi ngày, không bỏ bữa sáng để duy trì năng lượng ổn định.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin: 3rem 0;">
+        <a asp-action="Index" class="btn btn-modern btn-login" style="padding: 0.75rem 2rem;">
+            ← Quay lại Kiến Thức Sức Khỏe
+        </a>
+    </div>
+</div>

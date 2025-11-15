@@ -1,0 +1,341 @@
+﻿@{
+    ViewData["Title"] = "Tập Luyện Khoa Học";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .exercise-hero {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .exercise-hero h1 {
+                font-size: 2.25rem;
+                font-weight: 800;
+                color: #1e40af;
+                margin-bottom: 1rem;
+            }
+
+            .exercise-hero .lead {
+                font-size: 1.125rem;
+                color: #1e3a8a;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 3px dashed #93c5fd;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0;
+        }
+
+        .benefit-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .benefit-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .benefit-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+                border-color: #3b82f6;
+            }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.625rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .exercise-types {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .type-card {
+            border-left: 4px solid;
+            padding: 1.5rem;
+            background: var(--soft-bg);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+            .type-card:hover {
+                transform: translateX(5px);
+                box-shadow: var(--shadow-sm);
+            }
+
+            .type-card.cardio {
+                border-color: #ef4444;
+            }
+
+            .type-card.strength {
+                border-color: #f59e0b;
+            }
+
+            .type-card.flexibility {
+                border-color: #10b981;
+            }
+
+            .type-card h4 {
+                color: var(--primary-color);
+                margin-bottom: 1rem;
+                font-weight: 700;
+            }
+
+            .type-card ul {
+                padding-left: 1.5rem;
+                color: var(--text-secondary);
+            }
+
+            .type-card li {
+                margin-bottom: 0.5rem;
+            }
+
+        .tips-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+            .tips-section h3 {
+                color: #92400e;
+                margin-bottom: 1.5rem;
+                font-weight: 700;
+            }
+
+            .tips-section ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .tips-section li {
+                padding: 0.75rem 0;
+                border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+                color: #78350f;
+                line-height: 1.6;
+            }
+
+                .tips-section li:last-child {
+                    border-bottom: none;
+                }
+
+                .tips-section li::before {
+                    content: "✓ ";
+                    color: #f59e0b;
+                    font-weight: bold;
+                    margin-right: 0.5rem;
+                }
+
+        @@media (max-width: 768px) {
+            .exercise-hero
+
+        {
+            padding: 2rem 0;
+        }
+
+        .exercise-hero h1 {
+            font-size: 1.75rem;
+        }
+
+        .benefit-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .type-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .image-placeholder {
+            height: 250px;
+            font-size: 1rem;
+        }
+
+        }
+    </style>
+}
+
+<div class="exercise-hero text-center">
+    <div class="container">
+        <h1>🏃 Tập Luyện Khoa Học</h1>
+        <p class="lead">
+            Tập luyện đều đặn và đúng cách là chìa khóa để xây dựng một cơ thể khỏe mạnh, dẻo dai và tràn đầy năng lượng.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- PLACEHOLDER CHO ẢNH CHÍNH -->
+    <div class="image-placeholder">
+        @* 📸 Thêm ảnh người tập gym/thể thao ở đây *@
+        <img class="image-placeholder" style="object-fit:cover;" src="/images/gym_5.jpg" alt="Alternate Text" />
+    </div>
+
+    <div class="benefit-cards">
+        <div class="benefit-card">
+            <span class="benefit-icon">💪</span>
+            <h3>Tăng cường sức mạnh</h3>
+            <p>Xây dựng cơ bắp khỏe mạnh, tăng sức bền và sức mạnh tổng thể</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">❤️</span>
+            <h3>Cải thiện tim mạch</h3>
+            <p>Tăng cường sức khỏe tim mạch, giảm nguy cơ bệnh tật</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">🔥</span>
+            <h3>Đốt cháy calo</h3>
+            <p>Giúp kiểm soát cân nặng, giảm mỡ thừa hiệu quả</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">🧠</span>
+            <h3>Tinh thần tỉnh táo</h3>
+            <p>Giảm stress, tăng nội tiết tố hạnh phúc, cải thiện giấc ngủ</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">🦴</span>
+            <h3>Xương khớp khỏe</h3>
+            <p>Tăng mật độ xương, giảm nguy cơ loãng xương</p>
+        </div>
+
+        <div class="benefit-card">
+            <span class="benefit-icon">⚡</span>
+            <h3>Tăng năng lượng</h3>
+            <p>Cải thiện thể lực, giảm mệt mỏi trong sinh hoạt hàng ngày</p>
+        </div>
+    </div>
+
+    <div class="exercise-types">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary-color);">
+            Các Loại Hình Tập Luyện
+        </h2>
+
+        <div class="type-grid">
+            <div class="type-card cardio">
+                <h4>🏃 Cardio (Tim mạch)</h4>
+                <ul>
+                    <li>Chạy bộ, đi bộ nhanh</li>
+                    <li>Đạp xe, bơi lội</li>
+                    <li>Nhảy dây, aerobic</li>
+                    <li>HIIT (High-Intensity Interval Training)</li>
+                    <li>Giúp đốt cháy calo, tăng cường sức bền</li>
+                </ul>
+                <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;">
+                    @* 📸 Ảnh Cardio *@
+                    <img class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem; " src="/images/gym_3.gif" alt="Alternate Text" />
+                </div>
+            </div>
+
+            <div class="type-card strength">
+                <h4>💪 Strength (Sức mạnh)</h4>
+                <ul>
+                    <li>Tập tạ, bodyweight exercises</li>
+                    <li>Squats, deadlifts, bench press</li>
+                    <li>Pull-ups, push-ups, planks</li>
+                    <li>Resistance band training</li>
+                    <li>Xây dựng cơ bắp, tăng trao đổi chất</li>
+                </ul>
+                <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;">
+                    @* 📸 Ảnh Strength Training *@
+                    <img class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;" src="/images/gym_2.jpg" alt="Alternate Text" />
+                </div>
+            </div>
+
+            <div class="type-card flexibility">
+                <h4>🧘 Flexibility (Dẻo dai)</h4>
+                <ul>
+                    <li>Yoga, Pilates</li>
+                    <li>Stretching động, tĩnh</li>
+                    <li>Foam rolling</li>
+                    <li>Tai Chi</li>
+                    <li>Tăng tính linh hoạt, giảm chấn thương</li>
+                </ul>
+                <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;">
+                    @* 📸 Ảnh Yoga/Stretching *@
+                    <img class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;" src="/images/yoga_1.jpg" alt="Alternate Text" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tips-section">
+        <h3>🎯 Nguyên Tắc Tập Luyện Hiệu Quả</h3>
+        <ul>
+            <li><strong>Khởi động đầy đủ:</strong> 5-10 phút để chuẩn bị cơ thể, tránh chấn thương</li>
+            <li><strong>Tập đều đặn:</strong> Ít nhất 150 phút vận động vừa phải/tuần (WHO)</li>
+            <li><strong>Kết hợp đa dạng:</strong> Mix cardio, strength và flexibility để toàn diện</li>
+            <li><strong>Nghỉ ngơi hợp lý:</strong> Cơ thể cần thời gian phục hồi (1-2 ngày/tuần)</li>
+            <li><strong>Tăng dần cường độ:</strong> Progressive overload để tiến bộ liên tục</li>
+            <li><strong>Nghe cơ thể:</strong> Dừng lại nếu đau bất thường, không ép quá sức</li>
+            <li><strong>Hydration:</strong> Uống đủ nước trước, trong và sau khi tập</li>
+            <li><strong>Dinh dưỡng hợp lý:</strong> Ăn protein sau tập để phục hồi cơ</li>
+        </ul>
+    </div>
+
+    <div style="background: #e0f2fe; border: 2px solid #3b82f6; border-radius: 10px; padding: 1.5rem; margin-top: 2rem;">
+        <h4 style="color: #1e3a8a; margin-bottom: 1rem;">💡 Lưu Ý Quan Trọng</h4>
+        <ul style="color: #1e40af; margin: 0; padding-left: 1.5rem;">
+            <li>Tham khảo bác sĩ trước khi bắt đầu nếu có vấn đề sức khỏe</li>
+            <li>Học kỹ thuật đúng để tránh chấn thương</li>
+            <li>Sử dụng thiết bị bảo hộ khi cần thiết</li>
+            <li>Kiên nhẫn - kết quả cần thời gian</li>
+        </ul>
+    </div>
+
+    <div class="text-center" style="margin: 3rem 0;">
+        <a asp-action="Index" class="btn btn-modern btn-login" style="padding: 0.75rem 2rem;">
+            ← Quay lại Kiến Thức Sức Khỏe
+        </a>
+    </div>
+</div>
