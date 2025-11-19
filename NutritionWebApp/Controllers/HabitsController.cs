@@ -224,6 +224,7 @@ namespace NutritionWebApp.Controllers
             for (int i = 1; i < logs.Count; i++)
             {
                 var diff = (logs[i].LogDate - logs[i - 1].LogDate).Days;
+                if (diff == 0) continue;
                 if (diff == 1)
                 {
                     currentStreak++;

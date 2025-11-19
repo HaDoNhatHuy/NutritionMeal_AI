@@ -263,19 +263,19 @@
             <div class="quick-add-section">
                 <h4 class="section-title">⚡ Thêm nhanh</h4>
                 <div class="quick-add-buttons">
-                    <div class="quick-add-btn" onclick="addWater(100)">
+                    <div class="quick-add-btn" onclick="addWater(100,event)">
                         <span class="quick-add-icon">💧</span>
                         <div class="quick-add-amount">100ml</div>
                     </div>
-                    <div class="quick-add-btn" onclick="addWater(250)">
+                    <div class="quick-add-btn" onclick="addWater(250m,event)">
                         <span class="quick-add-icon">🥤</span>
                         <div class="quick-add-amount">250ml</div>
                     </div>
-                    <div class="quick-add-btn" onclick="addWater(500)">
+                    <div class="quick-add-btn" onclick="addWater(500,event)">
                         <span class="quick-add-icon">🍶</span>
                         <div class="quick-add-amount">500ml</div>
                     </div>
-                    <div class="quick-add-btn" onclick="addWater(750)">
+                    <div class="quick-add-btn" onclick="addWater(750,event)">
                         <span class="quick-add-icon">🧃</span>
                         <div class="quick-add-amount">750ml</div>
                     </div>
@@ -351,7 +351,7 @@
             document.getElementById('goalAmount').textContent = goalAmount;
         }
 
-        async function addWater(amount) {
+        async function addWater(amount,event) {
             try {
                 const response = await fetch('/WaterTracker/AddWater', {
                     method: 'POST',
@@ -472,7 +472,13 @@
         }
 
         function renderWeeklyChart() {
-            const history = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.History));
+            @{
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                    {
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                    };
+            }
+            const history = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.History, jsonOptions));
 
             const dates = history.map(h => new Date(h.IntakeDate).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }));
             const totals = history.map(h => h.TotalMl);

@@ -88,7 +88,13 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const logs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(logs));
+        @{
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                {
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                };
+        }
+        const logs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(logs, jsonOptions));
         const dates = logs.map(l => new Date(l.LogDate).toLocaleDateString('vi-VN'));
         const completed = logs.map(l => l.Completed ? 1 : 0);
 
