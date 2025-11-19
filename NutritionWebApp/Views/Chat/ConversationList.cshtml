@@ -219,50 +219,146 @@
             }
 
         @@media (max-width: 768px) {
-            .chat-header
+            .chat-header {
+                margin-bottom: 2rem;
+            }
 
-        {
-            margin-bottom: 2rem;
+            .chat-title {
+                font-size: 1.75rem;
+            }
+
+            .session-item {
+                padding: 1.5rem 1rem;
+            }
+
+            .sessions-header {
+                padding: 1.25rem 1rem;
+            }
+
+            .session-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .delete-session-btn {
+                position: static;
+                transform: none;
+                margin-top: 0.75rem;
+                width: 100%;
+            }
+
+            .session-row-wrapper .session-item {
+                padding-right: 1rem;
+            }
+        }
+        /* ===== SEARCH BAR ===== */
+        .search-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
-        .chat-title {
-            font-size: 1.75rem;
+        .search-input-wrapper {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .session-item {
-            padding: 1.5rem 1rem;
-        }
-
-        .sessions-header {
-            padding: 1.25rem 1rem;
-        }
-
-        .session-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .delete-session-btn {
-            position: static;
-            transform: none;
-            margin-top: 0.75rem;
+        .search-input {
             width: 100%;
+            padding: 14px 50px 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
-        .session-row-wrapper .session-item {
-            padding-right: 1rem;
+            .search-input:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+                outline: none;
+            }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
         }
 
+        /* ===== CATEGORY TAGS ===== */
+        .session-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            color: #0369a1;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+            .tag.nutrition {
+                background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+                color: #166534;
+            }
+
+            .tag.exercise {
+                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                color: #92400e;
+            }
+
+            .tag.recipe {
+                background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+                color: #9f1239;
+            }
+
+            .tag.general {
+                background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+                color: #3730a3;
+            }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
         }
     </style>
 }
 
 <div class="chat-history-wrapper">
     <div class="container chat-container">
-        <div class="chat-header">
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <input type="text"
+                       id="searchInput"
+                       class="search-input"
+                       placeholder="🔍 Tìm kiếm cuộc trò chuyện..."
+                       autocomplete="off">
+                <span class="search-icon">🔎</span>
+            </div>
+        </div>
+        @*  <div class="chat-header">
             <h1 class="chat-title">💬 Lịch sử Trò chuyện</h1>
             <p class="chat-subtitle">Xem lại các cuộc trò chuyện với Nutrition AI</p>
-        </div>
+        </div> *@
 
         @if (Model == null || !Model.Any())
         {
@@ -293,24 +389,50 @@
                     @foreach (var session in Model)
                     {
                         var dateUrlFormat = session.SessionDate.ToString("yyyy-MM-dd");
+                        <!-- Phát hiện category dựa trên content -->
+                        {
+                            var tags = new List<string>();
+                            var preview = session.LastMessagePreview.ToLower();
 
-                        <div class="session-row-wrapper" id="session-row-@dateUrlFormat">
+                            if (preview.Contains("calo") || preview.Contains("dinh dưỡng") || preview.Contains("protein"))
+                                tags.Add("nutrition");
+                            if (preview.Contains("tập") || preview.Contains("gym") || preview.Contains("cardio"))
+                                tags.Add("exercise");
+                            if (preview.Contains("món") || preview.Contains("công thức") || preview.Contains("nấu"))
+                                tags.Add("recipe");
+                            if (tags.Count == 0)
+                                tags.Add("general");
+                        }
+
+                        <div class="session-row-wrapper" id="session-row-@dateUrlFormat" data-search-content="@session.Title.ToLower() @session.LastMessagePreview.ToLower()">
                             <a asp-action="ViewSession" asp-route-date="@dateUrlFormat" class="session-item">
                                 <div class="session-header">
                                     <div class="session-title">
                                         <span class="session-icon">💬</span>
                                         @session.Title
                                     </div>
-                                    <div class="message-count">
+                                    @* <div class="message-count">
                                         <span>💭</span>
                                         @session.MessageCount tin nhắn
-                                    </div>
+                                    </div> *@
                                 </div>
                                 <div class="last-message">
                                     @(session.LastMessagePreview.Length > 150
                                         ? session.LastMessagePreview.Substring(0, 150) + "..."
                                         : session.LastMessagePreview)
                                 </div>
+                                <!-- TAGS -->
+                                @* <div class="session-tags">
+                                    @foreach (var tag in tags)
+                                    {
+                                        <span class="tag @tag">
+                                            @(tag == "nutrition" ? "🥗 Dinh dưỡng" :
+                                                tag == "exercise" ? "💪 Tập luyện" :
+                                                tag == "recipe" ? "🍳 Công thức" : "💬 Chung")
+                                        </span>
+                                    }
+                                    <span class="tag">📅 @session.MessageCount tin nhắn</span>
+                                </div> *@
                                 <div class="session-meta">
                                     <div class="meta-item">
                                         <span>📅</span>
@@ -328,12 +450,62 @@
                         </div>
                     }
                 </div>
+                <!-- No Results Message -->
+                <div class="no-results" id="noResults" style="display: none;">
+                    <div class="no-results-icon">🔍</div>
+                    <h3>Không tìm thấy kết quả</h3>
+                    <p>Thử tìm kiếm với từ khóa khác</p>
+                </div>
             </div>
         }
     </div>
 </div>
 
 @section Scripts {
+    <script>
+        // ===== SEARCH FUNCTIONALITY =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const sessionsList = document.getElementById('sessionsList');
+            const noResults = document.getElementById('noResults');
+
+            if (!searchInput || !sessionsList) return;
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const sessions = sessionsList.querySelectorAll('.session-row-wrapper');
+                let visibleCount = 0;
+
+                sessions.forEach(session => {
+                    const searchContent = session.getAttribute('data-search-content');
+
+                    if (searchContent.includes(searchTerm)) {
+                        session.style.display = '';
+                        visibleCount++;
+                    } else {
+                        session.style.display = 'none';
+                    }
+                });
+
+                // Show/hide no results message
+                if (visibleCount === 0 && searchTerm !== '') {
+                    noResults.style.display = 'block';
+                    sessionsList.style.display = 'none';
+                } else {
+                    noResults.style.display = 'none';
+                    sessionsList.style.display = 'block';
+                }
+            });
+
+            // Clear search on ESC key
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    this.value = '';
+                    this.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.delete-session-btn').forEach(button => {

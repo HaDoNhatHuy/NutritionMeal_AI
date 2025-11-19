@@ -1,0 +1,429 @@
+﻿@using System.Text.Json
+@{
+    ViewData["Title"] = "Chi tiết Thực đơn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .meal-view-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 40px 0;
+        }
+
+        .view-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .plan-header-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .plan-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #92400e;
+            margin-bottom: 20px;
+        }
+
+        .plan-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .meta-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: #78350f;
+            margin-top: 5px;
+        }
+
+        .day-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border-left: 5px solid #f59e0b;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #fef3c7;
+        }
+
+        .day-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin: 0;
+        }
+
+        .day-total {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .meal-card {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #fbbf24;
+            transition: all 0.3s ease;
+        }
+
+            .meal-card:hover {
+                transform: translateX(5px);
+                box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+            }
+
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .meal-type {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meal-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #78350f;
+            margin-bottom: 15px;
+        }
+
+        .meal-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-badge {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #fbbf24;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #78350f;
+        }
+
+        .ingredients-section, .instructions-section {
+            margin-top: 15px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .ingredients-list, .instructions-list {
+            padding-left: 20px;
+            color: #78350f;
+        }
+
+            .ingredients-list li, .instructions-list li {
+                margin-bottom: 8px;
+                line-height: 1.6;
+            }
+
+        .grocery-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .grocery-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grocery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .grocery-item {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 15px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+            .back-btn:hover {
+                transform: translateY(-2px);
+                color: white;
+            }
+
+        @@media (max-width: 768px) {
+            .plan-meta
+
+        {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .meal-info {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        }
+        @@media print {
+            .navbar, .footer, .back-btn, button
+
+        {
+            display: none !important;
+        }
+
+        .meal-card {
+            page-break-inside: avoid;
+        }
+
+        body {
+            background: white !important;
+        }
+
+        }
+    </style>
+}
+
+<div class="meal-view-wrapper">
+    <div class="container view-container">
+        <a asp-action="Index" class="back-btn">← Quay lại</a>
+
+        <div class="plan-header-card">
+            <h1 class="plan-title">@ViewBag.Plan.PlanName</h1>
+
+            <div class="plan-meta">
+                <div class="meta-item">
+                    <div class="meta-value">@ViewBag.Plan.DailyCalories</div>
+                    <div class="meta-label">Calo/ngày</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">@ViewBag.Plan.DailyProtein.ToString("F0")g</div>
+                    <div class="meta-label">Protein</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">@ViewBag.Plan.DailyCarbs.ToString("F0")g</div>
+                    <div class="meta-label">Carbs</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">@ViewBag.Plan.DailyFat.ToString("F0")g</div>
+                    <div class="meta-label">Fat</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">@ViewBag.Plan.Duration</div>
+                    <div class="meta-label">Ngày</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">@(ViewBag.Plan.Budget > 0 ? ViewBag.Plan.Budget.ToString("N0") + " ₫" : "Không giới hạn")</div>
+                    <div class="meta-label">Ngân sách</div>
+                </div>
+            </div>
+        </div>
+
+        @{
+            var planData = (JsonElement)ViewBag.PlanData;
+            var days = planData.GetProperty("days").EnumerateArray();
+
+            foreach (var day in days)
+            {
+                var dayNumber = day.GetProperty("dayNumber").GetInt32();
+                var dayTotal = day.GetProperty("dailyTotal");
+                var meals = day.GetProperty("meals").EnumerateArray();
+
+                <div class="day-section">
+                    <div class="day-header">
+                        <h3 class="day-title">📅 Ngày @dayNumber</h3>
+                        <div class="day-total">
+                            @dayTotal.GetProperty("calories").GetInt32() kcal
+                        </div>
+                    </div>
+
+                    @foreach (var meal in meals)
+                    {
+                        var mealType = meal.GetProperty("mealType").GetString();
+                        var dishName = meal.GetProperty("dishName").GetString();
+                        var calories = meal.GetProperty("calories").GetInt32();
+                        var protein = meal.GetProperty("protein").GetDouble();
+                        var carbs = meal.GetProperty("carbs").GetDouble();
+                        var fat = meal.GetProperty("fat").GetDouble();
+                        var prepTime = meal.GetProperty("prepTime").GetString();
+                        var cost = meal.GetProperty("cost").GetString();
+                        var instructions = meal.GetProperty("instructions").GetString();
+                        var ingredients = meal.GetProperty("ingredients").EnumerateArray();
+
+                        var mealIcon = mealType switch
+                        {
+                            "Bữa Sáng" => "☀️",
+                            "Bữa Trưa" => "🍱",
+                            "Bữa Tối" => "🌙",
+                            _ => "🍪"
+                        };
+
+                        <div class="meal-card">
+                            <div class="meal-header">
+                                <div class="meal-type">@mealIcon @mealType</div>
+                                <div style="color: #78350f; font-weight: 600;">⏰ @prepTime</div>
+                            </div>
+
+                            <div class="meal-name">@dishName</div>
+
+                            <div class="meal-info">
+                                <div class="info-badge">
+                                    <div class="info-value">@calories</div>
+                                    <div class="info-label">Calo</div>
+                                </div>
+                                <div class="info-badge">
+                                    <div class="info-value">@protein.ToString("F0")g</div>
+                                    <div class="info-label">Protein</div>
+                                </div>
+                                <div class="info-badge">
+                                    <div class="info-value">@carbs.ToString("F0")g</div>
+                                    <div class="info-label">Carbs</div>
+                                </div>
+                                <div class="info-badge">
+                                    <div class="info-value">@fat.ToString("F0")g</div>
+                                    <div class="info-label">Fat</div>
+                                </div>
+                                <div class="info-badge">
+                                    <div class="info-value">@cost</div>
+                                    <div class="info-label">Chi phí</div>
+                                </div>
+                            </div>
+
+                            <div class="ingredients-section">
+                                <div class="section-title">🛒 Nguyên liệu:</div>
+                                <ul class="ingredients-list">
+                                    @foreach (var ingredient in ingredients)
+                                    {
+                                        <li>@ingredient.GetString()</li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <div class="instructions-section">
+                                <div class="section-title">👨‍🍳 Cách làm:</div>
+                                <p style="color: #78350f; line-height: 1.6;">@instructions</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+        @if (planData.TryGetProperty("groceryList", out var groceryList))
+        {
+            <div class="grocery-section">
+                <h3 class="grocery-title">🛒 Danh sách Mua sắm Toàn bộ</h3>
+                <div class="grocery-grid">
+                    @foreach (var item in groceryList.EnumerateArray())
+                    {
+                        <div class="grocery-item">
+                            <div>
+                                <div style="font-weight: 700; color: #92400e;">@item.GetProperty("item").GetString()</div>
+                                <div style="font-size: 0.85rem; color: #78350f;">@item.GetProperty("quantity").GetString()</div>
+                            </div>
+                            <div style="font-weight: 700; color: #f59e0b;">@item.GetProperty("estimatedCost").GetString()</div>
+                        </div>
+                    }
+                </div>
+
+                @if (planData.TryGetProperty("totalEstimatedCost", out var totalCost))
+                {
+                    <div style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; text-align: center;">
+                        <div style="color: #78350f; margin-bottom: 5px;">Tổng chi phí ước tính:</div>
+                        <div style="font-size: 2rem; font-weight: 800; color: #92400e;">@totalCost.GetString()</div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (planData.TryGetProperty("tips", out var tips))
+        {
+            <div class="grocery-section" style="margin-top: 20px;">
+                <h3 class="grocery-title">💡 Lời khuyên</h3>
+                <ul style="color: #78350f; line-height: 1.8;">
+                    @foreach (var tip in tips.EnumerateArray())
+                    {
+                        <li>@tip.GetString()</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+    <button onclick="window.print()" class="btn btn-primary">
+        🖨️ In thực đơn
+    </button>
+</div>

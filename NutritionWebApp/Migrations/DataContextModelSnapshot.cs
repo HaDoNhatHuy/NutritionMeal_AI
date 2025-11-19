@@ -22,6 +22,60 @@ namespace NutritionWebApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.BodyMeasurement", b =>
+                {
+                    b.Property<int>("MeasurementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeasurementId"));
+
+                    b.Property<float?>("Arms")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("BodyFatPercentage")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("Chest")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("Hips")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("MeasureDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("MuscleMass")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("Thighs")
+                        .HasColumnType("real");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<float?>("Waist")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("Weight")
+                        .HasColumnType("real");
+
+                    b.HasKey("MeasurementId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BodyMeasurements");
+                });
+
             modelBuilder.Entity("NutritionWebApp.Models.Entities.ChatHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -93,14 +147,14 @@ namespace NutritionWebApp.Migrations
                     b.Property<DateTime>("AnalyzedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<float>("Calories")
-                        .HasColumnType("real");
+                    b.Property<double>("Calories")
+                        .HasColumnType("float");
 
-                    b.Property<float>("Carbs")
-                        .HasColumnType("real");
+                    b.Property<double>("Carbs")
+                        .HasColumnType("float");
 
-                    b.Property<float>("Fat")
-                        .HasColumnType("real");
+                    b.Property<double>("Fat")
+                        .HasColumnType("float");
 
                     b.Property<string>("FoodName")
                         .IsRequired()
@@ -112,8 +166,8 @@ namespace NutritionWebApp.Migrations
                     b.Property<string>("MealType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Protein")
-                        .HasColumnType("real");
+                    b.Property<double>("Protein")
+                        .HasColumnType("float");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -123,6 +177,219 @@ namespace NutritionWebApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FoodHistory");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.Habit", b =>
+                {
+                    b.Property<int>("HabitId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HabitId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("GoalValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HabitName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HabitType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconEmoji")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HabitId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Habits");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.HabitLog", b =>
+                {
+                    b.Property<int>("LogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
+
+                    b.Property<int?>("ActualValue")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HabitId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LogDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("LogId");
+
+                    b.HasIndex("HabitId", "LogDate")
+                        .IsUnique();
+
+                    b.ToTable("HabitLogs");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.MealPlan", b =>
+                {
+                    b.Property<int>("MealPlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MealPlanId"));
+
+                    b.Property<double?>("Budget")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DailyCalories")
+                        .HasColumnType("int");
+
+                    b.Property<double>("DailyCarbs")
+                        .HasColumnType("float");
+
+                    b.Property<double>("DailyFat")
+                        .HasColumnType("float");
+
+                    b.Property<double>("DailyProtein")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MealPlanJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MealPlanId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MealPlans");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.Recipe", b =>
+                {
+                    b.Property<int>("RecipeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RecipeId"));
+
+                    b.Property<double>("Calories")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Carbs")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CookingTime")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Fat")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ingredients")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Instructions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Likes")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Protein")
+                        .HasColumnType("float");
+
+                    b.Property<string>("RecipeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Servings")
+                        .HasColumnType("int");
+
+                    b.HasKey("RecipeId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.ToTable("Recipes");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.RecipeLike", b =>
+                {
+                    b.Property<int>("LikeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LikeId"));
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LikeId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("RecipeId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("RecipeLikes");
                 });
 
             modelBuilder.Entity("NutritionWebApp.Models.Entities.User", b =>
@@ -174,6 +441,175 @@ namespace NutritionWebApp.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WaterIntake", b =>
+                {
+                    b.Property<int>("IntakeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IntakeId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GoalMl")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("IntakeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TotalMl")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("IntakeId");
+
+                    b.HasIndex("UserId", "IntakeDate")
+                        .IsUnique();
+
+                    b.ToTable("WaterIntake");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WaterLog", b =>
+                {
+                    b.Property<int>("LogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
+
+                    b.Property<int>("AmountMl")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IntakeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LoggedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("LogId");
+
+                    b.HasIndex("IntakeId");
+
+                    b.ToTable("WaterLogs");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WorkoutPlan", b =>
+                {
+                    b.Property<int>("PlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlanId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Equipment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Frequency")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Goal")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PlanId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("WorkoutPlans");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WorkoutProgress", b =>
+                {
+                    b.Property<int>("ProgressId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProgressId"));
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RepsCompleted")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SetsCompleted")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WeekNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WeightUsed")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProgressId");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("WorkoutProgress");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.BodyMeasurement", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NutritionWebApp.Models.Entities.ChatHistory", b =>
                 {
                     b.HasOne("NutritionWebApp.Models.Entities.User", "User")
@@ -196,9 +632,138 @@ namespace NutritionWebApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.Habit", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.HabitLog", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.Habit", "Habit")
+                        .WithMany("HabitLogs")
+                        .HasForeignKey("HabitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Habit");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.MealPlan", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.Recipe", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.RecipeLike", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.Recipe", "Recipe")
+                        .WithMany("RecipeLikes")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WaterIntake", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WaterLog", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.WaterIntake", "WaterIntake")
+                        .WithMany("WaterLogs")
+                        .HasForeignKey("IntakeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WaterIntake");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WorkoutPlan", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WorkoutProgress", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.WorkoutPlan", "WorkoutPlan")
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("WorkoutPlan");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.Habit", b =>
+                {
+                    b.Navigation("HabitLogs");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.Recipe", b =>
+                {
+                    b.Navigation("RecipeLikes");
+                });
+
             modelBuilder.Entity("NutritionWebApp.Models.Entities.User", b =>
                 {
                     b.Navigation("FoodHistories");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.WaterIntake", b =>
+                {
+                    b.Navigation("WaterLogs");
                 });
 #pragma warning restore 612, 618
         }

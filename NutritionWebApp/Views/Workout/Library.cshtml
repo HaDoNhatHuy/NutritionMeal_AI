@@ -1,0 +1,310 @@
+﻿@model List<NutritionWebApp.Services.Exercise>
+@{
+    ViewData["Title"] = "Thư viện Bài tập Gym";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var bodyParts = ViewBag.BodyParts as List<string> ?? new List<string>();
+    var equipments = ViewBag.Equipments as List<string> ?? new List<string>();
+    var targets = ViewBag.Targets as List<string> ?? new List<string>();
+    var currentBodyPart = ViewBag.CurrentBodyPart as string ?? "all";
+    var currentEquipment = ViewBag.CurrentEquipment as string ?? "all";
+    var currentTarget = ViewBag.CurrentTarget as string ?? "all";
+    var currentGroup = ViewBag.CurrentGroup as string ?? "all";
+    var collapseId = "collapse-" + Guid.NewGuid().ToString();
+}
+
+@section Styles {
+    <style>
+        .library-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+            padding: 40px 0;
+        }
+
+        .filter-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .exercise-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+            .exercise-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+
+            .exercise-card img {
+                width: 100%;
+                height: 200px;
+                object-fit: contain;
+                background-color: #f8f9fa;
+            }
+
+        .card-content {
+            padding: 20px;
+        }
+
+            .card-content h5 {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: #1e3a8a;
+                margin-bottom: 10px;
+            }
+
+        .badge-info {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .instructions-toggle {
+            cursor: pointer;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-top: 10px;
+            display: block;
+        }
+
+        // .instructions-text {
+        //     max-height: 0;
+        //     overflow: hidden;
+        //     transition: max-height 0.5s ease-in-out;
+        //     margin-top: 10px;
+        //     border-top: 1px dashed #e2e8f0;
+        //     padding-top: 10px;
+        //     font-size: 0.9rem;
+        // }
+
+        .instructions-text {
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            margin-top: 10px;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 10px;
+            font-size: 0.9rem;
+        }
+
+
+        .exercise-card img[src*="placeholder"] {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .exercise-card img[src*="placeholder"]::after {
+                content: "📸 Không có hình ảnh";
+                font-size: 1rem;
+                color: #64748b;
+            }
+        /* Style cho thanh lọc mới */
+        .filter-bar {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-select-custom {
+            border-radius: 12px;
+            border: 1px solid #cbd5e0;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+            .form-select-custom:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+        .btn-filter {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            width: 100%;
+            margin-top: 29px; /* Căn chỉnh với label */
+            padding: 10px;
+            transition: transform 0.2s;
+        }
+
+            .btn-filter:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+                color: white;
+            }
+    </style>
+}
+
+<div class="library-wrapper">
+    <div class="container">
+        <h1 class="text-center" style="font-weight: 800; color: #1e3a8a; margin-bottom: 30px;">
+            📚 Thư viện Bài tập Toàn diện
+        </h1>
+
+        <div class="filter-bar">
+            <form method="get" action="@Url.Action("Library")">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="filter-label">💪 Nhóm Cơ</label>
+                        <select name="bodyPart" class="form-select form-select-custom">
+                            <option value="all">⭐ Tất cả</option>
+                            @foreach (var item in bodyParts)
+                            {
+                                <option value="@item" selected="@(currentBodyPart == item)">
+                                    @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item)
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="filter-label">🏋️ Thiết Bị</label>
+                        <select name="equipment" class="form-select form-select-custom">
+                            <option value="all">⭐ Tất cả</option>
+                            @foreach (var item in equipments)
+                            {
+                                <option value="@item" selected="@(currentEquipment == item)">
+                                    @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item)
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="filter-label">🎯 Cơ Mục Tiêu</label>
+                        <select name="target" class="form-select form-select-custom">
+                            <option value="all">⭐ Tất cả</option>
+                            @foreach (var item in targets)
+                            {
+                                <option value="@item" selected="@(currentTarget == item)">
+                                    @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item)
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-filter">
+                            🔍 Lọc Bài Tập
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <h5 class="mb-4 text-secondary">Tìm thấy <strong>@Model.Count</strong> bài tập phù hợp</h5>
+            <div class="exercise-grid">
+                @foreach (var ex in Model)
+                {
+                    var uniqueId = "instr-" + Guid.NewGuid().ToString();
+                    <div class="exercise-card">
+                        <img src="@ex.GifUrl"
+                             alt="@ex.Name"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='/images/default-exercise.jpg';" />
+
+                        <div class="card-content">
+                            <h5>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ex.Name)</h5>
+                            <div class="mb-2">
+                                <span class="badge-info">🎯 @ex.Target</span>
+                                <span class="badge-info">💪 @ex.BodyPart</span>
+                            </div>
+                            <div class="text-muted small mb-2">
+                                🏋️ Thiết bị: <strong>@ex.Equipment</strong>
+                            </div>
+
+                            @if (ex.Instructions != null && ex.Instructions.Any())
+                            {
+                                <a class="instructions-toggle" data-bs-toggle="collapse" href="#@uniqueId">
+                                    ▶️ Xem hướng dẫn
+                                </a>
+                                <div class="instructions-text collapse" id="@uniqueId">
+                                    <ol class="list-unstyled ps-0">
+                                        @foreach (var instruction in ex.Instructions.Take(3)) // Lấy 3 bước đầu cho gọn
+                                        {
+                                            <li class="mb-1">• @instruction</li>
+                                        }
+                                    </ol>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center p-5">
+                <div style="font-size: 4rem; opacity: 0.5;">📭</div>
+                <h3 class="text-muted mt-3">Không tìm thấy bài tập nào</h3>
+                <p>Hãy thử thay đổi bộ lọc tìm kiếm của bạn.</p>
+                <a href="@Url.Action("Library")" class="btn btn-outline-primary mt-2">Xóa bộ lọc</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.instructions-toggle').forEach(toggle => {
+                const targetId = toggle.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                // 1. Gắn sự kiện khi Collapse ĐÃ mở hoàn toàn
+                targetElement.addEventListener('shown.bs.collapse', function () {
+                    toggle.innerHTML = '▼ Ẩn hướng dẫn';
+                });
+
+                // 2. Gắn sự kiện khi Collapse ĐÃ đóng hoàn toàn
+                targetElement.addEventListener('hidden.bs.collapse', function () {
+                    toggle.innerHTML = '▶️ Xem hướng dẫn';
+                });
+
+                // Đảm bảo trạng thái ban đầu khi tải trang (nếu có lỗi JS, luôn là Xem hướng dẫn)
+                // Lưu ý: Logic này chỉ cần thiết nếu bạn không sử dụng class 'show' mặc định.
+                if (!targetElement.classList.contains('show')) {
+                    toggle.innerHTML = '▶️ Xem hướng dẫn';
+                }
+            });
+        });
+    </script>
+}

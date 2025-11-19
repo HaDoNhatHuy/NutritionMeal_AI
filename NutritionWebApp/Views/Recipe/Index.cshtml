@@ -1,0 +1,139 @@
+﻿@model List<NutritionWebApp.Models.Entities.Recipe>
+@{
+    ViewData["Title"] = "Cộng đồng Công thức";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as List<string>;
+    var currentCategory = ViewBag.CurrentCategory as string;
+    var likedRecipeIds = ViewBag.LikedRecipeIds as List<int> ?? new List<int>();
+    var popularIds = ViewBag.PopularRecipeIds as List<int> ?? new List<int>();
+}
+
+@section Styles {
+    <style>
+        .recipe-index-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+            padding: 40px 0;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+            .recipe-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            }
+
+        .recipe-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 5px;
+        }
+
+        .recipe-macros {
+            font-size: 0.9rem;
+            color: #78350f;
+            margin-bottom: 15px;
+        }
+
+        .recipe-likes {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+        /* Thêm badge "Popular" cho recipes có > 10 likes */
+        .recipe-card.popular::before {
+            content: '🔥 HOT';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        /* ... Thêm styles cho category-pills, etc. */
+    </style>
+}
+
+<div class="recipe-index-wrapper">
+    <div class="container">
+        <h1 class="text-center" style="font-weight: 800; color: #92400e; margin-bottom: 20px;">
+            👩‍🍳 Cộng đồng Công thức Dinh dưỡng
+        </h1>
+        <p class="text-center text-muted">Khám phá các món ăn lành mạnh được chia sẻ bởi AI và cộng đồng</p>
+
+        <!-- Category Filter -->
+        <div class="d-flex justify-content-center gap-3 mb-5">
+            <a href="@Url.Action("Index", new { category = "all" })"
+               class="btn btn-sm @(currentCategory == "all" ? "btn-warning" : "btn-outline-warning")">
+                Tất cả
+            </a>
+            @if (categories != null)
+            {
+                @foreach (var cat in categories)
+                {
+                    <a href="@Url.Action("Index", new { category = cat })"
+                       class="btn btn-sm @(currentCategory == cat ? "btn-warning" : "btn-outline-warning")">
+                        @cat
+                    </a>
+                }
+            }
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="recipe-grid">
+                @foreach (var recipe in Model)
+                {
+                    <div class="recipe-card @(popularIds.Contains(recipe.RecipeId) ? "popular" : "")">
+                        <div class="recipe-likes">
+                            @if (likedRecipeIds.Contains(recipe.RecipeId))
+                            {
+                                <span style="color: #e74c3c;">❤️ @recipe.Likes</span>
+                            }
+                            else
+                            {
+                                <span style="color: #999;">👍 @recipe.Likes</span>
+                            }
+                        </div>
+                        <h3 class="recipe-title">@recipe.RecipeName</h3>
+                        <p class="text-muted" style="font-size: 0.9rem;">@recipe.Description</p>
+
+                        <div class="recipe-macros">
+                            🔥 @recipe.Calories.ToString("F0") kcal • P: @recipe.Protein.ToString("F0")g • C: @recipe.Carbs.ToString("F0")g • F: @recipe.Fat.ToString("F0")g
+                        </div>
+
+                        <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-outline-primary btn-sm mt-2">
+                            Xem Công thức
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-center mt-5 text-muted">Không tìm thấy công thức nào trong danh mục này.</p>
+        }
+    </div>
+</div>

@@ -1,0 +1,247 @@
+﻿@model List<NutritionWebApp.Models.Entities.WorkoutPlan>
+@{
+    ViewData["Title"] = "Kế Hoạch Tập Luyện";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .workout-index {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 40px 0;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: #3b82f6;
+            font-size: 1.1rem;
+        }
+
+        .create-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+            .create-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+                color: white;
+            }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+            .plan-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            }
+
+        .plan-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .plan-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+        }
+
+        .plan-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .view-btn:hover {
+                transform: translateY(-2px);
+                color: white;
+            }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .delete-btn:hover {
+                background: #dc2626;
+                color: white;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+    </style>
+}
+
+<div class="workout-index">
+    <div class="container">
+        <div class="header-section">
+            <h1 class="main-title">💪 Kế Hoạch Tập Luyện</h1>
+            <p class="subtitle">AI tạo chương trình tập luyện cá nhân hóa</p>
+            <a asp-action="Create" class="create-btn">
+                ✨ Tạo Kế Hoạch Mới
+            </a>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">🏋️</div>
+                <h3 class="empty-title">Chưa có kế hoạch tập luyện</h3>
+                <p class="empty-text">Bắt đầu hành trình fitness của bạn với AI Trainer!</p>
+            </div>
+        }
+        else
+        {
+            <div class="plans-grid">
+                @foreach (var plan in Model)
+                {
+                    <div class="plan-card">
+                        <div class="plan-name">@plan.PlanName</div>
+
+                        <div class="plan-meta">
+                            <div class="meta-row">
+                                <span>🎯</span>
+                                <span>@plan.Goal</span>
+                            </div>
+                            <div class="meta-row">
+                                <span>📊</span>
+                                <span>@plan.Level</span>
+                            </div>
+                            <div class="meta-row">
+                                <span>⏱️</span>
+                                <span>@plan.Duration tuần</span>
+                            </div>
+                            <div class="meta-row">
+                                <span>📅</span>
+                                <span>@plan.Frequency ngày/tuần</span>
+                            </div>
+                            <div class="meta-row">
+                                <span>🏋️</span>
+                                <span>@plan.Equipment</span>
+                            </div>
+                            <div class="meta-row">
+                                <span>📆</span>
+                                <span>Tạo: @plan.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+
+                        <div class="plan-actions">
+                            <a asp-action="View" asp-route-id="@plan.PlanId" class="btn view-btn">
+                                👁️ Xem Chi Tiết
+                            </a>
+                            <button class="btn delete-btn" onclick="deletePlan(@plan.PlanId)">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function deletePlan(planId) {
+            if (!confirm('Bạn có chắc muốn xóa kế hoạch này?')) return;
+
+            try {
+                const response = await fetch(`/Workout/Delete/${planId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+            }
+        }
+    </script>
+}

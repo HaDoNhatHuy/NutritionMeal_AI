@@ -5,6 +5,27 @@
 }
 @section Styles {
     <style>
+        .settings-tabs .nav-link {
+            border: none;
+            color: #64748b;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+
+            .settings-tabs .nav-link:hover {
+                background: #f0fdf4;
+                color: #059669;
+            }
+
+            .settings-tabs .nav-link.active {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            }
+    </style>
+    <style>
         .settings-wrapper {
             background: linear-gradient(to bottom, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
             min-height: 100vh;
@@ -411,122 +432,145 @@
                 </div>
             }
 
+            @* ✅ THÊM: Tab Navigation *@
+            <ul class="nav nav-tabs settings-tabs" id="settingsTabs" role="tablist" style="border-bottom: 2px solid #d1fae5; margin-bottom: 30px;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-panel" type="button">
+                        👤 Thông tin cơ bản
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="body-tab" data-bs-toggle="tab" data-bs-target="#body-panel" type="button">
+                        📏 Chỉ số cơ thể
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-panel" type="button">
+                        🏃 Hoạt động & Mục tiêu
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="health-tab" data-bs-toggle="tab" data-bs-target="#health-panel" type="button">
+                        🏥 Sức khỏe
+                    </button>
+                </li>
+            </ul>
+
             <form asp-action="Index" method="post">
-                <div class="form-section">
-                    <h3 class="section-title">👤 Thông tin cơ bản</h3>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="form-label">Tuổi của bạn</label>
-                            <div class="input-group-custom">
-                                <input asp-for="Age" class="form-control with-icon" type="number" placeholder="VD: 25" />
-                                <span class="input-icon">🎂</span>
+                <div class="tab-content" id="settingsTabContent">
+                    @* TAB 1: Thông tin cơ bản *@
+                    <div class="tab-pane fade show active" id="basic-panel" role="tabpanel">
+                        <div class="form-section">
+                            <h3 class="section-title">👤 Thông tin cơ bản</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Tuổi của bạn</label>
+                                    <div class="input-group-custom">
+                                        <input asp-for="Age" class="form-control with-icon" type="number" placeholder="VD: 25" />
+                                        <span class="input-icon">🎂</span>
+                                    </div>
+                                    <span asp-validation-for="Age" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Giới tính</label>
+                                    <select asp-for="Gender" class="form-select">
+                                        <option value="">Chọn giới tính</option>
+                                        <option value="true">👨 Nam</option>
+                                        <option value="false">👩 Nữ</option>
+                                    </select>
+                                </div>
                             </div>
-                            <span asp-validation-for="Age" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Giới tính</label>
-                            <select asp-for="Gender" class="form-select">
-                                <option value="">Chọn giới tính</option>
-                                <option value="true">👨 Nam</option>
-                                <option value="false">👩 Nữ</option>
-                            </select>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <h3 class="section-title">📏 Chỉ số cơ thể</h3>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="form-label">Chiều cao (cm)</label>
-                            <div class="input-group-custom">
-                                <input asp-for="Height" class="form-control with-icon"
-                                       type="number" step="0.1" placeholder="VD: 170" />
-                                <span class="input-icon">📏</span>
+                    @* TAB 2: Chỉ số cơ thể *@
+                    <div class="tab-pane fade" id="body-panel" role="tabpanel">
+                        <div class="form-section">
+                            <h3 class="section-title">📏 Chỉ số cơ thể</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Chiều cao (cm)</label>
+                                    <div class="input-group-custom">
+                                        <input asp-for="Height" class="form-control with-icon" type="number" step="0.1" placeholder="VD: 170" />
+                                        <span class="input-icon">📐</span>
+                                    </div>
+                                    <span asp-validation-for="Height" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Cân nặng (kg)</label>
+                                    <div class="input-group-custom">
+                                        <input asp-for="Weight" class="form-control with-icon" type="number" step="0.1" placeholder="VD: 65" />
+                                        <span class="input-icon">⚖️</span>
+                                    </div>
+                                    <span asp-validation-for="Weight" class="text-danger"></span>
+                                </div>
                             </div>
-                            <span asp-validation-for="Height" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Cân nặng (kg)</label>
-                            <div class="input-group-custom">
-                                <input asp-for="Weight" class="form-control with-icon" type="number" step="0.1" placeholder="VD: 65" />
-                                <span class="input-icon">⚖️</span>
-                            </div>
-                            <span asp-validation-for="Weight" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <h3 class="section-title">🏋️ Mức độ hoạt động</h3>
-                    <div class="row g-4">
-                        <div class="col-12">
-                            <label class="form-label">Tần suất vận động hàng tuần</label>
+                    @* TAB 3: Hoạt động & Mục tiêu *@
+                    <div class="tab-pane fade" id="activity-panel" role="tabpanel">
+                        <div class="form-section">
+                            <h3 class="section-title">🏃 Mức độ hoạt động</h3>
                             <select asp-for="ActivityLevel" class="form-select">
                                 <option value="">Chọn mức độ hoạt động</option>
                                 <option value="Sedentary">🪑 Ít vận động (Ngồi nhiều)</option>
                                 <option value="Light">🚶 Hoạt động nhẹ (1-3 buổi/tuần)</option>
                                 <option value="Moderate">🏃 Hoạt động vừa phải (3-5 buổi/tuần)</option>
                                 <option value="Heavy">💪 Hoạt động nặng (6-7 buổi/tuần)</option>
-                                <option value="Extreme">🏆 Vận động viên (2 lần/ngày)</option>
+                                <option value="Extreme">🏋️ Vận động viên (2 lần/ngày)</option>
                             </select>
                         </div>
-                    </div>
-                </div>
 
-                <div class="form-section">
-                    <h3 class="section-title">🎯 Mục tiêu của bạn</h3>
-                    <div class="goal-options">
-                        <div>
-                            <input type="radio" asp-for="Goal" value="TangCan" class="goal-option" id="goal1" />
-                            <label for="goal1" class="goal-label">
-                                <span class="goal-icon">💪</span>
-                                <span class="goal-text">Tăng cân</span>
-                            </label>
-                        </div>
-                        <div>
-                            <input type="radio" asp-for="Goal" value="GiamCan" class="goal-option" id="goal2" />
-                            <label for="goal2" class="goal-label">
-                                <span class="goal-icon">🔥</span>
-                                <span class="goal-text">Giảm cân</span>
-                            </label>
-                        </div>
-                        <div>
-                            <input type="radio" asp-for="Goal" value="AnChay" class="goal-option" id="goal3" />
-                            <label for="goal3" class="goal-label">
-                                <span class="goal-icon">🥗</span>
-                                <span class="goal-text">Ăn chay</span>
-                            </label>
-                        </div>
-                        <div>
-                            <input type="radio" asp-for="Goal" value="EatClean" class="goal-option" id="goal4" />
-                            <label for="goal4" class="goal-label">
-                                <span class="goal-icon">🥑</span>
-                                <span class="goal-text">Eat Clean</span>
-                            </label>
+                        <div class="form-section">
+                            <h3 class="section-title">🎯 Mục tiêu của bạn</h3>
+                            <div class="goal-options">
+                                <div>
+                                    <input type="radio" asp-for="Goal" value="TangCan" class="goal-option" id="goal1" />
+                                    <label for="goal1" class="goal-label">
+                                        <span class="goal-icon">📈</span>
+                                        <span class="goal-text">Tăng cân</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" asp-for="Goal" value="GiamCan" class="goal-option" id="goal2" />
+                                    <label for="goal2" class="goal-label">
+                                        <span class="goal-icon">📉</span>
+                                        <span class="goal-text">Giảm cân</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" asp-for="Goal" value="AnChay" class="goal-option" id="goal3" />
+                                    <label for="goal3" class="goal-label">
+                                        <span class="goal-icon">🥗</span>
+                                        <span class="goal-text">Ăn chay</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" asp-for="Goal" value="EatClean" class="goal-option" id="goal4" />
+                                    <label for="goal4" class="goal-label">
+                                        <span class="goal-icon">✨</span>
+                                        <span class="goal-text">Eat Clean</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <h3 class="section-title"><i class="fa-solid fa-stethoscope"></i>  Tình trạng Sức khỏe / Bệnh lý</h3>
-                    <div class="row g-4">
-                        <div class="col-12">
+                    @* TAB 4: Sức khỏe *@
+                    <div class="tab-pane fade" id="health-panel" role="tabpanel">
+                        <div class="form-section">
+                            <h3 class="section-title">🩺 Tình trạng Sức khỏe</h3>
                             <label asp-for="Pathology" class="form-label">
-                                Các bệnh lý (Ví dụ: Tiểu đường type 2, dị ứng gluten, cao
-                                huyết áp)
+                                Các bệnh lý (Ví dụ: Tiểu đường type 2, dị ứng gluten)
                             </label>
-                            <textarea asp-for="Pathology" class="form-control" rows="3"
-                                      placeholder="Nhập chi tiết các vấn đề sức khỏe hoặc dị ứng (nếu có)">
-                            </textarea>
+                            <textarea asp-for="Pathology" class="form-control" rows="4" placeholder="Nhập chi tiết các vấn đề sức khỏe hoặc dị ứng (nếu có)"></textarea>
                             <span asp-validation-for="Pathology" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn">
-                    💾 Lưu cài đặt
-                </button>
+                <button type="submit" class="submit-btn">💾 Lưu cài đặt</button>
             </form>
         </div>
 

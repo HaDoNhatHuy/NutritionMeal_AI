@@ -1,0 +1,388 @@
+﻿@using System.Text.Json
+@{
+    ViewData["Title"] = "Kế Hoạch Tập Luyện";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var planData = (JsonElement)ViewBag.PlanData;
+    var plan = ViewBag.Plan;
+    var progress = ViewBag.Progress ?? new List<object>();
+}
+
+@section Styles {
+    <style>
+        .workout-viewer {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 40px 0;
+        }
+
+        .plan-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .plan-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .plan-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .week-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f9ff;
+        }
+
+        .week-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .week-focus {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .day-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .day-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .exercise-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .exercise-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+            .exercise-item:hover {
+                transform: translateX(5px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+
+        .exercise-gif {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .exercise-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .detail-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .exercise-notes {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .warmup-cooldown {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .progress-tracker {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .nutrition-tips {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 20px;
+        }
+
+        .tip-item {
+            padding: 12px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+}
+
+<div class="workout-viewer">
+    <div class="container">
+        <!-- Header -->
+        <div class="plan-header">
+            <div class="plan-title">💪 @planData.GetProperty("planName").GetString()</div>
+            <div class="plan-meta">
+                <div class="meta-item">
+                    <span>🎯</span>
+                    <span>@planData.GetProperty("goal").GetString()</span>
+                </div>
+                <div class="meta-item">
+                    <span>📊</span>
+                    <span>@planData.GetProperty("level").GetString()</span>
+                </div>
+                <div class="meta-item">
+                    <span>⏱️</span>
+                    <span>@plan.Duration tuần</span>
+                </div>
+                <div class="meta-item">
+                    <span>📅</span>
+                    <span>@plan.Frequency ngày/tuần</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weeks -->
+        @foreach (var week in planData.GetProperty("weeks").EnumerateArray())
+        {
+            <div class="week-card">
+                <div class="week-header">
+                    <div>
+                        <div class="week-title">Tuần @week.GetProperty("weekNumber").GetInt32()</div>
+                        <div class="week-focus">🎯 @week.GetProperty("focus").GetString()</div>
+                    </div>
+                </div>
+
+                @foreach (var day in week.GetProperty("days").EnumerateArray())
+                {
+                    <div class="day-card">
+                        <div class="day-header">
+                            📅 Ngày @day.GetProperty("dayNumber").GetInt32() - @day.GetProperty("focus").GetString()
+                        </div>
+
+                        <!-- Warm-up -->
+                        <div class="warmup-cooldown">
+                            <strong>🔥 Khởi động:</strong> @day.GetProperty("warmup").GetString()
+                        </div>
+
+                        <!-- Exercises -->
+                        <div class="exercise-list">
+                            @foreach (var exercise in day.GetProperty("exercises").EnumerateArray())
+                            {
+                                <div class="exercise-item">
+                                    @if (exercise.TryGetProperty("gifUrl", out var gifUrl))
+                                    {
+                                        <img src="@gifUrl.GetString()" alt="@exercise.GetProperty("name").GetString()" class="exercise-gif">
+                                    }
+
+                                    <div class="exercise-info">
+                                        <div class="exercise-name">@exercise.GetProperty("name").GetString()</div>
+
+                                        <div class="exercise-details">
+                                            <span class="detail-badge">
+                                                🏋️ @exercise.GetProperty("sets").GetInt32() sets × @exercise.GetProperty("reps").GetString() reps
+                                            </span>
+                                            <span class="detail-badge">
+                                                ⏱️ Rest: @exercise.GetProperty("rest").GetString()
+                                            </span>
+                                            @if (exercise.TryGetProperty("tempo", out var tempo))
+                                            {
+                                                <span class="detail-badge">
+                                                    📊 Tempo: @tempo.GetString()
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <div class="exercise-notes">
+                                            💡 @exercise.GetProperty("notes").GetString()
+                                        </div>
+
+                                        <!-- Progress Tracker -->
+                                        <div class="progress-tracker">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox"
+                                                       class="exercise-checkbox"
+                                                       data-week="@week.GetProperty("weekNumber").GetInt32()"
+                                                       data-day="@day.GetProperty("dayNumber").GetInt32()"
+                                                       data-exercise="@exercise.GetProperty("name").GetString()">
+                                                <span>✅ Hoàn thành</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Cool-down -->
+                        <div class="warmup-cooldown">
+                            <strong>❄️ Hồi phục:</strong> @day.GetProperty("cooldown").GetString()
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Nutrition Tips -->
+        @if (planData.TryGetProperty("nutritionTips", out var tips))
+        {
+            <div class="nutrition-tips">
+                <div class="tips-title">🥗 Lời khuyên Dinh dưỡng</div>
+                @foreach (var tip in tips.EnumerateArray())
+                {
+                    <div class="tip-item">💡 @tip.GetString()</div>
+                }
+            </div>
+        }
+
+        <!-- Actions -->
+        <div class="text-center" style="margin-top: 30px;">
+            <a asp-action="Index" class="btn btn-modern btn-login" style="padding: 0.75rem 2rem;">
+                ← Quay lại Danh sách
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm modal vào cuối trang -->
+<div class="modal fade" id="exerciseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exerciseModalLabel">Chi tiết bài tập</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="exerciseGifLarge" src="" alt="" style="max-width: 100%; border-radius: 12px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.exercise-gif').forEach(img => {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function() {
+                document.getElementById('exerciseGifLarge').src = this.src;
+                document.getElementById('exerciseModalLabel').textContent = this.alt;
+                new bootstrap.Modal(document.getElementById('exerciseModal')).show();
+            });
+        });
+    </script>
+    <script>
+        // Progress tracking
+        document.querySelectorAll('.exercise-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', async function() {
+                const week = this.dataset.week;
+                const day = this.dataset.day;
+                const exercise = this.dataset.exercise;
+                const completed = this.checked;
+
+                try {
+                    const response = await fetch('/Workout/UpdateProgress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            planId: @plan.PlanId,
+                            weekNumber: parseInt(week),
+                            dayNumber: parseInt(day),
+                            exerciseName: exercise,
+                            completed: completed,
+                            setsCompleted: 0,
+                            repsCompleted: null,
+                            weightUsed: null,
+                            notes: null,
+                            rating: null
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (!data.success) {
+                        alert('Lỗi: ' + data.error);
+                        this.checked = !completed;
+                    }
+                } catch (error) {
+                    alert('Lỗi kết nối: ' + error.message);
+                    this.checked = !completed;
+                }
+            });
+        });
+    </script>
+}

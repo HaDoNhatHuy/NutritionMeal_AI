@@ -1,0 +1,147 @@
+﻿@using System.Text.Json
+@model NutritionWebApp.Models.Entities.Recipe
+@{
+    ViewData["Title"] = Model.RecipeName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Deserialize JSON strings
+    List<string> ingredientsList = new List<string>();
+    List<string> instructionsList = new List<string>();
+    try
+    {
+        if (!string.IsNullOrEmpty(Model.Ingredients))
+        {
+            ingredientsList = JsonSerializer.Deserialize<List<string>>(Model.Ingredients) ?? new List<string>();
+        }
+        if (!string.IsNullOrEmpty(Model.Instructions))
+        {
+            instructionsList = JsonSerializer.Deserialize<List<string>>(Model.Instructions) ?? new List<string>();
+        }
+    }
+    catch { }
+}
+
+@section Styles {
+    <style>
+        .recipe-view-wrapper {
+            /* Tái sử dụng phong cách nền */
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 40px 0;
+        }
+
+        .recipe-main-card {
+            background: white;
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .recipe-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        /* Style cho Ingredients/Instructions tương tự MealPlanner/View.cshtml [9] */
+        .like-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+    </style>
+}
+
+<div class="recipe-view-wrapper">
+    <div class="container" style="max-width: 900px;">
+        <div class="recipe-main-card">
+            <h1 class="recipe-title">🍽️ @Model.RecipeName</h1>
+            <p class="text-secondary">@Model.Description</p>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="badge bg-secondary">Tạo bởi: @(Model.CreatedBy?.FullName ?? "AI")</span>
+                <span class="text-muted">Lượt thích: <span id="likeCount">@Model.Likes</span></span>
+            </div>
+
+            <!-- Nutrition Grid -->
+            <div class="meta-grid">
+                <div class="info-badge" style="background: #f0f9ff;">
+                    <div class="info-value">@Model.Calories.ToString("F0")</div>
+                    <div class="info-label">Calo</div>
+                </div>
+                <!-- ... Thêm Protein, Carbs, Fat tương tự Meal Planner View [10] -->
+            </div>
+
+            <!-- Ingredients -->
+            <h3 class="mt-4" style="color: var(--primary-color);">🛒 Nguyên liệu</h3>
+            <ul class="list-group">
+                @foreach (var item in ingredientsList)
+                {
+                    <li class="list-group-item">@item</li>
+                }
+            </ul>
+
+            <!-- Instructions -->
+            <h3 class="mt-4" style="color: var(--primary-color);">👩‍🍳 Hướng dẫn</h3>
+            <ol class="list-group">
+                @foreach (var item in instructionsList)
+                {
+                    <li class="list-group-item">@item</li>
+                }
+            </ol>
+
+            <!-- Action: Like/Unlike -->
+            <div class="text-center mt-5">
+                <button class="like-btn" data-id="@Model.RecipeId" id="toggleLikeBtn">
+                    @(ViewBag.IsLiked ? "❤️ Đã Thích" : "👍 Thích Công thức")
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('toggleLikeBtn').addEventListener('click', async function() {
+            const recipeId = this.dataset.id;
+            const btn = this;
+            try {
+                const response = await fetch(`/Recipe/ToggleLike/${recipeId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('likeCount').textContent = data.newCount;
+                    if (data.action === 'liked') {
+                        btn.textContent = '❤️ Đã Thích';
+                        btn.style.backgroundColor = '#e74c3c';
+                    } else {
+                        btn.textContent = '👍 Thích Công thức';
+                        btn.style.backgroundColor = '#6c757d'; // Màu xám cho Unlike
+                    }
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối. Vui lòng đăng nhập.');
+                // Chuyển hướng về trang đăng nhập nếu chưa có phiên
+                window.location.href = '/Account/Login';
+            }
+        });
+    </script>
+}

@@ -1,0 +1,326 @@
+﻿@model List<NutritionWebApp.Models.Entities.Habit>
+@using NutritionWebApp.Models.Entities
+@using System.Collections.Generic
+@{
+    ViewData["Title"] = "Theo dõi Thói quen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+    .habits-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        padding: 40px 0;
+    }
+    
+    .habits-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .habits-title {
+        color: #92400e;
+        font-size: 2.5rem;
+        font-weight: 800;
+    }
+    
+    .add-habit-btn {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border: none;
+        border-radius: 16px;
+        padding: 15px 40px;
+        color: white;
+        font-weight: 700;
+        margin-top: 20px;
+    }
+    
+    .habits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+    
+    .habit-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-left: 5px solid #f59e0b;
+    }
+    
+    .habit-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .habit-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+    
+    .habit-type {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .habit-progress {
+        margin: 20px 0;
+    }
+    
+    .streak-badge {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+        color: #92400e;
+    }
+    
+    .habit-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .log-btn {
+        flex: 1;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+    }
+    
+    .view-stats-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+    }
+    
+    .delete-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+    }
+
+        .streak-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .streak-day {
+            width: 30px;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+
+            .streak-day.completed {
+                background: #10b981;
+            }
+</style>
+}
+
+<div class="habits-wrapper">
+    <div class="container">
+        <div class="habits-header">
+            <h1 class="habits-title">📊 Theo dõi Thói quen</h1>
+            @* <div class="streak-calendar">
+                @for (int i = 0; i < 30; i++)
+                {
+                    var dayCompleted = /* logic check completed */;
+                    <div class="streak-day @(dayCompleted ? "completed" : "")"></div>
+                }
+            </div>
+ *@
+            <p style="color: #78350f; font-size: 1.1rem;">Xây dựng thói quen tốt cho sức khỏe</p>
+            <button class="btn add-habit-btn" data-bs-toggle="modal" data-bs-target="#addHabitModal">
+                ➕ Thêm Thói quen
+            </button>
+        </div>
+        
+        @if (Model == null || !Model.Any())
+        {
+            <div style="text-align: center; padding: 80px 20px; color: #78350f;">
+                <div style="font-size: 5rem;">📝</div>
+                <h3>Chưa có thói quen nào</h3>
+                <p>Bắt đầu theo dõi thói quen đầu tiên của bạn!</p>
+            </div>
+        }
+        else
+        {
+            <div class="habits-grid">
+                @foreach (var habit in Model)
+                {
+                    var todayLog = ((IEnumerable<NutritionWebApp.Models.Entities.HabitLog>)ViewBag.TodayLogs)?.FirstOrDefault(l => l.HabitId == habit.HabitId);
+                    var isCompleted = todayLog?.Completed ?? false;
+
+                    // Lấy streak từ ViewBag
+                    var streaks = ViewBag.HabitStreaks as Dictionary<int, int>;
+                    var currentStreak = streaks != null && streaks.ContainsKey(habit.HabitId) ? streaks[habit.HabitId] : 0;
+
+                    <div class="habit-card">
+                        <div class="habit-icon">@habit.IconEmoji</div>
+                        <div class="habit-name">@habit.HabitName</div>
+                        <div class="habit-type"> 🎯 @habit.HabitType</div>
+
+                        @if (habit.GoalValue.HasValue)
+                        {
+                            <div class="habit-type">Mục tiêu: @habit.GoalValue</div>
+                        }
+
+                        <div class="habit-progress">
+                            <span class="streak-badge" style="@(currentStreak > 0 ? "background: #fcd34d; color: #78350f;" : "")">
+                                🔥 @currentStreak ngày liên tiếp
+                            </span>
+                        </div>
+
+                        <div class="habit-actions">
+                            <button class="btn log-btn" style="@(isCompleted ? "background:#059669; pointer-events:none;" : "")"
+                                    onclick="logHabit(@habit.HabitId, @(isCompleted ? "false" : "true"))">
+                                @(isCompleted ? "✅ Đã xong" : "⬜ Check")
+                            </button>
+
+                            <a asp-action="Statistics" asp-route-id="@habit.HabitId" class="btn view-stats-btn">📊</a>
+                            <button class="btn delete-btn" onclick="deleteHabit(@habit.HabitId)">🗑️</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Habit Modal -->
+<div class="modal fade" id="addHabitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">➕ Thêm Thói quen Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên thói quen</label>
+                    <input type="text" class="form-control" id="habitName" placeholder="VD: Uống đủ nước">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Loại</label>
+                    <select class="form-select" id="habitType">
+                        <option value="Water">💧 Uống nước</option>
+                        <option value="Sleep">😴 Giấc ngủ</option>
+                        <option value="Exercise">🏃 Vận động</option>
+                        <option value="Meditation">🧘 Thiền định</option>
+                        <option value="Reading">📚 Đọc sách</option>
+                        <option value="Other">📝 Khác</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mục tiêu (số)</label>
+                    <input type="number" class="form-control" id="goalValue" placeholder="VD: 2000 (ml)">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Icon</label>
+                    <input type="text" class="form-control" id="iconEmoji" placeholder="VD: 💧" maxlength="2">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn add-habit-btn" onclick="createHabit()">Tạo Thói quen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function createHabit() {
+        const habitName = document.getElementById('habitName').value;
+        const habitType = document.getElementById('habitType').value;
+        const goalValue = document.getElementById('goalValue').value;
+        const iconEmoji = document.getElementById('iconEmoji').value;
+        
+        if (!habitName) {
+            alert('Vui lòng nhập tên thói quen!');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/Habits/Create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    habitName,
+                    habitType,
+                    goalValue: goalValue ? parseInt(goalValue) : null,
+                    iconEmoji: iconEmoji || '📌'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        } catch (error) {
+            alert('Lỗi kết nối: ' + error.message);
+        }
+    }
+    
+    async function logHabit(habitId, completed) {
+        try {
+            const response = await fetch('/Habits/LogHabit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    habitId,
+                    completed: completed === 'true',
+                    actualValue: null,
+                    notes: null
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        } catch (error) {
+            alert('Lỗi kết nối: ' + error.message);
+        }
+    }
+    
+    async function deleteHabit(habitId) {
+        if (!confirm('Bạn có chắc muốn xóa thói quen này?')) return;
+        
+        try {
+            const response = await fetch(`/Habits/Delete/${habitId}`, {
+                method: 'POST'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        } catch (error) {
+            alert('Lỗi kết nối: ' + error.message);
+        }
+    }
+</script>
+}

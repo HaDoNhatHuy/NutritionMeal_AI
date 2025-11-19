@@ -1,0 +1,313 @@
+﻿@{
+    ViewData["Title"] = "Tạo Kế hoạch Ăn uống";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .meal-creator-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 40px 0;
+        }
+
+        .creator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .creator-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #f59e0b;
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+                outline: none;
+            }
+
+        .macro-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .macro-display {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .macro-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .macro-label {
+            color: #78350f;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            width: 100%;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .generate-btn:hover:not(:disabled) {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
+            }
+
+            .generate-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .loading-overlay.show {
+                display: flex;
+            }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .loading-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #92400e;
+        }
+    </style>
+}
+
+<div class="meal-creator-wrapper">
+    <div class="container creator-container">
+        <div class="creator-card">
+            <h1 class="section-title">🍽️ Tạo Kế hoạch Ăn uống AI</h1>
+            <p style="color: #78350f; margin-bottom: 2rem;">AI sẽ tạo thực đơn chi tiết dựa trên nhu cầu của bạn</p>
+
+            <form id="mealPlanForm">
+                <!-- Macro Goals Display -->
+                <div class="form-group">
+                    <label class="form-label">🎯 Mục tiêu Macros hiện tại</label>
+                    @if (ViewBag.Macros != null)
+                    {
+                        <div class="macro-grid">
+                            <div class="macro-display">
+                                <div class="macro-value">@ViewBag.TDEE.ToString("F0")</div>
+                                <div class="macro-label">Calo/ngày</div>
+                            </div>
+                            <div class="macro-display">
+                                <div class="macro-value">@ViewBag.Macros.ProteinGrams.ToString("F0")g</div>
+                                <div class="macro-label">Protein</div>
+                            </div>
+                            <div class="macro-display">
+                                <div class="macro-value">@ViewBag.Macros.CarbGrams.ToString("F0")g</div>
+                                <div class="macro-label">Carbs</div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            ⚠️ Vui lòng cập nhật thông tin trong <a asp-controller="Settings" asp-action="Index">Cài đặt</a> trước.
+                        </div>
+                    }
+                </div>
+
+                <!-- Duration -->
+                <div class="form-group">
+                    <label class="form-label">📅 Thời gian thực đơn</label>
+                    <select id="duration" class="form-select">
+                        <option value="3">3 ngày</option>
+                        <option value="7" selected>7 ngày (1 tuần)</option>
+                        <option value="14">14 ngày (2 tuần)</option>
+                        <option value="30">30 ngày (1 tháng)</option>
+                    </select>
+                </div>
+
+                <!-- Meal Count -->
+                <div class="form-group">
+                    <label class="form-label">🍽️ Số bữa ăn/ngày</label>
+                    <select id="mealCount" class="form-select">
+                        <option value="3" selected>3 bữa (Sáng, Trưa, Tối)</option>
+                        <option value="4">4 bữa (+ Snack)</option>
+                        <option value="5">5 bữa (+ 2 Snacks)</option>
+                    </select>
+                </div>
+
+                <!-- Budget -->
+                <div class="form-group">
+                    <label class="form-label">💰 Ngân sách/ngày (VND) - Tùy chọn</label>
+                    <input type="number" id="budget" class="form-control" placeholder="VD: 150000" min="0">
+                    <small style="color: #78350f; margin-top: 5px; display: block;">Để trống nếu không giới hạn</small>
+                </div>
+
+                <button type="submit" class="generate-btn" id="generateBtn">
+                    ✨ Tạo Thực đơn AI
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+        </div>
+        <div class="loading-text">🤖 AI đang tạo thực đơn...</div>
+        <div style="color: #78350f; margin-top: 10px;">Vui lòng chờ 15-20 giây</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('mealPlanForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+             const dailyCaloriesInt = Math.round(@(ViewBag.TDEE ?? 0));
+             const dailyProteinInt = Math.round(@(ViewBag.Macros?.ProteinGrams ?? 0));
+             const dailyCarbsInt = Math.round(@(ViewBag.Macros?.CarbGrams ?? 0));
+             const dailyFatInt = Math.round(@(ViewBag.Macros?.FatGrams ?? 0));
+
+            const macros = {
+                dailyCalories: dailyCaloriesInt,
+                dailyProtein: dailyProteinInt,
+                dailyCarbs: dailyCarbsInt,
+                dailyFat: dailyFatInt
+            };
+
+            if (macros.dailyCalories === 0) {
+                alert('⚠️ Vui lòng cập nhật thông tin trong Cài đặt trước!');
+                return;
+            }
+
+            const duration = parseInt(document.getElementById('duration').value);
+            const mealCount = parseInt(document.getElementById('mealCount').value);
+            const budget = parseFloat(document.getElementById('budget').value) || 0;
+
+            const payload = {
+                ...macros,
+                duration,
+                mealCount,
+                budget
+            };
+
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            generateBtn.disabled = true;
+            loadingOverlay.classList.add('show');
+
+            try {
+                const response = await fetch('/MealPlanner/Generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Lỗi: ' + data.error);
+                } else if (data.success) {
+                    alert('✅ Tạo thực đơn thành công!');
+                    window.location.href = `/MealPlanner/View/${data.planId}`;
+                }
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                loadingOverlay.classList.remove('show');
+            }
+        });
+    </script>
+}

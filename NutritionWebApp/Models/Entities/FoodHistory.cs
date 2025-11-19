@@ -12,10 +12,10 @@ namespace NutritionWebApp.Models.Entities
         public int UserId { get; set; }
         public virtual User User { get; set; } = null!;
         public string FoodName { get; set; } = string.Empty;
-        public float Calories { get; set; }
-        public float Protein { get; set; }
-        public float Carbs { get; set; }
-        public float Fat { get; set; }
+        public double Calories { get; set; }
+        public double Protein { get; set; }
+        public double Carbs { get; set; }
+        public double Fat { get; set; }
         public string? ImageUrl { get; set; }
         public string? MealType { get; set; }
         public DateTime AnalyzedAt { get; set; } = DateTime.Now;

@@ -246,33 +246,30 @@
                 }
 
         @@media (max-width: 768px) {
-            .stress-hero
+            .stress-hero {
+                padding: 2rem 0;
+            }
 
-        {
-            padding: 2rem 0;
-        }
+                .stress-hero h1 {
+                    font-size: 1.75rem;
+                }
 
-        .stress-hero h1 {
-            font-size: 1.75rem;
-        }
+            .impact-cards {
+                grid-template-columns: 1fr;
+            }
 
-        .impact-cards {
-            grid-template-columns: 1fr;
-        }
+            .techniques-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .techniques-grid {
-            grid-template-columns: 1fr;
-        }
+            .breathing-steps {
+                grid-template-columns: 1fr;
+            }
 
-        .breathing-steps {
-            grid-template-columns: 1fr;
-        }
-
-        .image-placeholder {
-            height: 250px;
-            font-size: 1rem;
-        }
-
+            .image-placeholder {
+                height: 250px;
+                font-size: 1rem;
+            }
         }
     </style>
 }
@@ -287,9 +284,10 @@
 </div>
 
 <div class="container">
-    <div class="image-placeholder">
-        📸 Thêm ảnh thiền/yoga/thư giãn
-    </div>
+    @* <div class="image-placeholder"> *@
+    @* 📸 Thêm ảnh thiền/yoga/thư giãn *@
+    <img class="image-placeholder" style="object-fit:cover;" src="/images/thien_yoga_1.jpg" alt="Alternate Text" />
+    @* </div> *@
 
     <div class="impact-cards">
         <div class="impact-card negative">
@@ -359,9 +357,10 @@
         <p style="text-align: center; color: #1e3a8a; margin-top: 1.5rem; font-weight: 600;">
             Lặp lại 4 lần. Thực hành 2 lần/ngày để giảm lo âu và cải thiện giấc ngủ.
         </p>
-        <div class="image-placeholder" style="height: 250px; margin-top: 1.5rem; font-size: 1.2rem;">
+        @* <div class="image-placeholder" style="height: 250px; margin-top: 1.5rem; font-size: 1.2rem;">
             📊 Thêm hình minh họa kỹ thuật thở
-        </div>
+        </div> *@
+        <img class="image-placeholder" style="height: 250px; margin-top: 1.5rem; font-size: 1.2rem; object-fit:fill" src="/images/tho478.jpg" alt="Alternate Text" />
     </div>
 
     <div class="techniques-section">
@@ -378,9 +377,10 @@
                     <li>Quan sát hơi thở, cảm giác cơ thể</li>
                     <li>Dùng app: Headspace, Calm, Insight Timer</li>
                 </ul>
-                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                @* <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
                     📸 Ảnh thiền
-                </div>
+                </div> *@
+                <img class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;" src="/images/anhthien.jpg" alt="Alternate Text" />
             </div>
 
             <div class="technique-card">
@@ -391,9 +391,10 @@
                     <li>Yoga, Pilates giúp thư giãn sâu</li>
                     <li>Đi bộ ngoài trời tiếp xúc thiên nhiên</li>
                 </ul>
-                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                @* <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
                     📸 Ảnh tập yoga
-                </div>
+                </div> *@
+                <img class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;" src="/images/vandong.jpg" alt="Alternate Text" />
             </div>
 
             <div class="technique-card">
@@ -404,9 +405,10 @@
                     <li>Tình nguyện giúp đỡ người khác</li>
                     <li>Tránh cô lập, xa rời mọi người</li>
                 </ul>
-                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                @*  <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
                     📸 Ảnh gặp gỡ bạn bè
-                </div>
+                </div> *@
+                <img class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;" src="/images/gapbanbe.jpg" alt="Alternate Text" />
             </div>
 
             <div class="technique-card">
@@ -417,9 +419,10 @@
                     <li>Học cách từ chối, đặt ranh giới</li>
                     <li>Nghỉ giải lao 5-10 phút mỗi giờ</li>
                 </ul>
-                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                @* <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
                     📸 Ảnh lập kế hoạch
-                </div>
+                </div> *@
+                <img class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;" src="/images/quanlythoigian.png" alt="Alternate Text" />
             </div>
 
             <div class="technique-card">
@@ -430,9 +433,10 @@
                     <li>Xem phim hài, chơi với thú cưng</li>
                     <li>Tắm nước ấm, massage, spa</li>
                 </ul>
-                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                @* <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
                     📸 Ảnh đọc sách/thư giãn
-                </div>
+                </div> *@
+                <img class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;" src="/images/anhdocsach.jpg" alt="Alternate Text" />
             </div>
 
             <div class="technique-card">
@@ -443,9 +447,10 @@
                     <li>Uống đủ nước (2-2.5L/ngày)</li>
                     <li>Tránh rượu bia, thuốc lá</li>
                 </ul>
-                <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
+                @* <div class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;">
                     📸 Ảnh thực phẩm lành mạnh
-                </div>
+                </div> *@
+                <img class="image-placeholder" style="height: 180px; margin-top: 1rem; font-size: 0.9rem;" src="/images/anhdinhduong.jpg" alt="Alternate Text" />
             </div>
         </div>
     </div>

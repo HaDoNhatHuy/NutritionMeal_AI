@@ -175,29 +175,26 @@
                 }
 
         @@media (max-width: 768px) {
-            .exercise-hero
+            .exercise-hero {
+                padding: 2rem 0;
+            }
 
-        {
-            padding: 2rem 0;
-        }
+                .exercise-hero h1 {
+                    font-size: 1.75rem;
+                }
 
-        .exercise-hero h1 {
-            font-size: 1.75rem;
-        }
+            .benefit-cards {
+                grid-template-columns: 1fr;
+            }
 
-        .benefit-cards {
-            grid-template-columns: 1fr;
-        }
+            .type-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .type-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .image-placeholder {
-            height: 250px;
-            font-size: 1rem;
-        }
-
+            .image-placeholder {
+                height: 250px;
+                font-size: 1rem;
+            }
         }
     </style>
 }
@@ -213,10 +210,10 @@
 
 <div class="container">
     <!-- PLACEHOLDER CHO ẢNH CHÍNH -->
-    <div class="image-placeholder">
-        @* 📸 Thêm ảnh người tập gym/thể thao ở đây *@
-        <img class="image-placeholder" style="object-fit:cover;" src="/images/gym_5.jpg" alt="Alternate Text" />
-    </div>
+    @* <div class="image-placeholder"> *@
+    @* 📸 Thêm ảnh người tập gym/thể thao ở đây *@
+    <img class="image-placeholder" style="object-fit:cover;" src="/images/gym_5.jpg" alt="Alternate Text" />
+    @* </div> *@
 
     <div class="benefit-cards">
         <div class="benefit-card">
@@ -271,10 +268,10 @@
                     <li>HIIT (High-Intensity Interval Training)</li>
                     <li>Giúp đốt cháy calo, tăng cường sức bền</li>
                 </ul>
-                <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;">
+                @* <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;"> *@
                     @* 📸 Ảnh Cardio *@
                     <img class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem; " src="/images/gym_3.gif" alt="Alternate Text" />
-                </div>
+                @* </div> *@
             </div>
 
             <div class="type-card strength">
@@ -286,10 +283,10 @@
                     <li>Resistance band training</li>
                     <li>Xây dựng cơ bắp, tăng trao đổi chất</li>
                 </ul>
-                <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;">
+                @* <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;"> *@
                     @* 📸 Ảnh Strength Training *@
                     <img class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;" src="/images/gym_2.jpg" alt="Alternate Text" />
-                </div>
+                @* </div> *@
             </div>
 
             <div class="type-card flexibility">
@@ -301,10 +298,10 @@
                     <li>Tai Chi</li>
                     <li>Tăng tính linh hoạt, giảm chấn thương</li>
                 </ul>
-                <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;">
+                @* <div class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;"> *@
                     @* 📸 Ảnh Yoga/Stretching *@
                     <img class="image-placeholder" style="height: 200px; margin-top: 1rem; font-size: 1rem;" src="/images/yoga_1.jpg" alt="Alternate Text" />
-                </div>
+                @* </div> *@
             </div>
         </div>
     </div>

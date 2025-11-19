@@ -171,12 +171,9 @@
             }
 
         @@keyframes spin {
-            to
-
-        {
-            transform: rotate(360deg);
-        }
-
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -194,16 +191,13 @@
         }
 
         @@keyframes pulse {
-            0%, 100%
+            0%, 100% {
+                opacity: 0.5;
+            }
 
-        {
-            opacity: 0.5;
-        }
-
-        50% {
-            opacity: 1;
-        }
-
+            50% {
+                opacity: 1;
+            }
         }
 
         /* Result Card */
@@ -239,18 +233,15 @@
             }
 
         @@keyframes slideUp {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .food-name {
@@ -309,18 +300,34 @@
         }
 
         @@media (max-width: 768px) {
-            .page-title
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .upload-card {
+                padding: 25px;
+            }
+
+            .nutrition-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }        
+        @@media (max-width: 576px) {
+            .upload-area
 
         {
-            font-size: 2rem;
+            min-height: 250px; /* Thay vì 300px */
+            padding: 30px 20px;
         }
 
-        .upload-card {
-            padding: 25px;
+        #mealTypeSelect {
+            font-size: 1.1rem;
+            padding: 16px 20px;
+            border: 3px solid #10b981; /* Làm nổi bật hơn */
         }
 
-        .nutrition-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .preview-image-inside {
+            object-fit: contain; /* Thay vì cover để xem full ảnh */
         }
 
         }
@@ -361,6 +368,17 @@
             @* <input type="file" id="foodImage" accept="image/*" capture="user" class="file-input" /> *@
             <input type="file" id="foodImage" accept="image/*" capture="camera" class="file-input" />
 
+            @* ✅ THÊM: Tips Section *@
+            <div id="analysisTips" style="display: none; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
+                <h5 style="color: #92400e; font-weight: 700; margin-bottom: 10px;">💡 Mẹo để AI phân tích chính xác:</h5>
+                <ul style="color: #78350f; margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                    <li>Chụp ảnh rõ nét, đủ ánh sáng</li>
+                    <li>Hiển thị toàn bộ món ăn trong khung hình</li>
+                    <li>Tránh che khuất bởi tay hoặc vật dụng</li>
+                    <li>Một ảnh nên chỉ có một món ăn chính</li>
+                </ul>
+            </div>
+
             <div class="text-center">
                 @* <img id="preview" class="preview-image" alt="Preview" /> *@
                 <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">
@@ -387,6 +405,33 @@
 </div>
 
 @section Scripts {
+    <script>
+        document.getElementById('foodImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    const uploadArea = document.querySelector('.upload-area');
+                    const analyzeBtn = document.getElementById('analyzeBtn');
+                    const uploadPrompt = document.getElementById('uploadPrompt');
+                    const analysisTips = document.getElementById('analysisTips');
+
+                    preview.src = e.target.result;
+                    preview.className = 'preview-image-inside';
+                    preview.style.display = 'block';
+                    uploadPrompt.style.display = 'none';
+                    uploadArea.classList.add('active');
+                    uploadArea.classList.add('has-preview');
+                    analyzeBtn.style.display = 'inline-block';
+
+                    // ✅ HIỂN THỊ TIPS
+                    analysisTips.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
     <script>
         // Khai báo biến toàn cục để kiểm soát interval (Chức năng 6b)
         let loadingTextInterval;

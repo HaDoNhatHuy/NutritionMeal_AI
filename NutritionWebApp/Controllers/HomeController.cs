@@ -30,7 +30,7 @@ namespace NutritionWebApp.Controllers
             {
                 // Khai báo TDEE và tính toán
                 var userId = HttpContext.Session.GetInt32("UserId");
-                float tdeeValue = 0;
+                double tdeeValue = 0;
                 string userGoal = "Chưa thiết lập"; // Khởi tạo Goal mặc định
                 string userPathology = "Không có";
                 if (userId.HasValue)
@@ -42,7 +42,7 @@ namespace NutritionWebApp.Controllers
                         var settingsController = new SettingsController(_context);
                         var bmr = settingsController.CalculateBMR(user);
                         // Dùng hàm TDEE động
-                        tdeeValue = (float)settingsController.CalculateTDEE(bmr, user.ActivityLevel);
+                        tdeeValue = settingsController.CalculateTDEE(bmr, user.ActivityLevel);
 
                         // Lấy Mục tiêu người dùng [5]
                         userGoal = user.Goal ?? "Chưa thiết lập";
@@ -75,10 +75,10 @@ namespace NutritionWebApp.Controllers
                     {
                         UserId = userId.Value,
                         FoodName = result.GetProperty("food_name").GetString(),
-                        Calories = (float)result.GetProperty("calories").GetDouble(),
-                        Protein = (float)result.GetProperty("protein").GetDouble(),
-                        Carbs = (float)result.GetProperty("carbs").GetDouble(),
-                        Fat = (float)result.GetProperty("fat").GetDouble(),
+                        Calories = result.GetProperty("calories").GetDouble(),
+                        Protein = result.GetProperty("protein").GetDouble(),
+                        Carbs = result.GetProperty("carbs").GetDouble(),
+                        Fat = result.GetProperty("fat").GetDouble(),
                         ImageUrl = $"/uploads/{Guid.NewGuid()}_{image.FileName}",
                         AnalyzedAt = DateTime.Now,
                         MealType = mealType

@@ -1,0 +1,427 @@
+﻿@{
+    ViewData["Title"] = "Tạo Kế Hoạch Tập Luyện";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .workout-creator {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 40px 0;
+        }
+
+        .creator-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .creator-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .radio-card {
+            position: relative;
+        }
+
+            .radio-card input[type="radio"] {
+                display: none;
+            }
+
+        .radio-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .radio-card input:checked + .radio-label {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+        }
+
+        .radio-label:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .radio-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .radio-text {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .slider-container {
+            padding: 10px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+            .slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #3b82f6;
+                cursor: pointer;
+            }
+
+        .slider-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3b82f6;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .checkbox-label:hover {
+                border-color: #3b82f6;
+            }
+
+            .checkbox-label input:checked ~ span {
+                color: white;
+            }
+
+            .checkbox-label input {
+                margin-right: 8px;
+            }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            width: 100%;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .generate-btn:hover:not(:disabled) {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+            }
+
+            .generate-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .loading-overlay.show {
+                display: flex;
+            }
+    </style>
+}
+
+<div class="workout-creator">
+    <div class="container creator-container">
+        <div class="creator-card">
+            <h1 class="section-title">💪 Tạo Kế Hoạch Tập Luyện AI</h1>
+            <p style="color: #6b7280; margin-bottom: 2rem;">AI sẽ tạo chương trình tập 4 tuần dựa trên thông tin của bạn</p>
+
+            <form id="workoutForm">
+                <!-- Mục tiêu -->
+                <div class="form-group">
+                    <label class="form-label">🎯 Mục tiêu của bạn</label>
+                    <div class="radio-group">
+                        <div class="radio-card">
+                            <input type="radio" id="goal1" name="goal" value="TangCo" checked>
+                            <label for="goal1" class="radio-label">
+                                <span class="radio-icon">💪</span>
+                                <span class="radio-text">Tăng cơ</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="goal2" name="goal" value="GiamMo">
+                            <label for="goal2" class="radio-label">
+                                <span class="radio-icon">🔥</span>
+                                <span class="radio-text">Giảm mỡ</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="goal3" name="goal" value="TangSucBen">
+                            <label for="goal3" class="radio-label">
+                                <span class="radio-icon">⚡</span>
+                                <span class="radio-text">Sức bền</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="goal4" name="goal" value="TongThe">
+                            <label for="goal4" class="radio-label">
+                                <span class="radio-icon">🏆</span>
+                                <span class="radio-text">Tổng thể</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trình độ -->
+                <div class="form-group">
+                    <label class="form-label">📊 Trình độ hiện tại</label>
+                    <div class="radio-group">
+                        <div class="radio-card">
+                            <input type="radio" id="level1" name="level" value="Newbie" checked>
+                            <label for="level1" class="radio-label">
+                                <span class="radio-icon">🌱</span>
+                                <span class="radio-text">Mới bắt đầu</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="level2" name="level" value="Intermediate">
+                            <label for="level2" class="radio-label">
+                                <span class="radio-icon">📈</span>
+                                <span class="radio-text">Trung cấp</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="level3" name="level" value="Advanced">
+                            <label for="level3" class="radio-label">
+                                <span class="radio-icon">💎</span>
+                                <span class="radio-text">Nâng cao</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thời gian -->
+                <div class="form-group">
+                    <label class="form-label">⏰ Thời gian/buổi</label>
+                    <div class="slider-container">
+                        <input type="range" id="durationSlider" class="slider" min="30" max="90" value="45" step="15">
+                        <div class="slider-value"><span id="durationValue">45</span> phút</div>
+                    </div>
+                </div>
+
+                <!-- Tần suất -->
+                <div class="form-group">
+                    <label class="form-label">📅 Tần suất (ngày/tuần)</label>
+                    <div class="slider-container">
+                        <input type="range" id="frequencySlider" class="slider" min="3" max="6" value="4" step="1">
+                        <div class="slider-value"><span id="frequencyValue">4</span> ngày/tuần</div>
+                    </div>
+                </div>
+
+                <!-- Thiết bị -->
+                <div class="form-group">
+                    <label class="form-label">🏋️ Thiết bị có sẵn</label>
+                    <div class="radio-group">
+                        <div class="radio-card">
+                            <input type="radio" id="equip1" name="equipment" value="GymFull" checked>
+                            <label for="equip1" class="radio-label">
+                                <span class="radio-icon">🏟️</span>
+                                <span class="radio-text">Gym đầy đủ</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="equip2" name="equipment" value="Home">
+                            <label for="equip2" class="radio-label">
+                                <span class="radio-icon">🏠</span>
+                                <span class="radio-text">Tại nhà</span>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="equip3" name="equipment" value="Minimal">
+                            <label for="equip3" class="radio-label">
+                                <span class="radio-icon">🎒</span>
+                                <span class="radio-text">Tối giản</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nhóm cơ yếu (Optional) -->
+                <div class="form-group">
+                    <label class="form-label">💪 Nhóm cơ yếu (cần tập thêm) - Tùy chọn</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="weakBodyParts" value="chest">
+                            <span>Ngực</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="weakBodyParts" value="back">
+                            <span>Lưng</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="weakBodyParts" value="shoulders">
+                            <span>Vai</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="weakBodyParts" value="upper legs">
+                            <span>Đùi</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="weakBodyParts" value="upper arms">
+                            <span>Tay</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Chấn thương -->
+                <div class="form-group">
+                    <label class="form-label">🩹 Chấn thương/Hạn chế (nếu có)</label>
+                    <textarea id="injuries" class="form-control" rows="3" placeholder="VD: Đau lưng dưới, viêm khớp vai..."></textarea>
+                </div>
+
+                <button type="submit" class="generate-btn" id="generateBtn">
+                    ✨ Tạo Chương Trình Tập Luyện AI
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+        </div>
+        <div class="loading-text">🤖 AI đang tạo chương trình...</div>
+        <div class="loading-subtext">Vui lòng chờ 10-15 giây</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sliders
+        document.getElementById('durationSlider').addEventListener('input', function(e) {
+            document.getElementById('durationValue').textContent = e.target.value;
+        });
+
+        document.getElementById('frequencySlider').addEventListener('input', function(e) {
+            document.getElementById('frequencyValue').textContent = e.target.value;
+        });
+
+        // Form submit
+        document.getElementById('workoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const goal = document.querySelector('input[name="goal"]:checked').value;
+            const level = document.querySelector('input[name="level"]:checked').value;
+            const duration = parseInt(document.getElementById('durationSlider').value);
+            const frequency = parseInt(document.getElementById('frequencySlider').value);
+            const equipment = document.querySelector('input[name="equipment"]:checked').value;
+
+            const weakBodyParts = Array.from(document.querySelectorAll('input[name="weakBodyParts"]:checked'))
+                .map(cb => cb.value);
+
+            const injuries = document.getElementById('injuries').value.trim();
+
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            generateBtn.disabled = true;
+            loadingOverlay.classList.add('show');
+
+            try {
+                const response = await fetch('/Workout/GeneratePlan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        goal,
+                        level,
+                        duration,
+                        frequency,
+                        equipment,
+                        weakBodyParts,
+                        injuries: injuries || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Lỗi: ' + data.error);
+                } else if (data.success) {
+                    window.location.href = `/Workout/View/${data.planId}`;
+                }
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                loadingOverlay.classList.remove('show');
+            }
+        });
+    </script>
+}

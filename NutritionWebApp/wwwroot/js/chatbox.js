@@ -296,7 +296,7 @@ async function requestRecipe() {
 function renderRecipeResult(data) {
     const resultContainer = document.getElementById('recipeResultContainer');
     const ingredientsHtml = data.Ingredients.map(item => `<li>${item}</li>`).join('');
-    const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');
+    const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');    
 
     resultContainer.innerHTML = `
         <div class="card">
@@ -322,7 +322,59 @@ function renderRecipeResult(data) {
         </div>
     `;
 
+    const recipeDataString = JSON.stringify(data).replace(/"/g, '&quot;');
+    resultContainer.innerHTML = `
+        <div class="card">
+            <h5>${data.Title}</h5>
+            <div class="mt-3 d-flex gap-2">
+                 <button class="btn btn-sm btn-success" onclick='saveAiRecipe(${recipeDataString})'>
+                    💾 Lưu Thực Đơn
+                 </button>
+                 <button class="btn btn-sm btn-primary" onclick='saveAiRecipe(${recipeDataString}, true)'>
+                    🌐 Lưu & Chia sẻ Cộng đồng
+                 </button>
+            </div>
+        </div>
+    `;
+
     document.getElementById('recipeModeContent').scrollTop = 0;
+}
+
+// Hàm mới để lưu recipe từ Chat
+async function saveAiRecipe(data, isPublic = false) {
+    const payload = {
+        RecipeName: data.Title,
+        Description: data.Description,
+        Category: "AI Generated", // Hoặc parse từ description
+        CookingTime: 30, // AI chưa trả về time, default 30
+        Calories: data.CaloriesTotal,
+        Protein: data.ProteinGrams,
+        Carbs: data.CarbGrams,
+        Fat: data.FatGrams,
+        Ingredients: data.Ingredients,
+        Instructions: data.Instructions,
+        IsPublic: isPublic
+    };
+
+    // Gọi API Save (Lưu ý: API này cần sửa để nhận JSON nếu không có ảnh, 
+    // hoặc dùng FormData như trên nhưng không gửi ảnh)
+    // Để đơn giản, ta gọi endpoint SaveRecipeRequest JSON cũ (nhớ revert Controller về [FromBody] nếu không upload ảnh từ chat)
+    // HOẶC tạo endpoint riêng cho AI Save
+
+    try {
+        // Ta dùng endpoint trung gian ReviewAndSaveRecipe để chuyển hướng sang trang Create cho user review
+        const response = await fetch('/Recipe/ReviewAndSaveRecipe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const res = await response.json();
+        if (res.success) {
+            window.location.href = res.redirectUrl; // Chuyển user sang trang Create đã điền sẵn info
+        }
+    } catch (e) {
+        alert("Lỗi: " + e);
+    }
 }
 
 // Mode toggles

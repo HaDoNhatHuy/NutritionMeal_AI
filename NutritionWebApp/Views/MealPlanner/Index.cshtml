@@ -1,0 +1,257 @@
+﻿@model List<NutritionWebApp.Models.Entities.MealPlan>
+@{
+    ViewData["Title"] = "Kế hoạch Ăn uống";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .meal-planner-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 40px 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            color: #92400e;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .create-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+            .create-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
+                color: white;
+            }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #f59e0b;
+        }
+
+            .plan-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .plan-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #92400e;
+            margin: 0;
+        }
+
+        .plan-date {
+            color: #78350f;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .plan-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #78350f;
+            margin-top: 5px;
+        }
+
+        .plan-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-view {
+            flex: 1;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+            .btn-view:hover {
+                transform: translateY(-2px);
+                color: white;
+            }
+
+        .btn-delete {
+            background: #ef4444;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .btn-delete:hover {
+                background: #dc2626;
+                transform: translateY(-2px);
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #78350f;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+    </style>
+}
+
+<div class="meal-planner-wrapper">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🍽️ Kế hoạch Ăn uống AI</h1>
+            <p style="color: #78350f; font-size: 1.1rem;">Để AI tạo thực đơn cá nhân hóa cho bạn</p>
+            <a asp-action="Create" class="create-btn">✨ Tạo kế hoạch mới</a>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3 style="color: #92400e;">Chưa có kế hoạch nào</h3>
+                <p>Hãy tạo kế hoạch ăn uống đầu tiên của bạn!</p>
+            </div>
+        }
+        else
+        {
+            <div class="plans-grid">
+                @foreach (var plan in Model)
+                {
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <div>
+                                <h3 class="plan-name">@plan.PlanName</h3>
+                                <div class="plan-date">📅 Tạo: @plan.CreatedAt.ToString("dd/MM/yyyy")</div>
+                            </div>
+                            <div style="font-size: 2rem;">🍱</div>
+                        </div>
+
+                        <div class="plan-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">@plan.DailyCalories</div>
+                                <div class="stat-label">Calo/ngày</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@plan.Duration</div>
+                                <div class="stat-label">Ngày</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@plan.DailyProtein.ToString("F0")g</div>
+                                <div class="stat-label">Protein</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@(plan.Budget > 0 ? plan.Budget?.ToString("N0") + " ₫" : "Không giới hạn")</div>
+                                <div class="stat-label">Ngân sách</div>
+                            </div>
+                        </div>
+
+                        <div class="plan-actions">
+                            <a asp-action="View" asp-route-id="@plan.MealPlanId" class="btn-view">
+                                👁️ Xem chi tiết
+                            </a>
+                            <button class="btn-delete" onclick="deletePlan(@plan.MealPlanId)">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function deletePlan(planId) {
+            if (!confirm('Bạn có chắc muốn xóa kế hoạch này?')) return;
+
+            try {
+                const response = await fetch(`/MealPlanner/Delete/${planId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Đã xóa kế hoạch!');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+            }
+        }
+    </script>
+}

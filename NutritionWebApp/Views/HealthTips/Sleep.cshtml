@@ -224,33 +224,30 @@
             }
 
         @@media (max-width: 768px) {
-            .sleep-hero
+            .sleep-hero {
+                padding: 2rem 0;
+            }
 
-        {
-            padding: 2rem 0;
-        }
+                .sleep-hero h1 {
+                    font-size: 1.75rem;
+                }
 
-        .sleep-hero h1 {
-            font-size: 1.75rem;
-        }
+            .benefit-cards {
+                grid-template-columns: 1fr;
+            }
 
-        .benefit-cards {
-            grid-template-columns: 1fr;
-        }
+            .stage-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .stage-grid {
-            grid-template-columns: 1fr;
-        }
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .tips-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .image-placeholder {
-            height: 250px;
-            font-size: 1rem;
-        }
-
+            .image-placeholder {
+                height: 250px;
+                font-size: 1rem;
+            }
         }
     </style>
 }
@@ -265,9 +262,10 @@
 </div>
 
 <div class="container">
-    <div class="image-placeholder">
-        📸 Thêm ảnh người ngủ ngon/phòng ngủ thoải mái
-    </div>
+    @* <div class="image-placeholder"> *@
+    @* 📸 Thêm ảnh người ngủ ngon/phòng ngủ thoải mái *@
+    <img class="image-placeholder" style="object-fit:fill;" src="/images/ngu_1.jpg" alt="Alternate Text" />
+    @* </div> *@
 
     <div class="benefit-cards">
         <div class="benefit-card">
@@ -334,9 +332,10 @@
             </div>
         </div>
 
-        <div class="image-placeholder" style="height: 300px; margin-top: 2rem; font-size: 1.2rem;">
-            📊 Thêm biểu đồ chu kỳ giấc ngủ
-        </div>
+        @* <div class="image-placeholder" style="height: 300px; margin-top: 2rem; font-size: 1.2rem;"> *@
+        @* 📊 Thêm biểu đồ chu kỳ giấc ngủ *@
+        <img class="image-placeholder" style="height: 300px; margin-top: 2rem; font-size: 1.2rem; object-fit:fill;" src="/images/ngu_2.jpg" alt="Alternate Text" />
+        @* </div> *@
     </div>
 
     <div class="sleep-schedule">

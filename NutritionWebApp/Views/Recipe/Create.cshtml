@@ -1,0 +1,240 @@
+﻿@model NutritionWebApp.ViewModels.SaveRecipeRequest
+@{
+    ViewData["Title"] = "Tạo Công thức Mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isAIGenerated = TempData.Peek("AI_Recipe_Result") != null;
+    var categories = ViewBag.Categories as List<string>;
+}
+
+@section Styles {
+    <style>
+        .recipe-create-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 50px 0;
+        }
+
+        .create-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-weight: 700;
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: none;
+            width: 100%;
+        }
+
+        .nutrition-review-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .review-item {
+            background: #f0f9ff;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+}
+
+<div class="recipe-create-wrapper">
+    <div class="create-card">
+        <h1 class="text-center" style="font-weight: 800; color: #1e3a8a; margin-bottom: 30px;">
+            @(isAIGenerated ? "📝 Review & Lưu Công thức AI" : "➕ Tạo Công thức Thủ công")
+        </h1>
+
+        @if (isAIGenerated)
+        {
+            <div class="alert alert-info text-center" style="border-radius: 15px;">
+                Kết quả đã được tạo bởi AI. Vui lòng kiểm tra và chỉnh sửa trước khi lưu.
+            </div>
+        }
+
+        <form id="recipeSaveForm">
+            <!-- 1. Tên và Mô tả -->
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label class="form-label">Tên Công thức <span class="text-danger">*</span></label>
+                    <input type="text" id="recipeName" class="form-control" value="@Model.RecipeName" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Thể loại</label>
+                    <select id="category" class="form-select">
+                        <option value="">Chọn thể loại</option>
+                        @if (categories != null)
+                        {
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat" selected="@(Model.Category == cat)">@cat</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Thời gian nấu (phút)</label>
+                    <input type="number" id="cookingTime" class="form-control" value="@Model.CookingTime" min="1">
+                </div>
+                <div class="col-12 mb-4">
+                    <label class="form-label">Ảnh món ăn (Tùy chọn)</label>
+                    <input type="file" id="recipeImage" class="form-control" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Mô tả ngắn</label>
+                    <textarea id="description" class="form-control" rows="2">@Model.Description</textarea>
+                </div>
+            </div>
+
+            <!-- 2. Thông tin Dinh dưỡng -->
+            <h3 class="section-title mb-3">Thông tin Dinh dưỡng (Mỗi khẩu phần)</h3>
+            <div class="nutrition-review-grid mb-4">
+                <div class="review-item">
+                    <label class="form-label">Calo</label>
+                    <input type="number" id="calories" class="form-control" value="@Model.Calories.ToString("F0")" required>
+                </div>
+                <div class="review-item">
+                    <label class="form-label">Protein (g)</label>
+                    <input type="number" step="0.1" id="protein" class="form-control" value="@Model.Protein.ToString("F1")" required>
+                </div>
+                <div class="review-item">
+                    <label class="form-label">Carbs (g)</label>
+                    <input type="number" step="0.1" id="carbs" class="form-control" value="@Model.Carbs.ToString("F1")" required>
+                </div>
+                <div class="review-item">
+                    <label class="form-label">Fat (g)</label>
+                    <input type="number" step="0.1" id="fat" class="form-control" value="@Model.Fat.ToString("F1")" required>
+                </div>
+            </div>
+
+            <!-- 3. Nguyên liệu -->
+            <h3 class="section-title mb-3">🛒 Nguyên liệu (Mỗi dòng một mục)</h3>
+            <textarea id="ingredients" class="form-control mb-4" rows="5">
+                @if (Model.Ingredients != null)
+                {
+                    @(string.Join(Environment.NewLine, Model.Ingredients))
+                }
+            </textarea>
+
+            <!-- 4. Hướng dẫn -->
+            <h3 class="section-title mb-3">👨‍🍳 Hướng dẫn (Mỗi bước một dòng)</h3>
+            <textarea id="instructions" class="form-control mb-4" rows="5">
+                @if (Model.Instructions != null)
+                {
+                    @(string.Join(Environment.NewLine, Model.Instructions))
+                }
+            </textarea>
+
+            <!-- 5. Tùy chọn Công khai -->
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" id="isPublic" @(Model.IsPublic ? "checked" : "")>
+                <label class="form-check-label" for="isPublic">
+                    Chia sẻ công thức này với cộng đồng (Hiển thị công khai)
+                </label>
+            </div>
+
+            <button type="submit" class="save-btn" id="saveBtn">
+                💾 Lưu Công thức @(isAIGenerated ? "vào Database" : "")
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('recipeSaveForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+
+            // Chuyển đổi textarea thành List<string>
+            const ingredientsText = document.getElementById('ingredients').value.trim();
+            const instructionsText = document.getElementById('instructions').value.trim();
+            // Trong script submit form
+            const formData = new FormData();
+            // Append các field JSON
+            for (const key in payload) {
+                if(key === 'Ingredients' || key === 'Instructions') {
+                     // JSON array needs special handling if using FromForm with List,
+                     // but simpler to just send JSON string if Backend expects object,
+                     // however since we mixed File upload, we need FormData.
+                     // Let's append individual items or use a hack to send complex object
+                     // UPDATE: Đổi Controller nhận [FromForm] thì List<string> hơi khó.
+                     // Giải pháp nhanh: Gửi JSON string cho Ingredients
+                     payload[key].forEach((item, index) => formData.append(`${key}[${index}]`, item));
+                } else {
+                    formData.append(key, payload[key]);
+                }
+            }
+            // Append Image
+            const imageFile = document.getElementById('recipeImage').files[0];
+            if (imageFile) {
+                formData.append('RecipeImage', imageFile);
+            }
+
+            // Đổi fetch header, bỏ Content-Type json đi để browser tự set multipart
+            const response = await fetch('/Recipe/Save', {
+                method: 'POST',
+                body: formData
+            });
+
+            const payload = {
+                RecipeName: document.getElementById('recipeName').value.trim(),
+                Description: document.getElementById('description').value.trim(),
+                Category: document.getElementById('category').value,
+                CookingTime: parseInt(document.getElementById('cookingTime').value) || 0,
+                Calories: parseFloat(document.getElementById('calories').value) || 0,
+                Protein: parseFloat(document.getElementById('protein').value) || 0,
+                Carbs: parseFloat(document.getElementById('carbs').value) || 0,
+                Fat: parseFloat(document.getElementById('fat').value) || 0,
+                IsPublic: document.getElementById('isPublic').checked,
+                Ingredients: ingredientsText.split('\n').map(item => item.trim()).filter(item => item.length > 0),
+                Instructions: instructionsText.split('\n').map(item => item.trim()).filter(item => item.length > 0)
+            };
+
+            if (!payload.RecipeName || payload.Calories <= 0) {
+                alert("Vui lòng nhập tên công thức và calo.");
+                saveBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch('/Recipe/Save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Đã lưu công thức thành công!');
+                    // Chuyển hướng đến trang chi tiết công thức vừa lưu
+                    window.location.href = `/Recipe/Details/${data.recipeId}`;
+                } else {
+                    alert('Lỗi lưu công thức: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối hoặc xử lý server.');
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+    </script>
+}

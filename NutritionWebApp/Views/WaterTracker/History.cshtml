@@ -1,0 +1,118 @@
+﻿@model List<NutritionWebApp.Models.Entities.WaterIntake>
+@using NutritionWebApp.Models.Entities
+@{
+    ViewData["Title"] = "Lịch sử Uống nước";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .history-page-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            padding: 40px 0;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-left: 5px solid #0ea5e9;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            cursor: pointer;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 700;
+            color: #0c4a6e;
+        }
+
+        .progress-bar-history {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+            margin-top: 5px;
+        }
+
+        .progress-fill-history {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .log-list {
+            padding: 10px 0;
+        }
+
+        .log-item-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+    </style>
+}
+
+<div class="history-page-wrapper">
+    <div class="container" style="max-width: 900px;">
+        <h1 class="text-center" style="font-weight: 800; color: #0c4a6e; margin-bottom: 40px;">
+            💧 Lịch sử Uống nước (30 Ngày)
+        </h1>
+        <a asp-action="Index" class="btn btn-primary mb-4" style="background-color: #0ea5e9; border: none;">
+            ← Quay lại Theo dõi hôm nay
+        </a>
+
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var intake in Model)
+            {
+                // Tính phần trăm tiến độ
+                double progress = intake.GoalMl > 0 ? ((double)intake.TotalMl / intake.GoalMl) * 100 : 0;
+                string uniqueId = "logs-" + intake.IntakeDate.ToString("yyyyMMdd");
+
+                <div class="history-card">
+                    <div class="day-header" data-bs-toggle="collapse" data-bs-target="#@uniqueId">
+                        <span>📅 @intake.IntakeDate.ToString("dddd, dd/MM/yyyy")</span>
+                        <span>@intake.TotalMl ml / @intake.GoalMl ml (@progress.ToString("F0")%)</span>
+                    </div>
+
+                    <div class="progress-bar-history">
+                        <div class="progress-fill-history" style="width: @(Math.Min(progress, 100).ToString("F0"))%;"></div>
+                    </div>
+
+                    <div class="collapse" id="@uniqueId">
+                        <div class="log-list">
+                            @if (intake.WaterLogs != null && intake.WaterLogs.Any())
+                            {
+                                @foreach (var log in intake.WaterLogs.OrderBy(l => l.LoggedAt))
+                                {
+                                    <div class="log-item-detail">
+                                        <span>⏰ @log.LoggedAt.ToString("HH:mm")</span>
+                                        <span style="font-weight: 600;">+@log.AmountMl ml</span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-center text-muted mt-3">Không có chi tiết log nước nào.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center p-5 bg-white rounded-3">
+                <h3 class="text-muted">Chưa có lịch sử uống nước nào.</h3>
+                <p>Hãy bắt đầu ghi nhận lượng nước uống hàng ngày từ trang Theo dõi Uống nước.</p>
+            </div>
+        }
+    </div>
+</div>

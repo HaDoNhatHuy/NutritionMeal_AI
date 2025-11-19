@@ -259,7 +259,264 @@ def generate_recipe():
     except Exception as e:
         return jsonify({"error": f"Lỗi Recipe: {str(e)}"}), 500
 
+# ===================================
+# NEW: WORKOUT PLANNER ENDPOINT
+# ===================================
+
+@app.route('/generate_workout_plan', methods=['POST'])
+def generate_workout_plan():
+    try:
+        data = request.get_json()
+        
+        goal = data['goal']  # TangCo, GiamMo, TangSucBen, TongThe
+        level = data['level']  # Newbie, Intermediate, Advanced
+        duration = data['duration']  # phút/buổi (30, 45, 60)
+        frequency = data['frequency']  # ngày/tuần (3-6)
+        equipment = data['equipment']  # GymFull, Home, Minimal
+        exercises_available = data['exercises']  # List từ ExerciseDB
+        weak_bodyparts = data.get('weakBodyParts', [])  # Nhóm cơ yếu
+        injuries = data.get('injuries', 'Không')
+        
+        # Convert goal to Vietnamese
+        goal_map = {
+            'TangCo': 'Tăng cơ (Hypertrophy)',
+            'GiamMo': 'Giảm mỡ (Fat Loss)',
+            'TangSucBen': 'Tăng sức bền (Endurance)',
+            'TongThe': 'Tổng thể (General Fitness)'
+        }
+        goal_vn = goal_map.get(goal, goal)
+        
+        # Convert level
+        level_map = {
+            'Newbie': 'Người mới bắt đầu',
+            'Intermediate': 'Trung cấp',
+            'Advanced': 'Nâng cao'
+        }
+        level_vn = level_map.get(level, level)
+        
+        # Convert equipment
+        equipment_map = {
+            'GymFull': 'Phòng gym đầy đủ thiết bị',
+            'Home': 'Tại nhà (Bodyweight + Minimal)',
+            'Minimal': 'Tối giản (Chỉ tạ đơn/dây kháng lực)'
+        }
+        equipment_vn = equipment_map.get(equipment, equipment)
+        
+        # Format exercises list for prompt
+        exercises_formatted = "\n".join([
+            f"- {ex['name']} (Target: {ex['target']}, Equipment: {ex['equipment']})"
+            for ex in exercises_available[:50]  # Limit to 50 exercises
+        ])
+        
+        prompt = f"""
+        Bạn là HLV thể hình chuyên nghiệp được chứng nhận NASM-CPT. Tạo chương trình tập luyện 4 tuần chi tiết:
+        
+        **THÔNG TIN NGƯỜI DÙNG:**
+        - Mục tiêu: {goal_vn}
+        - Trình độ: {level_vn}
+        - Thời gian/buổi: {duration} phút
+        - Tần suất: {frequency} ngày/tuần
+        - Thiết bị: {equipment_vn}
+        - Nhóm cơ yếu (cần tập thêm): {', '.join(weak_bodyparts) if weak_bodyparts else 'Không có'}
+        - Chấn thương/Hạn chế: {injuries}
+        
+        **DANH SÁCH BÀI TẬP CÓ SẴN:**
+        {exercises_formatted}
+        
+        **YÊU CẦU CHI TIẾT:**
+        1. **Cấu trúc 4 tuần**: Progressive Overload - tăng dần volume/intensity
+           - Tuần 1: Adaptation (Làm quen)
+           - Tuần 2: Volume Increase (Tăng khối lượng)
+           - Tuần 3: Intensity Peak (Đỉnh cường độ)
+           - Tuần 4: Deload (Giảm tải phục hồi)
+        
+        2. **Mỗi buổi tập phải bao gồm:**
+           - Warm-up: 5-7 phút (dynamic stretching, cardio nhẹ)
+           - Main workout: Chính (chia theo nhóm cơ hợp lý)
+           - Cool-down: 5 phút (static stretching)
+        
+        3. **Chi tiết bài tập:**
+           - Tên bài tập (từ danh sách trên)
+           - Sets x Reps (hoặc Time cho plank/cardio)
+           - Rest time giữa các set
+           - Tempo nếu cần (3-1-3: 3s xuống, 1s pause, 3s lên)
+           - Notes: Form cues, tips quan trọng
+        
+        4. **Nguyên tắc phân chia:**
+           - {frequency} ngày/tuần: Luân phiên nhóm cơ (Push/Pull/Legs hoặc Upper/Lower)
+           - Tránh tập cùng nhóm cơ 2 ngày liên tiếp
+           - Ưu tiên nhóm cơ yếu (nếu có)
+        
+        5. **Điều chỉnh theo mục tiêu:**
+           - Tăng cơ: 8-12 reps, rest 60-90s, compound movements
+           - Giảm mỡ: 12-15 reps, rest 30-45s, circuit training
+           - Sức bền: 15-20 reps, rest 30s, endurance focus
+           - Tổng thể: Mix 8-15 reps, varied rest
+        
+        6. **An toàn:**
+           - Tránh bài tập gây tổn thương nếu có injuries
+           - Progressive overload an toàn (không tăng >10%/tuần)
+        
+        **TRẢ VỀ JSON FORMAT NÀY (QUAN TRỌNG - CHỈ JSON, KHÔNG GIẢI THÍCH):**
+        {{
+          "planName": "Tên chương trình (VD: 4-Week Muscle Builder)",
+          "duration": "4 weeks",
+          "goal": "{goal_vn}",
+          "level": "{level_vn}",
+          "summary": "Mô tả tổng quan chương trình (2-3 câu)",
+          "weeks": [
+            {{
+              "weekNumber": 1,
+              "focus": "Adaptation - Làm quen",
+              "description": "Tuần đầu tập nhẹ để cơ thể làm quen",
+              "days": [
+                {{
+                  "dayNumber": 1,
+                  "focus": "Upper Body Push (Ngực, Vai, Tay sau)",
+                  "warmup": "5 phút: Arm circles, Band pull-aparts, Light cardio",
+                  "exercises": [
+                    {{
+                      "name": "Push-ups",
+                      "sets": 3,
+                      "reps": "10-12",
+                      "rest": "60s",
+                      "tempo": "3-1-3",
+                      "notes": "Giữ core chặt, không võng lưng. Nếu khó, quỳ gối.",
+                      "gifUrl": "https://..."
+                    }}
+                  ],
+                  "cooldown": "5 phút: Chest stretch, Shoulder stretch, Deep breathing"
+                }}
+              ]
+            }}
+          ],
+          "nutritionTips": [
+            "Ăn đủ protein: {1.6 if goal == 'TangCo' else 1.2}g/kg cân nặng",
+            "Ngủ đủ 7-9 giờ để cơ phục hồi",
+            "Uống 3-4L nước/ngày"
+          ],
+          "progressTracking": "Đo lường: Tăng weight 2.5-5kg khi hoàn thành dễ dàng, hoặc tăng 1-2 reps"
+        }}
+        
+        **LƯU Ý**: CHỈ TRẢ VỀ JSON HỢP LỆ, KHÔNG THÊM BẤT KỲ VĂN BẢN NÀO KHÁC.
+        """
+        
+        response = model.generate_content([prompt])
+        raw_text = response.text.strip()
+        
+        # Extract JSON
+        json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+        if not json_match:
+            return jsonify({
+                "error": "AI không trả về JSON hợp lệ",
+                "raw_response": raw_text[:500]
+            }), 500
+        
+        json_str = json_match.group(0)
+        plan_data = json.loads(json_str)
+        
+        return jsonify(plan_data)
+    
+    except Exception as e:
+        return jsonify({"error": f"Lỗi Workout AI: {str(e)}"}), 500
+
+# ===================================
+# NEW: MEAL PLANNER ENDPOINT
+# ===================================
+
+@app.route('/generate_meal_plan', methods=['POST'])
+def generate_meal_plan():
+    try:
+        data = request.get_json()
+        daily_calories = data['dailyCalories']
+        daily_protein = data['dailyProtein']
+        daily_carbs = data['dailyCarbs']
+        daily_fat = data['dailyFat']
+        duration = data.get('duration', 7)
+        budget = data.get('budget', 'Không giới hạn')
+        meal_count = data.get('mealCount', 3)
+        dietary_restrictions = data.get('dietaryRestrictions', 'Không')
+        goal = data.get('goal', 'Duy trì')
+
+        # ✅ FIX 1: Giới hạn duration tối đa 7 ngày để tránh timeout
+        if duration > 7:
+            duration = 7
+        
+        # ✅ FIX 2: Prompt ngắn gọn hơn, yêu cầu AI trả về nhanh
+        prompt = f"""
+Tạo thực đơn {duration} ngày. NGẮN GỌN, CHỈ THÔNG TIN CẦN THIẾT.
+
+**MỤC TIÊU/NGÀY:** {daily_calories} kcal | P:{daily_protein}g C:{daily_carbs}g F:{daily_fat}g
+**SỐ BỮA:** {meal_count} | **NGÂN SÁCH:** {budget} | **HẠN CHẾ:** {dietary_restrictions}
+
+**YÊU CẦU:**
+- Món ăn Việt Nam, dễ nấu
+- Đa dạng, không lặp
+- Cân đối dinh dưỡng
+
+**JSON FORMAT (CHỈ TRẢ JSON):**
+{{
+  "planName": "Thực đơn {duration} ngày",
+  "totalDays": {duration},
+  "dailyTarget": {{"calories": {daily_calories}, "protein": {daily_protein}, "carbs": {daily_carbs}, "fat": {daily_fat}}},
+  "days": [
+    {{
+      "dayNumber": 1,
+      "meals": [
+        {{
+          "mealType": "Bữa Sáng",
+          "dishName": "Phở gà",
+          "ingredients": ["200g phở", "100g gà", "Rau thơm"],
+          "instructions": "Luộc gà, trụng phở, múc nước dùng",
+          "calories": 450,
+          "protein": 30,
+          "carbs": 55,
+          "fat": 8,
+          "prepTime": "20 phút",
+          "cost": "25,000 VND"
+        }}
+      ],
+      "dailyTotal": {{"calories": {daily_calories}, "protein": {daily_protein}, "carbs": {daily_carbs}, "fat": {daily_fat}}}
+    }}
+  ],
+  "groceryList": [
+    {{"item": "Gà", "quantity": "500g", "estimatedCost": "40,000 VND"}}
+  ],
+  "totalEstimatedCost": "300,000 VND",
+  "tips": ["Ăn đủ bữa", "Uống nhiều nước"]
+}}
+"""
+        
+        # ✅ FIX 3: Tăng timeout cho model
+        generation_config = genai.types.GenerationConfig(
+            temperature=0.7,
+            max_output_tokens=4096  # Giới hạn output để tránh quá dài
+        )
+        
+        response = model.generate_content(
+            [prompt],
+            generation_config=generation_config,
+            request_options={'timeout': 60}  # Timeout 60 giây
+        )
+        
+        raw_text = response.text.strip()
+        json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+        
+        if not json_match:
+            return jsonify({"error": "AI không trả JSON hợp lệ", "raw": raw_text[:300]}), 500
+        
+        json_str = json_match.group(0)
+        plan_data = json.loads(json_str)
+        
+        return jsonify(plan_data)
+        
+    except Exception as e:
+        return jsonify({"error": f"Lỗi Meal Planner: {str(e)}"}), 500
+
 if __name__ == '__main__':
     print("Flask AI Service: http://localhost:5000")
     print("Model:", MODEL_NAME)
+    print("NEW Endpoints:")
+    print("  - POST /generate_workout_plan")
+    print("  - POST /generate_meal_plan")
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,0 +1,240 @@
+﻿@model List<NutritionWebApp.Models.Entities.BodyMeasurement>
+@{
+    ViewData["Title"] = "Chỉ số Cơ thể";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .body-stats-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+            padding: 50px 0 80px 0;
+        }
+
+        .stat-input-card, .history-card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+    </style>
+}
+
+<div class="body-stats-wrapper">
+    <div class="container" style="max-width: 900px;">
+        <h1 class="text-center" style="font-weight: 800; color: #1e3a8a; margin-bottom: 40px;">
+            📈 Theo dõi Chỉ số Cơ thể
+        </h1>
+
+        <!-- 1. Form nhập liệu -->
+        <div class="stat-input-card">
+            <h3 class="section-title">➕ Nhập chỉ số mới</h3>
+            <form id="addMeasurementForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Ngày đo</label>
+                        <input type="date" name="MeasureDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Cân nặng (kg)</label>
+                        <input type="number" step="0.1" name="Weight" class="form-control" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">% Mỡ cơ thể</label>
+                        <input type="number" step="0.1" name="BodyFatPercentage" class="form-control" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn submit-btn w-100" id="saveBtn">
+                            Lưu
+                        </button>
+                    </div>
+                </div>
+                <!-- Thêm các trường khác nếu cần: Waist, Chest, Hips... -->
+            </form>
+        </div>
+
+        <!-- 2. Biểu đồ lịch sử -->
+        <div class="history-card">
+            <h3 class="section-title">📊 Biểu đồ Cân nặng/Mỡ (30 lần đo)</h3>
+            <div style="height: 350px;">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 3. Danh sách lịch sử -->
+        <div class="history-card">
+            <h3 class="section-title">📋 Lịch sử chi tiết</h3>
+            @if (Model.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Cân nặng (kg)</th>
+                            <th>% Mỡ</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="measurementTableBody">
+                        @foreach (var m in Model)
+                        {
+                            <tr id="row-@m.MeasurementId">
+                                <td>@m.MeasureDate.ToString("dd/MM/yyyy")</td>
+                                <td>@m.Weight.GetValueOrDefault().ToString("F1")</td>
+                                <td>@m.BodyFatPercentage.GetValueOrDefault().ToString("F1")%</td>
+                                <td>
+                                    <button onclick="deleteMeasurement(@m.MeasurementId)" class="btn btn-sm btn-danger">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-center text-muted">Chưa có dữ liệu đo lường.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
+    <script>
+        // Dữ liệu được truyền từ Controller dưới dạng JSON
+        const rawChartData = @Html.Raw(ViewBag.ChartDataJson);
+
+        function renderChart() {
+            const dataLabels = rawChartData.map(d => d.Date);
+            const weights = rawChartData.map(d => d.Weight);
+            const bodyFats = rawChartData.map(d => d.BodyFat);
+
+            new Chart(document.getElementById('weightChart'), {
+                type: 'line',
+                data: {
+                    labels: dataLabels,
+                    datasets: [
+                        {
+                            label: 'Cân nặng (kg)',
+                            data: weights,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'yWeight',
+                            fill: false
+                        },
+                        {
+                            label: '% Mỡ cơ thể',
+                            data: bodyFats,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'yFat',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        yWeight: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: 'Cân nặng (kg)' }
+                        },
+                        yFat: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: '% Mỡ cơ thể' },
+                            grid: { drawOnChartArea: false } // Không vẽ lưới cho trục phụ
+                        }
+                    }
+                },
+                plugins: {
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true },
+                            pinch: { enabled: true },
+                            mode: 'x',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', renderChart);
+
+        document.getElementById('addMeasurementForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const payload = {};
+            formData.forEach((value, key) => {
+                // Chuyển đổi sang số nếu không phải MeasureDate
+                payload[key] = key === 'MeasureDate' ? value : (value ? parseFloat(value) : null);
+            });
+            // Chỉ gửi những trường có giá trị
+            const validPayload = Object.fromEntries(
+                Object.entries(payload).filter(([_, v]) => v !== null && v !== "")
+            );
+
+            try {
+                const response = await fetch('/BodyMeasurement/Add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(validPayload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Đã lưu chỉ số thành công! Tải lại trang để xem biểu đồ mới.');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối. Vui lòng kiểm tra server.');
+            }
+        });
+
+        async function deleteMeasurement(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa lần đo này không?')) return;
+            try {
+                const response = await fetch(`/BodyMeasurement/Delete/${id}`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById(`row-${id}`).remove();
+                } else {
+                    alert('Lỗi xóa: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối.');
+            }
+        }
+    </script>
+}
