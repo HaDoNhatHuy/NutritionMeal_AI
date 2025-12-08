@@ -113,6 +113,35 @@
     </div>
 </div>
 
+<div class="recipe-review-section container" style="max-width: 900px;">
+    <h2 class="mt-5 mb-4" style="color: var(--primary-color);">⭐ Đánh giá & Bình luận</h2>
+
+    <div id="reviewSummary" class="card p-3 mb-4 text-center" style="background: #e0f2fe;">
+        <p style="font-size: 1.2rem; font-weight: 700;">Đang tải đánh giá...</p>
+    </div>
+
+    <!-- Form Review (Chỉ hiện nếu chưa review) -->
+    <div class="card p-4 mb-5" id="reviewFormCard" style="border: 1px solid #bfdbfe;">
+        <h4 style="color: #3b82f6;">Gửi đánh giá của bạn</h4>
+        <div id="starRatingArea" class="mb-3">
+            <span style="font-size: 2rem; cursor: pointer;" data-rating="1">☆</span>
+            <span style="font-size: 2rem; cursor: pointer;" data-rating="2">☆</span>
+            <span style="font-size: 2rem; cursor: pointer;" data-rating="3">☆</span>
+            <span style="font-size: 2rem; cursor: pointer;" data-rating="4">☆</span>
+            <span style="font-size: 2rem; cursor: pointer;" data-rating="5">☆</span>
+            <input type="hidden" id="reviewRating" value="0" required />
+            <span id="ratingText" class="ms-3 text-muted"> (Chưa chọn)</span>
+        </div>
+
+        <textarea id="reviewComment" class="form-control mb-3" rows="3" placeholder="Chia sẻ cảm nhận của bạn về công thức này..."></textarea>
+        <button id="submitReviewBtn" class="btn btn-primary" style="max-width: 200px;">Gửi Đánh giá</button>
+    </div>
+
+    <!-- Danh sách Reviews -->
+    <div id="reviewList">
+        <!-- Reviews will be loaded here -->
+    </div>
+</div>
 @section Scripts {
     <script>
         document.getElementById('toggleLikeBtn').addEventListener('click', async function() {
@@ -144,4 +173,137 @@
             }
         });
     </script>
+    <script>
+        const recipeId = @Model.RecipeId;
+        const userId = @(Context.Session.GetInt32("UserId") ?? 0);
+
+        // --- 1. LOGIC RATING SAO ---
+        let currentRating = 0;
+        document.querySelectorAll('#starRatingArea span[data-rating]').forEach(star => {
+            star.addEventListener('mouseover', function() {
+                const hoverRating = parseInt(this.dataset.rating);
+                updateStarDisplay(hoverRating, false);
+            });
+            star.addEventListener('mouseout', function() {
+                updateStarDisplay(currentRating, false);
+            });
+            star.addEventListener('click', function() {
+                currentRating = parseInt(this.dataset.rating);
+                updateStarDisplay(currentRating, true);
+                document.getElementById('reviewRating').value = currentRating;
+            });
+        });
+
+        function updateStarDisplay(rating, permanent) {
+            const stars = document.querySelectorAll('#starRatingArea span[data-rating]');
+            let text = "";
+            stars.forEach(star => {
+                const starRating = parseInt(star.dataset.rating);
+                star.textContent = starRating <= rating ? '★' : '☆';
+                star.style.color = starRating <= rating ? '#ffc107' : '#ced4da';
+            });
+
+            if (permanent) {
+                if (rating > 0) text = `(${rating} sao)`;
+                document.getElementById('ratingText').textContent = text;
+            }
+        }
+
+        // --- 2. LOGIC GỬI REVIEW ---
+        document.getElementById('submitReviewBtn').addEventListener('click', async function() {
+            if (userId === 0) {
+                 alert('Vui lòng đăng nhập để đánh giá!');
+                 return;
+            }
+            if (currentRating === 0) {
+                 alert('Vui lòng chọn số sao!');
+                 return;
+            }
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Đang gửi...';
+
+            const payload = {
+                RecipeId: recipeId,
+                Rating: currentRating,
+                Comment: document.getElementById('reviewComment').value.trim()
+            };
+
+            try {
+                const response = await fetch('/Recipe/AddReview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Đánh giá thành công! Vui lòng tải lại trang.');
+                    document.getElementById('reviewFormCard').style.display = 'none';
+                    loadReviews(); // Tải lại reviews ngay
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Gửi Đánh giá';
+            }
+        });
+
+        // --- 3. LOGIC TẢI VÀ HIỂN THỊ REVIEWS ---
+        async function loadReviews() {
+            const reviewListContainer = document.getElementById('reviewList');
+            const summaryContainer = document.getElementById('reviewSummary');
+
+            try {
+                const response = await fetch(`/Recipe/GetReviews/${recipeId}`);
+                const data = await response.json();
+
+                // Cập nhật Summary
+                const avg = data.averageRating.toFixed(1);
+                const total = data.totalReviews;
+                summaryContainer.innerHTML = `
+                    <p style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;">
+                        ${avg} / 5.0 ⭐
+                    </p>
+                    <p class="text-muted">Dựa trên ${total} đánh giá</p>
+                `;
+
+                // Render List
+                if (total === 0) {
+                     reviewListContainer.innerHTML = '<p class="text-center text-muted">Chưa có đánh giá nào.</p>';
+                     return;
+                }
+
+                let reviewsHtml = '';
+                data.reviews.forEach(review => {
+                    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                    reviewsHtml += `
+                    <div class="card mb-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>${review.userName}</strong>
+                            <small class="text-muted">${new Date(review.createdAt).toLocaleDateString('vi-VN')}</small>
+                        </div>
+                        <div style="color: #ffc107; font-size: 1.2rem; margin: 5px 0;">${stars}</div>
+                        <p>${review.comment || 'Không có bình luận.'}</p>
+                    </div>
+                    `;
+                });
+                reviewListContainer.innerHTML = reviewsHtml;
+
+                // Kiểm tra nếu người dùng đã review, ẩn form
+                const userReviewed = data.reviews.some(r => r.userName === '@Context.Session.GetString("FullName")');
+                if (userReviewed) {
+                     document.getElementById('reviewFormCard').style.display = 'none';
+                }
+
+            } catch (error) {
+                 summaryContainer.innerHTML = '<p class="text-danger">Không thể tải đánh giá.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadReviews);
+    </script>
+}
 }

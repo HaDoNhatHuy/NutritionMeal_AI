@@ -30,26 +30,26 @@ namespace NutritionWebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeasurementId"));
 
-                    b.Property<float?>("Arms")
-                        .HasColumnType("real");
+                    b.Property<double?>("Arms")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("BodyFatPercentage")
-                        .HasColumnType("real");
+                    b.Property<double?>("BodyFatPercentage")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("Chest")
-                        .HasColumnType("real");
+                    b.Property<double?>("Chest")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<float?>("Hips")
-                        .HasColumnType("real");
+                    b.Property<double?>("Hips")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("MeasureDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<float?>("MuscleMass")
-                        .HasColumnType("real");
+                    b.Property<double?>("MuscleMass")
+                        .HasColumnType("float");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -57,17 +57,17 @@ namespace NutritionWebApp.Migrations
                     b.Property<string>("PhotoUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("Thighs")
-                        .HasColumnType("real");
+                    b.Property<double?>("Thighs")
+                        .HasColumnType("float");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<float?>("Waist")
-                        .HasColumnType("real");
+                    b.Property<double?>("Waist")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("Weight")
-                        .HasColumnType("real");
+                    b.Property<double?>("Weight")
+                        .HasColumnType("float");
 
                     b.HasKey("MeasurementId");
 
@@ -392,6 +392,39 @@ namespace NutritionWebApp.Migrations
                     b.ToTable("RecipeLikes");
                 });
 
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.RecipeReview", b =>
+                {
+                    b.Property<int>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReviewId"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("RecipeId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("RecipeReviews");
+                });
+
             modelBuilder.Entity("NutritionWebApp.Models.Entities.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -423,8 +456,8 @@ namespace NutritionWebApp.Migrations
                     b.Property<string>("Goal")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("Height")
-                        .HasColumnType("real");
+                    b.Property<double?>("Height")
+                        .HasColumnType("float");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -433,8 +466,8 @@ namespace NutritionWebApp.Migrations
                     b.Property<string>("Pathology")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("Weight")
-                        .HasColumnType("real");
+                    b.Property<double?>("Weight")
+                        .HasColumnType("float");
 
                     b.HasKey("UserId");
 
@@ -687,6 +720,25 @@ namespace NutritionWebApp.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutritionWebApp.Models.Entities.RecipeReview", b =>
+                {
+                    b.HasOne("NutritionWebApp.Models.Entities.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NutritionWebApp.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Recipe");

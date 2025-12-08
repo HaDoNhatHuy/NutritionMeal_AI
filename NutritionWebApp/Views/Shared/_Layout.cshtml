@@ -82,7 +82,7 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item">
-                            <a class="nav-link " asp-area="" asp-controller="Home" asp-action="Index">
+                            <a class="nav-link" asp-area="" asp-controller="Dashboard" asp-action="Index">
                                 🏠 Trang Chủ
                             </a>
                         </li>
@@ -104,6 +104,7 @@
                                 🤖 Công Cụ AI
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="aiToolsDropdown">
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="FoodAnalyze">🍽️ Phân tích món ăn</a></li>
                                 <li><a class="dropdown-item" asp-controller="Chat" asp-action="Index">💬 Trò chuyện AI</a></li>
                                 <li><a class="dropdown-item" asp-controller="Workout" asp-action="Index">💪 Kế hoạch Tập AI</a></li>
                                 <li><a class="dropdown-item" asp-controller="MealPlanner" asp-action="Index">🍽️ Kế hoạch Ăn AI</a></li>

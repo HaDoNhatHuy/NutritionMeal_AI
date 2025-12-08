@@ -25,6 +25,7 @@ namespace NutritionWebApp.Controllers
                 return Json(new { error = "Vui lòng chọn ảnh" });
             // Lấy MealType từ FormData
             var mealType = Request.Form["mealType"].ToString(); // <-- Lấy giá trị từ form data
+            var deepAnalysis = Request.Form["deepAnalysis"].ToString(); // LẤY FLAG MỚI
 
             try
             {
@@ -59,6 +60,8 @@ namespace NutritionWebApp.Controllers
                 content.Add(new StringContent(tdeeValue.ToString()), "tdee");                
                 content.Add(new StringContent(userGoal), "goal");
                 content.Add(new StringContent(userPathology), "pathology");
+                // THÊM DEEP ANALYSIS FLAG VÀO CONTENT GỬI ĐI
+                content.Add(new StringContent(deepAnalysis), "deep_analysis");
 
                 var response = await client.PostAsync("http://localhost:5000/analyze", content);
                 var jsonString = await response.Content.ReadAsStringAsync();
@@ -101,7 +104,7 @@ namespace NutritionWebApp.Controllers
                 return Json(new { error = "Lỗi: " + ex.Message });
             }
         }
-        public IActionResult Index()
+        public IActionResult FoodAnalyze()
         {
             return View();
         }

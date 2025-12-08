@@ -267,7 +267,7 @@
                         <span class="quick-add-icon">💧</span>
                         <div class="quick-add-amount">100ml</div>
                     </div>
-                    <div class="quick-add-btn" onclick="addWater(250m,event)">
+                    <div class="quick-add-btn" onclick="addWater(250,event)">
                         <span class="quick-add-icon">🥤</span>
                         <div class="quick-add-amount">250ml</div>
                     </div>
@@ -326,6 +326,23 @@
             updateProgress();
             renderWeeklyChart();
         });
+        
+        // FIX BUG 3.2: Định nghĩa hàm showAchievementModal
+        function showAchievementModal(title, message) {
+            // Tùy chọn: Sử dụng alert đơn giản để tránh lỗi 'is not defined'
+            alert(`${title}\n${message}`);
+
+            // HOẶC: Nếu bạn đã định nghĩa modal HTML, sử dụng:
+            /*
+            const modalElement = document.getElementById('achievementModal');
+            if (modalElement) {
+                modalElement.querySelector('.modal-title').textContent = title;
+                modalElement.querySelector('.modal-body').textContent = message;
+                new bootstrap.Modal(modalElement).show();
+            }
+            */
+        }
+
 
         function updateProgress() {
             const percentage = Math.min((currentTotal / goalAmount) * 100, 100);

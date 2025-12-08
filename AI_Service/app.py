@@ -35,37 +35,32 @@ def analyze_food():
     tdee_input = request.form.get('tdee', '0')
     goal_input = request.form.get('goal', 'Chưa thiết lập')
     pathology_input = request.form.get('pathology', 'Không có')
-    
+    deep_analysis_flag = request.form.get('deepAnalysis', 'false') == 'true' # <-- F13: ĐỌC FLAG
+
     tdee = 0
     if tdee_input and tdee_input != '0':
         try:
             tdee = float(tdee_input)
         except ValueError:
             pass
-    
+
     if file.filename == '':
         return jsonify({"error": "Tên file rỗng"}), 400
-    
+
     try:
         img_bytes = file.read()
         img = Image.open(io.BytesIO(img_bytes))
         
         goal_description = f"Mục tiêu: {goal_input}."
-        
         if tdee > 0:
             tdee_str = f"TDEE: {tdee:.0f} kcal/ngày. {goal_description} Đánh giá món ăn dựa trên TDEE và mục tiêu."
         else:
             tdee_str = f"Không có TDEE. Mục tiêu: {goal_description}."
-        
-        prompt = f"""
-        Bạn là chuyên gia dinh dưỡng. Phân tích món ăn và trả về JSON:
-        {tdee_str}
-        
-        Tình trạng bệnh lý: {pathology_input}
-        
-        YÊU CẦU: Nếu món ăn có calo cao/không lành mạnh HOẶC không phù hợp với bệnh lý, đặt warning=true và tính burn_time.
-        
-        {{
+
+        # CẬP NHẬT PROMPT ĐỂ HỖ TRỢ PHÂN TÍCH SÂU (F13)
+        if deep_analysis_flag:
+            json_structure = f"""
+            {{
             "food_name": "Tên món ăn tiếng Việt",
             "calories": số nguyên,
             "protein": số thực (gram),
@@ -73,31 +68,66 @@ def analyze_food():
             "fat": số thực (gram),
             "warning": true/false,
             "burn_time": "Cần chạy X phút" (nếu warning=true, X=calories/10),
-            "advice": "Lời khuyên ngắn gọn" (nếu warning=true)
-        }}
-        
-        CHỈ TRẢ JSON, KHÔNG GIẢI THÍCH.
-        """
-        
+            "advice": "Lời khuyên ngắn gọn",
+            "detailed_components": [
+                {{ "name": "Thành phần 1", "calories": 100, "protein": 5.0 }},
+                {{ "name": "Thành phần 2", "calories": 200, "protein": 10.0 }}
+            ]
+            }}
+            """
+            prompt = f"""
+            Bạn là chuyên gia dinh dưỡng. Phân tích món ăn chi tiết trong ảnh và trả về JSON.
+            {tdee_str}
+            Tình trạng bệnh lý: {pathology_input}
+            YÊU CẦU: Thêm mảng JSON chi tiết 'detailed_components' ước tính calo/protein riêng cho từng thành phần chính được nhận diện.
+            TRẢ VỀ JSON:
+            {json_structure}
+            CHỈ TRẢ JSON.
+            """
+        else:
+            # PROMPT CƠ BẢN (KHÔNG CÓ detailed_components)
+            json_structure = f"""
+            {{
+            "food_name": "Tên món ăn tiếng Việt",
+            "calories": số nguyên,
+            "protein": số thực (gram),
+            "carbs": số thực (gram),
+            "fat": số thực (gram),
+            "warning": true/false,
+            "burn_time": "Cần chạy X phút" (nếu warning=true, X=calories/10),
+            "advice": "Lời khuyên ngắn gọn"
+            }}
+            """
+            prompt = f"""
+            Bạn là chuyên gia dinh dưỡng. Phân tích món ăn và trả về JSON:
+            {tdee_str}
+            Tình trạng bệnh lý: {pathology_input}
+            YÊU CẦU: Nếu món ăn có calo cao/không lành mạnh HOẶC không phù hợp với bệnh lý, đặt warning=true và tính burn_time.
+            TRẢ VỀ JSON:
+            {json_structure}
+            CHỈ TRẢ JSON.
+            """
+            
         response = model.generate_content([prompt, img])
         raw_text = response.text.strip()
-        
         json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+        
         if not json_match:
             return jsonify({
                 "error": "AI không trả JSON",
                 "raw_response": raw_text[:500]
             }), 500
-        
+
         json_str = json_match.group(0)
         data = json.loads(json_str)
-        
+
+        # Bổ sung burn_time nếu AI bỏ sót
         if data.get("warning") and "calories" in data and not data.get("burn_time"):
             minutes = int(data["calories"] / 10)
             data["burn_time"] = f"Cần chạy bộ {minutes} phút"
-        
+            
         return jsonify(data)
-    
+
     except Exception as e:
         return jsonify({"error": f"Lỗi: {str(e)}"}), 500
 
@@ -235,6 +265,7 @@ def generate_recipe():
             "ProteinGrams": số thực,
             "CarbGrams": số thực,
             "FatGrams": số thực,
+            "CookingTime": "số phút nấu (ví dụ: 30)",
             "Advice": "Lời khuyên về món ăn"
         }}
         
@@ -413,8 +444,29 @@ def generate_workout_plan():
             }), 500
         
         json_str = json_match.group(0)
-        plan_data = json.loads(json_str)
+        # plan_data = json.loads(json_str)
         
+        # return jsonify(plan_data)
+        # FIX BUG 5.2 & 5.3 (GIF URL): Tạo map từ tên bài tập đến URL GIF cục bộ
+        gif_map = {ex['name'].lower(): ex['gifUrl'] for ex in exercises_available}
+
+        def update_gifs(plan_json, gif_map):
+            # Hàm đệ quy để duyệt và sửa GIF URL
+            if isinstance(plan_json, dict):
+                if 'exercises' in plan_json:
+                    for exercise in plan_json['exercises']:
+                        name = exercise.get('name', '').lower()
+                        if name in gif_map:
+                            # Ghi đè URL AI tạo bằng URL cục bộ chính xác
+                            exercise['gifUrl'] = gif_map[name]
+                for key, value in plan_json.items():
+                    plan_json[key] = update_gifs(value, gif_map)
+            elif isinstance(plan_json, list):
+                return [update_gifs(item, gif_map) for item in plan_json]
+            return plan_json
+
+        plan_data = json.loads(json_str)
+        plan_data = update_gifs(plan_data, gif_map) # ÁP DỤNG FIX GIF URL
         return jsonify(plan_data)
     
     except Exception as e:

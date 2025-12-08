@@ -1,0 +1,185 @@
+﻿@model NutritionWebApp.Models.Entities.User
+@{
+    ViewData["Title"] = "Tổng quan Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Ép kiểu Macros để dễ truy cập
+    var goals = ViewBag.MacroGoals as NutritionWebApp.Controllers.SettingsController.MacroGoals;
+}
+
+@section Styles {
+    <style>
+        .dashboard-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 40px 0;
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .stat-card-dashboard {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.2s;
+            border-bottom: 5px solid var(--accent-color);
+            height: 100%;
+        }
+
+        .stat-value-dashboard {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 5px 0 5px;
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background: var(--soft-bg);
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.8s ease;
+        }
+
+        .chart-card-dashboard {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+    </style>
+}
+
+<div class="dashboard-wrapper">
+    <div class="container" style="max-width: 1200px;">
+        <div class="welcome-header">
+            <h1 style="font-weight: 800; color: #1e3a8a;">👋 Chào mừng, @Model.FullName!</h1>
+            <p class="text-secondary">Tổng quan nhanh về tiến độ sức khỏe của bạn.</p>
+        </div>
+
+        <!-- HÀNG 1: TỔNG QUAN HÔM NAY -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card-dashboard" style="border-color: #10b981;">
+                    <h4 class="text-success">Tổng Calo Hôm nay</h4>
+                    <div class="stat-value-dashboard">@ViewBag.TotalCaloriesToday.ToString("F0") kcal</div>
+                    <p class="text-muted">Mục tiêu: @ViewBag.TDEE.ToString("F0") kcal</p>
+
+                    @if (ViewBag.TDEE > 0)
+                    {
+                        var percentage = Math.Min((ViewBag.TotalCaloriesToday / ViewBag.TDEE) * 100, 100);
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: @percentage.ToString("F0")%; background-color: #10b981;"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card-dashboard" style="border-color: #3b82f6;">
+                    <h4 class="text-primary">Cân nặng Hiện tại</h4>
+                    <div class="stat-value-dashboard">@(Model.Weight.HasValue ? Model.Weight.Value.ToString("F1") : "--") kg</div>
+                    <p class="text-muted">Lần đo gần nhất: @Model.Weight.ToString()</p>
+                    <a asp-controller="BodyMeasurement" asp-action="Index" class="btn btn-sm btn-outline-primary mt-2">Xem chi tiết</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card-dashboard" style="border-color: #fb923c;">
+                    <h4 style="color: #fb923c;">Protein Đã nạp</h4>
+                    <div class="stat-value-dashboard">@ViewBag.TotalProteinToday.ToString("F0") g</div>
+                    @if (goals != null)
+                    {
+                        var percentage = Math.Min((ViewBag.TotalProteinToday / goals.ProteinGrams) * 100, 100);
+                        <p class="text-muted">Mục tiêu: @goals.ProteinGrams.ToString("F0") g</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: @percentage.ToString("F0")%; background-color: #fb923c;"></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Mục tiêu Macros chưa thiết lập.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- HÀNG 2: BIỂU ĐỒ CALO 7 NGÀY -->
+        <div class="chart-card-dashboard p-4 mb-4">
+            <h3 class="card-title">📊 Tiến độ Calo 7 Ngày</h3>
+            <div style="height: 300px;"><canvas id="dailyCalorieChart"></canvas></div>
+        </div>
+
+        <!-- HÀNG 3: QUICK ACTIONS -->
+        <div class="row g-3 text-center">
+            <div class="col-md-4">
+                <a asp-controller="Home" asp-action="FoodAnalyze" class="btn btn-lg btn-success w-100 p-3">
+                    🍽️ Phân tích Món ăn (AI)
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-controller="FoodTracker" asp-action="Index" class="btn btn-lg btn-warning w-100 p-3">
+                    🍎 Ghi nhận Thủ công
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-controller="Report" asp-action="Index" class="btn btn-lg btn-info w-100 p-3">
+                    📈 Xem Báo cáo Chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const dailyData = JSON.parse('@Html.Raw(ViewBag.DailyCaloriesJson)');
+        const tdeeTarget = parseFloat('@ViewBag.TDEE');
+
+        if (dailyData.length > 0) {
+            const dailyDates = dailyData.map(d => d.Date);
+            const dailyCalories = dailyData.map(d => d.TotalCalories);
+            const tdeeLine = dailyDates.map(() => tdeeTarget);
+
+            new Chart(document.getElementById('dailyCalorieChart'), {
+                type: 'line',
+                data: {
+                    labels: dailyDates,
+                    datasets: [{
+                        label: 'Calo nạp vào',
+                        data: dailyCalories,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                    }, {
+                        label: 'Mục tiêu TDEE',
+                        data: tdeeLine,
+                        borderColor: '#f59e0b',
+                        borderDash: [4],
+                        pointRadius: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: dailyData.length > 1 }
+                    }
+                }
+            });
+        }
+    </script>
+}

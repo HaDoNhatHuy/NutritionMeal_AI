@@ -197,11 +197,10 @@ namespace NutritionWebApp.Controllers
 
         // POST: /Workout/UpdateProgress - Đánh dấu hoàn thành
         [HttpPost]
-        public async Task<IActionResult> UpdateProgress([FromBody] ProgressUpdate update)
+        public async Task<IActionResult> UpdateProgress([FromBody]ProgressUpdate update)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (!userId.HasValue) return Json(new { error = "Chưa đăng nhập" });
-
             try
             {
                 var existing = await _context.WorkoutProgress
@@ -209,20 +208,21 @@ namespace NutritionWebApp.Controllers
                         p.PlanId == update.PlanId &&
                         p.WeekNumber == update.WeekNumber &&
                         p.DayNumber == update.DayNumber &&
-                        p.ExerciseName == update.ExerciseName
-                    );
+                        p.ExerciseName == update.ExerciseName &&
+                        p.UserId == userId.Value);
 
                 if (existing != null)
                 {
                     existing.Completed = update.Completed;
+                    // CẬP NHẬT CÁC TRƯỜNG MỚI (F15):
                     existing.SetsCompleted = update.SetsCompleted;
                     existing.RepsCompleted = update.RepsCompleted;
                     existing.WeightUsed = update.WeightUsed;
                     existing.Notes = update.Notes;
                     existing.Rating = update.Rating;
-                    existing.CompletedAt = update.Completed ? DateTime.Now : null;
+                    existing.CompletedAt = DateTime.Now;
                 }
-                else
+                else if (update.Completed)
                 {
                     var newProgress = new WorkoutProgress
                     {
@@ -232,12 +232,13 @@ namespace NutritionWebApp.Controllers
                         DayNumber = update.DayNumber,
                         ExerciseName = update.ExerciseName,
                         Completed = update.Completed,
+                        // LƯU TRƯỜNG MỚI (F15):
                         SetsCompleted = update.SetsCompleted,
                         RepsCompleted = update.RepsCompleted,
                         WeightUsed = update.WeightUsed,
                         Notes = update.Notes,
                         Rating = update.Rating,
-                        CompletedAt = update.Completed ? DateTime.Now : null
+                        CompletedAt = DateTime.Now
                     };
                     _context.WorkoutProgress.Add(newProgress);
                 }
@@ -333,6 +334,54 @@ namespace NutritionWebApp.Controllers
 
             // 4. Giới hạn số lượng hiển thị để trang load nhanh
             return View(exercises.Take(50).ToList());
+        }
+        // Model cho việc lưu bài tập yêu thích
+        public class CustomExerciseSaveRequest
+        {
+            public string ExerciseId { get; set; } = string.Empty;
+            public string ExerciseName { get; set; } = string.Empty;
+            public string BodyPart { get; set; } = string.Empty;
+        }
+
+        // POST: /Workout/SaveCustomExercise (F10)
+        [HttpPost]
+        public async Task<IActionResult> SaveCustomExercise([FromBody] CustomExerciseSaveRequest request)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return Json(new { success = false, error = "Chưa đăng nhập" });
+
+            // Logic này sẽ phức tạp nếu chúng ta muốn lưu Sets/Reps tùy chỉnh.
+            // Tạm thời, chúng ta sẽ tạo một "kế hoạch tập luyện" mới dạng tùy chỉnh (Custom Plan) 
+            // hoặc lưu vào một Entity riêng để sau này dùng cho Workout Plan Builder.
+
+            // Tạm thời, chỉ trả về thành công để client biết đã được lưu vào danh sách yêu thích
+            // Giả định: Bạn đã có cơ chế lưu trữ Custom Exercise Library cho User.
+            // Trong môi trường này, chúng ta chỉ xác nhận rằng dữ liệu đã được nhận.
+
+            // Ví dụ về việc tạo một "kế hoạch" tạm thời (Nên dùng Entity riêng):
+            var customPlan = new WorkoutPlan
+            {
+                UserId = userId.Value,
+                PlanName = $"Bài tập yêu thích: {request.ExerciseName}",
+                Goal = "Custom",
+                Level = "N/A",
+                Duration = 0,
+                Frequency = 0,
+                Equipment = request.BodyPart,
+                PlanJson = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    ExerciseId = request.ExerciseId,
+                    Name = request.ExerciseName,
+                    Note = "Đã lưu từ thư viện bài tập."
+                }),
+                CreatedAt = DateTime.Now,
+                IsActive = false // Là bản ghi lưu trữ, không phải plan chính
+            };
+
+            _context.WorkoutPlans.Add(customPlan);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = $"Đã lưu '{request.ExerciseName}' vào thư viện cá nhân." });
         }
 
         // Request Models

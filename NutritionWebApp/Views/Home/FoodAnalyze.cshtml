@@ -379,10 +379,18 @@
                 </ul>
             </div>
 
-            <div class="text-center">
-                @* <img id="preview" class="preview-image" alt="Preview" /> *@
+            @* <div class="text-center">                
                 <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">
                     🔍 Phân tích ngay
+                </button>
+            </div> *@
+            <div class="text-center d-flex justify-content-center gap-3 mt-4">
+                <button class="analyze-btn btn-success" id="analyzeSimpleBtn" onclick="analyze(false)">
+                    Phân tích (Calories)
+                </button>
+                <button class="analyze-btn btn-primary" id="analyzeDeepBtn" onclick="analyze(true)"
+                        style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                    Phân tích Chuyên sâu
                 </button>
             </div>
         </div>
@@ -423,7 +431,7 @@
                     uploadPrompt.style.display = 'none';
                     uploadArea.classList.add('active');
                     uploadArea.classList.add('has-preview');
-                    analyzeBtn.style.display = 'inline-block';
+                    // analyzeBtn.style.display = 'inline-block';
 
                     // ✅ HIỂN THỊ TIPS
                     analysisTips.style.display = 'block';
@@ -475,7 +483,7 @@
                 reader.onload = function(e) {
                     const preview = document.getElementById('preview');
                     const uploadArea = document.querySelector('.upload-area');
-                    const analyzeBtn = document.getElementById('analyzeBtn');
+                    // const analyzeBtn = document.getElementById('analyzeBtn');
 
                     // THÊM: Lấy element chứa nội dung hướng dẫn
                     const uploadPrompt = document.getElementById('uploadPrompt');
@@ -486,7 +494,9 @@
                     uploadPrompt.style.display = 'none'; // ẨN NỘI DUNG HƯỚNG DẪN
                     uploadArea.classList.add('active'); // Style mặc định
                     uploadArea.classList.add('has-preview'); // Thêm class để ẩn border dashed (Tùy chọn)
-                    analyzeBtn.style.display = 'inline-block';
+                    document.getElementById('analyzeSimpleBtn').style.display = 'inline-block';
+                    document.getElementById('analyzeDeepBtn').style.display = 'inline-block';
+                    // analyzeBtn.style.display = 'inline-block';
                     // uploadArea.classList.add('active');
                 };
                 reader.readAsDataURL(file);
@@ -515,133 +525,151 @@
         //     previewImage(this);
         // });
 
-        async function analyze() {
-        const files = document.getElementById('foodImage').files[0];
-        const mealType = document.getElementById('mealTypeSelect').value; // <--- LẤY MEAL TYPE
+            async function analyze(isDeepAnalysis = false) { // <-- F13: NHẬN FLAG
+            const files = document.getElementById('foodImage').files;
+            const mealType = document.getElementById('mealTypeSelect').value;
 
-        if (!files) {
-            alert("Vui lòng chọn ảnh!");
-            return;
-        }
-        // Lấy tệp đầu tiên (file) để gửi đi
-        // const fileToSend = files;
-        // KIỂM TRA BẮT BUỘC CHỌN MEAL TYPE
-        if (mealType === 'ChuaChon') {
-            alert("Vui lòng chọn loại bữa ăn trước khi phân tích!");
-            return;
-        }
+            if (files.length === 0) {
+                alert("Vui lòng chọn ảnh!");
+                return;
+            }
+            if (mealType === 'ChuaChon') {
+                alert("Vui lòng chọn loại bữa ăn trước khi phân tích!");
+                return;
+            }
 
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const analyzeSimpleBtn = document.getElementById('analyzeSimpleBtn');
+            const analyzeDeepBtn = document.getElementById('analyzeDeepBtn');
 
-        // Show loading
-        loadingOverlay.classList.add('show');
-        analyzeBtn.disabled = true;
-        startLoadingAnimation();
+            // Disable cả hai nút
+            analyzeSimpleBtn.disabled = true;
+            analyzeDeepBtn.disabled = true;
 
-        try {
-            const form = new FormData();
-            form.append('image', files);
-            // THÊM MEAL TYPE VÀO FORM DATA
-            form.append('mealType', mealType);
+            // Show loading
+            loadingOverlay.classList.add('show');
+            startLoadingAnimation();
 
-            // [4] Call API
-            const res = await fetch('/Home/Analyze', {
-                method: 'POST',
-                body: form
-            });
-            const data = await res.json();
+            try {
+                const form = new FormData();
+                form.append('image', files[0]);
+                form.append('mealType', mealType);
+                form.append('deepAnalysis', isDeepAnalysis ? 'true' : 'false'); // <-- F13: GỬI FLAG
 
-            // Hide loading
-            loadingOverlay.classList.remove('show');
-            analyzeBtn.disabled = false;
-            stopLoadingAnimation();
+                const response = await fetch('/Home/Analyze', {
+                    method: 'POST',
+                    body: form
+                });
 
-                if (data.error) {
+                const jsonString = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(jsonString);
+                } catch {
+                    // Xử lý lỗi nếu JSON không hợp lệ
                     document.getElementById('result').innerHTML = `
-                        <div class="result-card warning">
-                            <div class="warning-text">
-                                ⚠️ ${data.error}
-                            </div>
+                    <div class="result-card warning">
+                        <div class="warning-text">
+                            Lỗi phân tích JSON từ AI. Phản hồi thô: ${jsonString.substring(0, 200)}...
                         </div>
+                    </div>
                     `;
                     return;
                 }
 
-
-        // *** BỔ SUNG LOGIC XANH/ĐỎ ***
-        const isWarning = data.warning;
-        const cardClass = isWarning ? 'warning' : 'success'; // Màu xanh nếu không có warning
-
-        let html = `
-        <div class="result-card ${cardClass}">
-        <div class="food-name">
-        ${isWarning ? '⚠️ ' : '✅ '} ${data.food_name}
-        </div>
-
-        <!-- Hiển thị Grid Dinh Dưỡng ... [6, 7] -->
-        <div class="nutrition-grid">
-            <div class="nutrition-item">
-                <div class="nutrition-label">🔥 Calo</div>
-                <div class="nutrition-value">${data.calories}</div>
-            </div>
-            <div class="nutrition-item">
-                <div class="nutrition-label">💪 Protein</div>
-                <div class="nutrition-value">${data.protein}g</div>
-            </div>
-            <div class="nutrition-item">
-                <div class="nutrition-label">🍚 Carbs</div>
-                <div class="nutrition-value">${data.carbs}g</div>
-            </div>
-            <div class="nutrition-item">
-                <div class="nutrition-label">🥑 Fat</div>
-                <div class="nutrition-value">${data.fat}g</div>
-            </div>
-        </div>
-        `;
-        // KIỂM TRA CẢNH BÁO VÀ HIỂN THỊ HỘP KHUYÊN
-        if (isWarning) { // HIỂN THỊ HỘP CẢNH BÁO ĐỎ [8]
-            html += `
-            <div class="warning-box">
-                <p class="warning-text" style="color: #c53030; font-size: 1.1rem; margin-bottom: 10px;">
-                    ⚠️ ${data.advice}
-                </p>
-                <p class="warning-text" style="font-size: 1rem; color: #718096;">
-                    ⏱️ ${data.burn_time}
-                </p>
-            </div>
-            `;
-        } else { // HIỂN THỊ HỘP THÀNH CÔNG XANH
-            html += `
-            <div class="warning-box" style="
-                background: linear-gradient(135deg, #f0fff4 0%, #d1fae5 100%);
-                border: 2px solid #48bb78;
-            ">
-                <p class="warning-text" style="color: #065f46; font-size: 1.1rem; margin-bottom: 0;">
-                    ${data.advice || '✅ Món ăn này phù hợp với mục tiêu dinh dưỡng hiện tại của bạn. Ăn tốt nhé!'}
-                </p>
-            </div>
-            `;
-        }
-        html += `</div>`;
-                document.getElementById('result').innerHTML = html;
-
-                // Scroll to result
-                document.getElementById('result').scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-
-            } catch (error) {
+                stopLoadingAnimation();
                 loadingOverlay.classList.remove('show');
-                analyzeBtn.disabled = false;
+                analyzeSimpleBtn.disabled = false;
+                analyzeDeepBtn.disabled = false;
 
-                document.getElementById('result').innerHTML = `
+
+                if (data.error) {
+                    document.getElementById('result').innerHTML = `
                     <div class="result-card warning">
                         <div class="warning-text">
-                            ❌ Lỗi kết nối: ${error.message}
+                            ${data.error}
                         </div>
                     </div>
+                    `;
+                    return;
+                }
+
+                // *** BỔ SUNG LOGIC XANH/ĐỎ VÀ DEEP ANALYSIS (F13) ***
+                const isWarning = data.warning;
+                const cardClass = isWarning ? 'warning' : 'success';
+                let html = `
+                <div class="result-card ${cardClass}">
+                    <div class="food-name">
+                        ${isWarning ? '⚠️' : '✅'} ${data.food_name}
+                    </div>
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">Calo</div>
+                            <div class="nutrition-value">${data.calories}</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">Protein</div>
+                            <div class="nutrition-value">${data.protein}g</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">Carbs</div>
+                            <div class="nutrition-value">${data.carbs}g</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-label">Fat</div>
+                            <div class="nutrition-value">${data.fat}g</div>
+                        </div>
+                    </div>
+                `;
+
+                // HIỂN THỊ THÀNH PHẦN CHI TIẾT NẾU LÀ DEEP ANALYSIS (F13)
+                if (isDeepAnalysis && data.detailed_components && data.detailed_components.length > 0) {
+                     let componentsHtml = '<h6 class="mt-4" style="font-weight: 700; color: #3b82f6;">🔬 Thành phần chi tiết:</h6><ul class="list-unstyled">';
+                     data.detailed_components.forEach(comp => {
+                         componentsHtml += `<li style="font-size: 0.95rem; border-bottom: 1px dotted #e2e8f0; padding: 5px 0;"><strong>${comp.name}</strong>: ${comp.calories} kcal, ${comp.protein}g Protein</li>`;
+                     });
+                     componentsHtml += '</ul>';
+                     html += componentsHtml;
+                }
+
+                // HIỂN THỊ HỘP KHUYÊN
+                if (isWarning) {
+                html += `
+                <div class="warning-box">
+                    <p class="warning-text" style="color: #c53030; font-size: 1.1rem; margin-bottom: 10px;">
+                        ${data.advice}
+                    </p>
+                    <p class="warning-text" style="font-size: 1rem; color: #718096;">
+                        ${data.burn_time}
+                    </p>
+                </div>
+                `;
+                } else {
+                html += `
+                <div class="warning-box" style="
+                background: linear-gradient(135deg, #f0fff4 0%, #d1fae5 100%);
+                border: 2px solid #48bb78;
+                ">
+                <p class="warning-text" style="color: #065f46; font-size: 1.1rem; margin-bottom: 0;">
+                ${data.advice || '✅ Món ăn này phù hợp với mục tiêu dinh dưỡng hiện tại của bạn. Ăn tốt nhé!'}
+                </p>
+                </div>
+                `;
+                }
+                html += `</div>`;
+                document.getElementById('result').innerHTML = html;
+
+            } catch (error) {
+                stopLoadingAnimation();
+                loadingOverlay.classList.remove('show');
+                analyzeSimpleBtn.disabled = false;
+                analyzeDeepBtn.disabled = false;
+                document.getElementById('result').innerHTML = `
+                <div class="result-card warning">
+                <div class="warning-text">
+                Lỗi kết nối: ${error.message}
+                </div>
+                </div>
                 `;
             }
         }

@@ -53,6 +53,65 @@ namespace NutritionWebApp.Controllers
 
             return View();
         }
+        [HttpPost]
+        public async Task<IActionResult> EmailGroceryList(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return Json(new { error = "Chưa đăng nhập" });
+
+            var plan = await _context.MealPlans
+                .FirstOrDefaultAsync(m => m.MealPlanId == id && m.UserId == userId.Value);
+
+            if (plan == null) return Json(new { success = false, error = "Không tìm thấy kế hoạch" });
+
+            var user = await _context.Users.FindAsync(userId.Value);
+            // Giả định User Entity có trường Email [17]
+            if (user == null || string.IsNullOrEmpty(user.Email))
+                return Json(new { success = false, error = "Không tìm thấy thông tin email người dùng." });
+
+            // 1. Phân tích JSON để lấy Grocery List [18]
+            try
+            {
+                var planData = JsonSerializer.Deserialize<JsonElement>(plan.MealPlanJson);
+                if (!planData.TryGetProperty("groceryList", out var groceryListElement) || groceryListElement.ValueKind != JsonValueKind.Array)
+                {
+                    return Json(new { success = false, error = "Không tìm thấy danh sách mua sắm trong kế hoạch." });
+                }
+
+                var groceryList = new List<string>();
+                foreach (var item in groceryListElement.EnumerateArray())
+                {
+                    var itemName = item.GetProperty("item").GetString();
+                    var quantity = item.GetProperty("quantity").GetString();
+                    groceryList.Add($"- {itemName} ({quantity})");
+                }
+
+                var totalCost = planData.TryGetProperty("totalEstimatedCost", out var cost) ? cost.GetString() : "Không xác định";
+
+                var emailBody = $@"
+        Kế hoạch Ăn uống: {plan.PlanName}
+        Thời gian: {plan.Duration} ngày
+        Tổng chi phí ước tính: {totalCost}
+        
+        --- DANH SÁCH MUA SẮM ---
+        {string.Join("\n", groceryList)}
+        
+        ---
+        Được gửi tự động từ Nutrition AI.
+        ";
+
+                // 2. MOCK GỬI EMAIL: Thay thế bằng IEmailService thực tế nếu có.
+                // Trong môi trường development, ta sẽ log ra Console/Debug
+                System.Diagnostics.Debug.WriteLine($"[EMAIL SENT TO {user.Email}] Chủ đề: Danh sách mua sắm: {plan.PlanName}.");
+
+                return Json(new { success = true });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = $"Lỗi phân tích dữ liệu: {ex.Message}" });
+            }
+        }
 
         // POST: /MealPlanner/Generate
         [HttpPost]

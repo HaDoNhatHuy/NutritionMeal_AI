@@ -641,6 +641,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- BIỂU ĐỒ CÂN NẶNG & MỠ -->
+        <div class="col-12 mb-4">
+            <div class="card p-4">
+                <h4 class="card-title">📉 Biểu đồ Cân nặng/Mỡ</h4>
+                <div class="chart-container">
+                    <canvas id="weightBodyFatChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- MỤC TIÊU MACROS -->
@@ -993,6 +1003,57 @@
                 cutout: '65%'
             }
         });
+
+        // Logic Chart Cân nặng/Mỡ (F11)
+        const rawBodyChartData = JSON.parse('@Html.Raw(ViewBag.BodyChartDataJson)');
+
+        if (rawBodyChartData.length > 0) {
+            const dataLabels = rawBodyChartData.map(d => d.Date);
+            const weights = rawBodyChartData.map(d => d.Weight);
+            const bodyFats = rawBodyChartData.map(d => d.BodyFat);
+
+            new Chart(document.getElementById('weightBodyFatChart'), {
+                type: 'line',
+                data: {
+                    labels: dataLabels,
+                    datasets: [
+                        {
+                            label: 'Cân nặng (kg)',
+                            data: weights,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'yWeight',
+                            fill: false
+                        },
+                        {
+                            label: '% Mỡ cơ thể',
+                            data: bodyFats,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'yFat',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        yWeight: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: 'Cân nặng (kg)' }
+                        },
+                        yFat: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: '% Mỡ cơ thể' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
 
         // Biểu đồ theo giờ trong ngày
         const hourlyData = JSON.parse('@Html.Raw(ViewBag.HourlyDataJson)');

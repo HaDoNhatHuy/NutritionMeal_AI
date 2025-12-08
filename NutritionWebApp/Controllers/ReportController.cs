@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutritionWebApp.Models.DataAccess;
+using System.Text.Json;
 
 namespace NutritionWebApp.Controllers
 {
@@ -171,6 +172,22 @@ namespace NutritionWebApp.Controllers
                 );
 
             ViewBag.HistoryByDate = historyByDate;
+
+            // 9. Bổ sung Logic tích hợp BodyMeasurement (F11)
+            var measurements = await _context.BodyMeasurements
+                .Where(m => m.UserId == userId.Value)
+                .OrderByDescending(m => m.MeasureDate)
+                .Take(30)
+                .ToListAsync();
+
+            // Truyền dữ liệu Body Measurement cho biểu đồ
+            ViewBag.BodyChartDataJson = JsonSerializer.Serialize(
+                measurements.Select(m => new {
+                    Date = m.MeasureDate.ToString("dd/MM"), // Dùng format ngày tương tự DailyData
+                    Weight = m.Weight,
+                    BodyFat = m.BodyFatPercentage
+                }).OrderBy(x => x.Date)
+            );
 
             return View(history);
         }

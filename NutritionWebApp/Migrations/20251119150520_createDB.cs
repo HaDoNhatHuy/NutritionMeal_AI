@@ -37,8 +37,8 @@ namespace NutritionWebApp.Migrations
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Age = table.Column<int>(type: "int", nullable: true),
-                    Height = table.Column<float>(type: "real", nullable: true),
-                    Weight = table.Column<float>(type: "real", nullable: true),
+                    Height = table.Column<double>(type: "float", nullable: true),
+                    Weight = table.Column<double>(type: "float", nullable: true),
                     Gender = table.Column<bool>(type: "bit", nullable: true),
                     Goal = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActivityLevel = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -58,14 +58,14 @@ namespace NutritionWebApp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     MeasureDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Weight = table.Column<float>(type: "real", nullable: true),
-                    Waist = table.Column<float>(type: "real", nullable: true),
-                    Chest = table.Column<float>(type: "real", nullable: true),
-                    Hips = table.Column<float>(type: "real", nullable: true),
-                    Arms = table.Column<float>(type: "real", nullable: true),
-                    Thighs = table.Column<float>(type: "real", nullable: true),
-                    BodyFatPercentage = table.Column<float>(type: "real", nullable: true),
-                    MuscleMass = table.Column<float>(type: "real", nullable: true),
+                    Weight = table.Column<double>(type: "float", nullable: true),
+                    Waist = table.Column<double>(type: "float", nullable: true),
+                    Chest = table.Column<double>(type: "float", nullable: true),
+                    Hips = table.Column<double>(type: "float", nullable: true),
+                    Arms = table.Column<double>(type: "float", nullable: true),
+                    Thighs = table.Column<double>(type: "float", nullable: true),
+                    BodyFatPercentage = table.Column<double>(type: "float", nullable: true),
+                    MuscleMass = table.Column<double>(type: "float", nullable: true),
                     PhotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -322,6 +322,35 @@ namespace NutritionWebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RecipeReviews",
+                columns: table => new
+                {
+                    ReviewId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RecipeId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecipeReviews", x => x.ReviewId);
+                    table.ForeignKey(
+                        name: "FK_RecipeReviews_Recipes_RecipeId",
+                        column: x => x.RecipeId,
+                        principalTable: "Recipes",
+                        principalColumn: "RecipeId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecipeReviews_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WaterLogs",
                 columns: table => new
                 {
@@ -421,6 +450,17 @@ namespace NutritionWebApp.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RecipeReviews_RecipeId_UserId",
+                table: "RecipeReviews",
+                columns: new[] { "RecipeId", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecipeReviews_UserId",
+                table: "RecipeReviews",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Recipes_CreatedByUserId",
                 table: "Recipes",
                 column: "CreatedByUserId");
@@ -475,6 +515,9 @@ namespace NutritionWebApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "RecipeLikes");
+
+            migrationBuilder.DropTable(
+                name: "RecipeReviews");
 
             migrationBuilder.DropTable(
                 name: "WaterLogs");

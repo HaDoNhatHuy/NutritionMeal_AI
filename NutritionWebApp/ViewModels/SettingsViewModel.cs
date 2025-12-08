@@ -3,8 +3,8 @@
     public class SettingsViewModel
     {
         public int? Age { get; set; }
-        public float? Height { get; set; }
-        public float? Weight { get; set; }
+        public double? Height { get; set; }
+        public double? Weight { get; set; }
         public bool? Gender { get; set; }
         public string? Goal { get; set; }
         public string? ActivityLevel { get; set; }

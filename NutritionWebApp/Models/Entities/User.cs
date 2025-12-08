@@ -16,8 +16,8 @@ namespace NutritionWebApp.Models.Entities
 
         public string FullName { get; set; } = string.Empty;
         public int? Age { get; set; }
-        public float? Height { get; set; }
-        public float? Weight { get; set; }
+        public double? Height { get; set; }
+        public double? Weight { get; set; }
         public bool? Gender { get; set; } // true: Nam
         public string? Goal { get; set; }
         public string? ActivityLevel { get; set; }

@@ -14,14 +14,14 @@ namespace NutritionWebApp.Models.Entities
         public virtual User User { get; set; } = null!;
 
         public DateTime MeasureDate { get; set; }
-        public float? Weight { get; set; }
-        public float? Waist { get; set; }
-        public float? Chest { get; set; }
-        public float? Hips { get; set; }
-        public float? Arms { get; set; }
-        public float? Thighs { get; set; }
-        public float? BodyFatPercentage { get; set; }
-        public float? MuscleMass { get; set; }
+        public double? Weight { get; set; }
+        public double? Waist { get; set; }
+        public double? Chest { get; set; }
+        public double? Hips { get; set; }
+        public double? Arms { get; set; }
+        public double? Thighs { get; set; }
+        public double? BodyFatPercentage { get; set; }
+        public double? MuscleMass { get; set; }
         public string? PhotoUrl { get; set; }
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;

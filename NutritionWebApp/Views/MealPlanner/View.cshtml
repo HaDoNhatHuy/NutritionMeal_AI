@@ -426,4 +426,39 @@
     <button onclick="window.print()" class="btn btn-primary">
         🖨️ In thực đơn
     </button>
+    <button id="emailGroceryListBtn" class="btn btn-success">
+        ✉️ Gửi Danh sách Mua sắm
+    </button>
 </div>
+@section Scripts {
+    <script>
+        // ... (Giữ nguyên các script cũ nếu có)
+
+        // LOGIC GỬI EMAIL (F5)
+        document.getElementById('emailGroceryListBtn').addEventListener('click', async function() {
+            const planId = @ViewBag.Plan.MealPlanId;
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...';
+
+            try {
+                const response = await fetch('/MealPlanner/EmailGroceryList/' + planId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Danh sách mua sắm đã được gửi đến email của bạn! (Kiểm tra Debug Console)');
+                } else {
+                    alert('Lỗi gửi email: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối server.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '✉️ Gửi Danh sách Mua sắm';
+            }
+        });
+    </script>
+}

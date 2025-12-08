@@ -16,22 +16,20 @@ namespace NutritionWebApp.Controllers
             _context = context;
             _settingsController = new SettingsController(context);
         }
-
-        // Lịch sử chat - Hiển thị theo ngày (không cần AI summary)
+        // GET: /Chat/Index (Thay thế cho Chatbox Popup và chuyển hướng từ History cũ) (F3)
         [HttpGet]
-        public async Task<IActionResult> History()
+        public async Task<IActionResult> Index()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (!userId.HasValue) return RedirectToAction("Login", "Account");
 
-            // Nhóm tin nhắn theo ngày
+            // Tái sử dụng logic tải các phiên chat [9]
             var sessions = await _context.ChatHistory
                 .Where(c => c.UserId == userId.Value)
                 .GroupBy(c => c.Timestamp.Date)
                 .Select(g => new ChatSessionSummary
                 {
                     SessionDate = g.Key,
-                    // Tiêu đề đơn giản: "Trò chuyện ngày DD/MM/YYYY"
                     Title = "Trò chuyện ngày " + g.Key.ToString("dd/MM/yyyy"),
                     MessageCount = g.Count(),
                     LastMessagePreview = g.OrderByDescending(x => x.Timestamp).First().Content
@@ -39,8 +37,34 @@ namespace NutritionWebApp.Controllers
                 .OrderByDescending(s => s.SessionDate)
                 .ToListAsync();
 
-            return View("ConversationList", sessions);
+            // Sẽ render View mới: Views/Chat/Index.cshtml
+            return View("Index", sessions);
         }
+
+        //// Lịch sử chat - Hiển thị theo ngày (không cần AI summary)
+        //[HttpGet]
+        //public async Task<IActionResult> History()
+        //{
+        //    var userId = HttpContext.Session.GetInt32("UserId");
+        //    if (!userId.HasValue) return RedirectToAction("Login", "Account");
+
+        //    // Nhóm tin nhắn theo ngày
+        //    var sessions = await _context.ChatHistory
+        //        .Where(c => c.UserId == userId.Value)
+        //        .GroupBy(c => c.Timestamp.Date)
+        //        .Select(g => new ChatSessionSummary
+        //        {
+        //            SessionDate = g.Key,
+        //            // Tiêu đề đơn giản: "Trò chuyện ngày DD/MM/YYYY"
+        //            Title = "Trò chuyện ngày " + g.Key.ToString("dd/MM/yyyy"),
+        //            MessageCount = g.Count(),
+        //            LastMessagePreview = g.OrderByDescending(x => x.Timestamp).First().Content
+        //        })
+        //        .OrderByDescending(s => s.SessionDate)
+        //        .ToListAsync();
+
+        //    return View("ConversationList", sessions);
+        //}
 
         // Xem chi tiết một phiên chat theo ngày
         [HttpGet]

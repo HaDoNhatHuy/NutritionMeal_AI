@@ -293,60 +293,74 @@ async function requestRecipe() {
     }
 }
 
+// chatbox.js: Sửa hàm renderRecipeResult
 function renderRecipeResult(data) {
     const resultContainer = document.getElementById('recipeResultContainer');
-    const ingredientsHtml = data.Ingredients.map(item => `<li>${item}</li>`).join('');
-    const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');    
-
-    resultContainer.innerHTML = `
-        <div class="card">
-            <h5>${data.Title}</h5>
-            <p class="text-muted">${data.Description}</p>
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
-                <div class="row text-center" style="font-size: 0.875rem;">
-                    <div class="col-3"><strong>Calo</strong><br>${data.CaloriesTotal.toFixed(0)}</div>
-                    <div class="col-3"><strong>P</strong><br>${data.ProteinGrams.toFixed(1)}g</div>
-                    <div class="col-3"><strong>C</strong><br>${data.CarbGrams.toFixed(1)}g</div>
-                    <div class="col-3"><strong>F</strong><br>${data.FatGrams.toFixed(1)}g</div>
-                </div>
-            </div>
-            <div class="mt-3">
-                <h6>Nguyên liệu</h6>
-                <ul>${ingredientsHtml}</ul>
-                <h6>Hướng dẫn</h6>
-                <ol>${instructionsHtml}</ol>
-                <div class="alert alert-warning mt-3">
-                    <strong>Lời khuyên:</strong> ${data.Advice}
-                </div>
-            </div>
-        </div>
-    `;
-
+    const ingredientsHtml = data.Ingredients.map(item =>
+        `<li>${item}</li>`).join('');
+    const instructionsHtml = data.Instructions.map(item =>
+        `<li>${item}</li>`).join('');
     const recipeDataString = JSON.stringify(data).replace(/"/g, '&quot;');
+
+    // FIX BUG 4.2: Khôi phục toàn bộ giao diện chi tiết công thức và thêm nút lưu vào cuối
     resultContainer.innerHTML = `
-        <div class="card">
-            <h5>${data.Title}</h5>
-            <div class="mt-3 d-flex gap-2">
-                 <button class="btn btn-sm btn-success" onclick='saveAiRecipe(${recipeDataString})'>
-                    💾 Lưu Thực Đơn
-                 </button>
-                 <button class="btn btn-sm btn-primary" onclick='saveAiRecipe(${recipeDataString}, true)'>
-                    🌐 Lưu & Chia sẻ Cộng đồng
-                 </button>
+    <div class="card">
+        <h5>${data.Title}</h5>
+        <p class="text-muted">${data.Description}</p>
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;
+            margin-top: 1rem;">
+            <div class="row text-center" style="font-size: 0.875rem;">
+                <div class="col-3"><strong>Calo</strong><br>${data.CaloriesTotal.toFixed(0)}</div>
+                <div class="col-3"><strong>P</strong><br>${data.ProteinGrams.toFixed(1)}g</div>
+                <div class="col-3"><strong>C</strong><br>${data.CarbGrams.toFixed(1)}g</div>
+                <div class="col-3"><strong>F</strong><br>${data.FatGrams.toFixed(1)}g</div>
             </div>
         </div>
+        <div class="mt-3">
+            <h6>Nguyên liệu</h6>
+            <ul>${ingredientsHtml}</ul>
+            <h6>Hướng dẫn</h6>
+            <ol>${instructionsHtml}</ol>
+            <div class="alert alert-warning mt-3">
+                <strong>Lời khuyên:</strong> ${data.Advice}
+            </div>
+        </div>
+        
+        <!-- THÊM CÁC NÚT LƯU Ở CUỐI CARD -->
+        <div class="mt-3 d-flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <button class="btn btn-sm btn-success"
+                onclick='saveAiRecipe(${recipeDataString})'>
+                Lưu Thực Đơn
+            </button>
+            <button class="btn btn-sm btn-primary"
+                onclick='saveAiRecipe(${recipeDataString}, true)'>
+                Lưu & Chia sẻ Cộng đồng
+            </button>
+        </div>
+    </div>
     `;
-
     document.getElementById('recipeModeContent').scrollTop = 0;
 }
 
 // Hàm mới để lưu recipe từ Chat
 async function saveAiRecipe(data, isPublic = false) {
+    // Xử lý CookingTime: Nếu là string (VD: "30 phút"), chỉ lấy số đầu tiên
+    let cookingTimeValue = 30; // Giá trị mặc định
+    if (data.CookingTime) {
+        if (typeof data.CookingTime === 'number') {
+            cookingTimeValue = data.CookingTime;
+        } else if (typeof data.CookingTime === 'string') {
+            const match = data.CookingTime.match(/\d+/);
+            if (match) {
+                cookingTimeValue = parseInt(match);
+            }
+        }
+    }
     const payload = {
         RecipeName: data.Title,
         Description: data.Description,
         Category: "AI Generated", // Hoặc parse từ description
-        CookingTime: 30, // AI chưa trả về time, default 30
+        CookingTime: data.CookingTime || 30,
         Calories: data.CaloriesTotal,
         Protein: data.ProteinGrams,
         Carbs: data.CarbGrams,

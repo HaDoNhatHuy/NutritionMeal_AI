@@ -33,6 +33,7 @@ namespace NutritionWebApp.Models.DataAccess
         // NEW: Recipes
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<RecipeLike> RecipeLikes { get; set; }
+        public DbSet<RecipeReview> RecipeReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -114,6 +115,24 @@ namespace NutritionWebApp.Models.DataAccess
                 .IsUnique();
 
             modelBuilder.Entity<RecipeLike>()
+                .HasIndex(r => new { r.RecipeId, r.UserId })
+                .IsUnique();
+
+            // Cấu hình RecipeReview (F12)
+            modelBuilder.Entity<RecipeReview>()
+                .HasOne(r => r.Recipe)
+                .WithMany() // Nếu Recipe Entity không có List<RecipeReview>
+                .HasForeignKey(r => r.RecipeId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa review khi công thức bị xóa
+
+            modelBuilder.Entity<RecipeReview>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict); // Giữ user nếu review bị xóa
+
+            // UNIQUE INDEX: Đảm bảo mỗi người dùng chỉ đánh giá 1 lần/công thức
+            modelBuilder.Entity<RecipeReview>()
                 .HasIndex(r => new { r.RecipeId, r.UserId })
                 .IsUnique();
         }

@@ -1,10 +1,21 @@
-﻿@using System.Text.Json
+﻿@using NutritionWebApp.Models.Entities
+@using System.Text.Json
 @{
     ViewData["Title"] = "Kế Hoạch Tập Luyện";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var planData = (JsonElement)ViewBag.PlanData;
     var plan = ViewBag.Plan;
-    var progress = ViewBag.Progress ?? new List<object>();
+    var progress = (ViewBag.Progress as List<WorkoutProgress>) ?? new List<WorkoutProgress>();
+}
+@functions {
+    public string SanitizeId(string name)
+    {
+        // 1. Loại bỏ các ký tự không phải chữ/số/khoảng trắng/dấu gạch ngang
+        string safeName = System.Text.RegularExpressions.Regex.Replace(name, @"[^a-zA-Z0-9\s-]", "");
+        // 2. Thay thế khoảng trắng và gạch ngang kép bằng gạch ngang đơn
+        safeName = safeName.Replace(' ', '-').Replace("--", "-").Trim('-');
+        return safeName;
+    }
 }
 
 @section Styles {
@@ -246,44 +257,106 @@
                         <div class="exercise-list">
                             @foreach (var exercise in day.GetProperty("exercises").EnumerateArray())
                             {
+                                var exerciseName = exercise.GetProperty("name").GetString();
+                                var safeIdName = SanitizeId(exerciseName); // <-- Sử dụng hàm SanitizeId mới
+                                var progressItem = progress.FirstOrDefault(p =>
+                                p.ExerciseName == exerciseName &&
+                                p.WeekNumber == week.GetProperty("weekNumber").GetInt32() &&
+                                p.DayNumber == day.GetProperty("dayNumber").GetInt32());
+                                var isCompleted = progressItem?.Completed ?? false;
+
                                 <div class="exercise-item">
-                                    @if (exercise.TryGetProperty("gifUrl", out var gifUrl))
+                                    <div class="d-flex align-items-start mb-2">
+                                        @if (exercise.TryGetProperty("gifUrl", out var gifUrl) && !string.IsNullOrEmpty(gifUrl.GetString()))
+                                        {
+                                            <img src="@gifUrl.GetString()"
+                                                 alt="@exerciseName"
+                                                 class="exercise-gif me-3"
+                                                 style="max-width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+                                        }
+
+                                        <div style="flex-grow: 1;">
+                                            <h5 class="exercise-name" style="font-weight: 700;">@exerciseName</h5>
+                                            <div class="exercise-details d-flex gap-3">
+                                                <span class="badge bg-primary">Sets: @exercise.GetProperty("sets").GetInt32()</span>
+                                                <span class="badge bg-info">Reps: @exercise.GetProperty("reps").GetString()</span>
+                                                @if (exercise.TryGetProperty("rest", out var rest))
+                                                {
+                                                    <span class="badge bg-secondary">Rest: @rest.GetString()</span>
+                                                }
+                                                @if (exercise.TryGetProperty("tempo", out var tempo))
+                                                {
+                                                    <span class="badge bg-warning text-dark">Tempo: @tempo.GetString()</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="exercise-notes">
+                                        <strong>Ghi chú HLV:</strong> @exercise.GetProperty("notes").GetString()
+                                    </div>
+                                    @if (exercise.TryGetProperty("instructions", out var instructionsArray) && instructionsArray.ValueKind == JsonValueKind.Array)
                                     {
-                                        <img src="@gifUrl.GetString()" alt="@exercise.GetProperty("name").GetString()" class="exercise-gif">
+                                        <div class="exercise-instructions mt-2 p-3 bg-light rounded" style="border-left: 3px solid #f59e0b;">
+                                            <strong>Hướng dẫn chi tiết:</strong>
+                                            <ol style="font-size: 0.9rem; margin-top: 5px;">
+                                                @foreach (var instruction in instructionsArray.EnumerateArray().Select(i => i.GetString()))
+                                                {
+                                                    <li>@instruction</li>
+                                                }
+                                            </ol>
+                                        </div>
                                     }
 
-                                    <div class="exercise-info">
-                                        <div class="exercise-name">@exercise.GetProperty("name").GetString()</div>
-
-                                        <div class="exercise-details">
-                                            <span class="detail-badge">
-                                                🏋️ @exercise.GetProperty("sets").GetInt32() sets × @exercise.GetProperty("reps").GetString() reps
-                                            </span>
-                                            <span class="detail-badge">
-                                                ⏱️ Rest: @exercise.GetProperty("rest").GetString()
-                                            </span>
-                                            @if (exercise.TryGetProperty("tempo", out var tempo))
+                                    <!-- Progress Tracker CHI TIẾT (F15) -->
+                                    <div class="progress-tracker card p-3 mt-3">
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-12 mb-2">
+                                                <label class="checkbox-label d-flex align-items-center">
+                                                    <input type="checkbox"
+                                                           class="exercise-checkbox form-check-input me-2"
+                                                           id="check-@safeIdName"
+                                                           data-plan="@plan.PlanId"
+                                                           data-week="@week.GetProperty("weekNumber").GetInt32()"
+                                                           data-day="@day.GetProperty("dayNumber").GetInt32()"
+                                                           data-exercise="@exerciseName"
+                                                           data-safe-id="@safeIdName"
+                                                    @(isCompleted ? "checked" : "")>
+                                                    <span style="font-weight: 700;">✅ Bài tập này đã hoàn thành</span>
+                                                </label>
+                                            </div>
+                                            @if (progressItem != null)
                                             {
-                                                <span class="detail-badge">
-                                                    📊 Tempo: @tempo.GetString()
-                                                </span>
+                                                <p class="text-success small">Đã log: Sets @progressItem.SetsCompleted / Tạ @progressItem.WeightUsed / Cảm nhận: @progressItem.Rating sao (@progressItem.Notes)</p>
                                             }
-                                        </div>
 
-                                        <div class="exercise-notes">
-                                            💡 @exercise.GetProperty("notes").GetString()
-                                        </div>
-
-                                        <!-- Progress Tracker -->
-                                        <div class="progress-tracker">
-                                            <label class="checkbox-label">
-                                                <input type="checkbox"
-                                                       class="exercise-checkbox"
-                                                       data-week="@week.GetProperty("weekNumber").GetInt32()"
-                                                       data-day="@day.GetProperty("dayNumber").GetInt32()"
-                                                       data-exercise="@exercise.GetProperty("name").GetString()">
-                                                <span>✅ Hoàn thành</span>
-                                            </label>
+                                            <div class="col-md-3">
+                                                <input type="text" placeholder="Sets/Reps thực tế" class="form-control form-control-sm progress-input"
+                                                       data-field="setsReps" id="setsReps-@safeIdName"
+                                                       data-safe-id="@safeIdName"   
+                                                       value="@(progressItem?.SetsCompleted > 0 ? progressItem.SetsCompleted.ToString() : "")">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="number" step="0.5" placeholder="Tạ dùng (kg)" class="form-control form-control-sm progress-input"
+                                                       data-field="weight" id="weight-@(exerciseName.Replace(" ", "-"))"
+                                                       value="@(progressItem?.WeightUsed)">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" placeholder="Ghi chú (cảm nhận, lỗi form)" class="form-control form-control-sm progress-input"
+                                                       data-field="notes" id="notes-@(exerciseName.Replace(" ", "-"))"
+                                                       value="@progressItem?.Notes">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-select form-control-sm progress-input" data-field="rating"
+                                                        id="rating-@(exerciseName.Replace(" ", "-"))">
+                                                    <option value="">Rating</option>
+                                                    <option value="5" selected="@(progressItem?.Rating == 5)">5 ⭐ Xuất sắc</option>
+                                                    <option value="4" selected="@(progressItem?.Rating == 4)">4 ⭐ Tốt</option>
+                                                    <option value="3" selected="@(progressItem?.Rating == 3)">3 ⭐ Bình thường</option>
+                                                    <option value="2" selected="@(progressItem?.Rating == 2)">2 ⭐ Khó khăn</option>
+                                                    <option value="1" selected="@(progressItem?.Rating == 1)">1 ⭐ Rất tệ</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -346,37 +419,58 @@
             });
         });
     </script>
+
     <script>
-        // Progress tracking
         document.querySelectorAll('.exercise-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', async function() {
-                const week = this.dataset.week;
-                const day = this.dataset.day;
-                const exercise = this.dataset.exercise;
                 const completed = this.checked;
+                const exerciseName = this.dataset.exercise;
+                const parent = this.closest('.exercise-item');
+                // FIX BUG 5.1/5.2: Lấy ID đã được sanitize từ data attribute
+                const safeId = this.dataset.safeId;
+
+                // Thu thập dữ liệu chi tiết từ các input mới (F15)
+                const setsRepsInput = parent.querySelector(`#setsReps-${safeId}`);
+                const weightInput = parent.querySelector(`#weight-${safeId}`);
+                const ratingInput = parent.querySelector(`#rating-${safeId}`);
+                const notesInput = parent.querySelector(`#notes-${safeId}`);
+
+                const payload = {
+                    PlanId: parseInt(this.dataset.plan),
+                    WeekNumber: parseInt(this.dataset.week),
+                    DayNumber: parseInt(this.dataset.day),
+                    ExerciseName: exerciseName,
+                    Completed: completed,
+                    // Dữ liệu mới (F15)
+                    SetsCompleted: parseInt(setsRepsInput.value) || 0,
+                    RepsCompleted: setsRepsInput.value || null, // Lưu dưới dạng chuỗi Sets/Reps
+                    WeightUsed: weightInput.value || null,
+                    Notes: notesInput.value || null,
+                    Rating: parseInt(ratingInput.value) || null
+                };
+
+                // Validate cơ bản nếu đánh dấu hoàn thành
+                if (completed && payload.SetsCompleted === 0) {
+                     // Nếu hoàn thành mà không nhập set/rep, hỏi người dùng
+                     if (!confirm('Bạn đánh dấu hoàn thành nhưng chưa nhập Sets/Reps. Bạn vẫn muốn lưu?')) {
+                         this.checked = false; // Bỏ check nếu người dùng hủy
+                         return;
+                     }
+                }
 
                 try {
                     const response = await fetch('/Workout/UpdateProgress', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            planId: @plan.PlanId,
-                            weekNumber: parseInt(week),
-                            dayNumber: parseInt(day),
-                            exerciseName: exercise,
-                            completed: completed,
-                            setsCompleted: 0,
-                            repsCompleted: null,
-                            weightUsed: null,
-                            notes: null,
-                            rating: null
-                        })
+                        body: JSON.stringify(payload)
                     });
-
                     const data = await response.json();
-                    if (!data.success) {
+                    if (data.success) {
+                        console.log('Progress updated successfully.');
+                        // Không cần reload, nhưng có thể cập nhật hiển thị nếu cần
+                    } else {
                         alert('Lỗi: ' + data.error);
-                        this.checked = !completed;
+                        this.checked = !completed; // Quay lại trạng thái cũ
                     }
                 } catch (error) {
                     alert('Lỗi kết nối: ' + error.message);

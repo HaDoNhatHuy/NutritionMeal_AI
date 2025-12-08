@@ -1,0 +1,257 @@
+﻿@model NutritionWebApp.Controllers.FoodTrackerController.ManualFoodLogRequest
+@{
+    ViewData["Title"] = "Ghi nhận Bữa Ăn Thủ Công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Tái sử dụng meal type options từ Home/Index hoặc Report [6]
+    var mealTypes = new List<string> { "BuaSang", "BuaTrua", "BuaToi", "AnVat" };
+    var historyModel = ViewBag.HistoryByDate as Dictionary<DateTime, List<NutritionWebApp.Models.Entities.FoodHistory>>;
+}
+@section Styles {
+    <style>
+        .food-tracker-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
+            padding: 40px 0;
+        }
+
+        .tracker-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            border-left: 5px solid #10b981;
+        }
+
+        .log-btn-manual {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: 700;
+            border: none;
+        }
+    </style>
+}
+
+<div class="food-tracker-wrapper">
+    <div class="container" style="max-width: 900px;">
+        <h1 class="text-center" style="font-weight: 800; color: #065f46; margin-bottom: 40px;">🍎 Ghi nhận Bữa Ăn Thủ Công</h1>
+
+        <!-- FORM NHẬP THỦ CÔNG -->
+        <div class="tracker-card">
+            <h3 class="section-title">Nhập món ăn đã dùng</h3>
+            <form id="manualLogForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tên món ăn</label>
+                        <input type="text" id="foodName" class="form-control" required placeholder="VD: Cơm tấm, Bánh mì kẹp trứng" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Loại bữa ăn</label>
+                        <select id="mealType" class="form-select">
+                            @foreach (var type in mealTypes)
+                            {
+                                <option value="@type">@type</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ngày ghi nhận</label>
+                        <input type="date" id="logDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Calories (kcal) <span class="text-danger">*</span></label>
+                        <input type="number" step="1" min="1" id="calories" class="form-control" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Protein (g)</label>
+                        <input type="number" step="0.1" id="protein" class="form-control" value="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Carbs (g)</label>
+                        <input type="number" step="0.1" id="carbs" class="form-control" value="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fat (g)</label>
+                        <input type="number" step="0.1" id="fat" class="form-control" value="0" />
+                    </div>
+
+                    <div class="col-12 text-center mt-4">
+                        <button type="submit" class="btn log-btn-manual" id="saveManualBtn">
+                            Ghi nhận Bữa Ăn
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- LỊCH SỬ BỮA ĂN (TÁI SỬ DỤNG PARTIAL VIEW TỪ REPORT) -->
+        <h3 class="mt-5 mb-3" style="color: #065f46;">Lịch sử Ghi nhận (30 ngày gần nhất)</h3>
+        <div id="historyContainer">
+            @if (historyModel != null && historyModel.Any())
+            {
+                await Html.RenderPartialAsync("~/Views/Report/_FoodHistoryPartial.cshtml", historyModel);
+            }
+            else
+            {
+                <div class="alert alert-info text-center mt-3">Chưa có dữ liệu lịch sử ăn uống nào.</div>
+            }
+        </div>
+
+        <!-- NÚT TẢI THÊM (Tái sử dụng JS từ Report/Index [7]) -->
+        <div class="text-center mt-4" id="loadMoreArea">
+            @if ((bool)ViewBag.HasMore)
+            {
+                <button id="loadMoreBtn" class="btn btn-primary log-btn-manual" style="
+                    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                    border: none;
+                    ">
+                    <span id="loadMoreSpinner" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
+                    Tải thêm lịch sử trước đó
+                </button>
+            }
+            <p id="noMoreHistory" class="text-muted mt-3" style="display: @((bool)ViewBag.HasMore ? "none" : "block"); margin-bottom: 50px;">
+                Không còn dữ liệu lịch sử.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // --- 1. LOGIC GHI NHẬN THỦ CÔNG ---
+        document.getElementById('manualLogForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveManualBtn');
+            saveBtn.disabled = true;
+
+            const logDateInput = document.getElementById('logDate').value;
+            // let logDate = new Date(logDateInput);
+
+            // Xử lý lệch múi giờ: Cần đảm bảo ngày là chính xác
+            logDate.setMinutes(logDate.getMinutes() + logDate.getTimezoneOffset());
+
+            const payload = {
+                FoodName: document.getElementById('foodName').value,
+                MealType: document.getElementById('mealType').value,
+                Calories: parseFloat(document.getElementById('calories').value) || 0,
+                Protein: parseFloat(document.getElementById('protein').value) || 0,
+                Carbs: parseFloat(document.getElementById('carbs').value) || 0,
+                Fat: parseFloat(document.getElementById('fat').value) || 0,
+                // LogDate: logDate.toISOString().split('T') // Chỉ gửi ngày
+                LogDate: logDateInput // Gửi thẳng chuỗi ngày (Controller sẽ parse)
+            };
+
+            if (payload.Calories <= 0 || payload.FoodName === "") {
+                alert("Vui lòng nhập tên món ăn và Calories.");
+                saveBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch('/FoodTracker/LogMeal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Đã ghi nhận bữa ăn thành công! Tải lại trang để xem lịch sử.');
+                    // Reload để cập nhật dashboard và lịch sử
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối server.');
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+
+        // --- 2. LOGIC TẢI THÊM LỊCH SỬ (Tái sử dụng từ Report) ---
+        const historyContainer = document.getElementById('historyContainer');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreSpinner = document.getElementById('loadMoreSpinner');
+        const noMoreHistory = document.getElementById('noMoreHistory');
+        let isLoading = false;
+        let hasMoreHistory = @((bool)ViewBag.HasMore ? "true" : "false") === "true";
+
+        function getOldestDate() {
+            const oldestGroup = historyContainer.querySelector('.date-group:last-child');
+            if (oldestGroup) {
+                // Trả về ngày của nhóm cuối cùng (để Controller query dữ liệu cũ hơn ngày này)
+                return oldestGroup.getAttribute('data-date');
+            }
+            return null;
+        }
+
+        function updateLoadMoreButton() {
+            if (!hasMoreHistory) {
+                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+                noMoreHistory.style.display = 'block';
+            } else {
+                if (loadMoreBtn) loadMoreBtn.style.display = 'inline-block';
+                noMoreHistory.style.display = 'none';
+            }
+        }
+
+        async function loadMoreHistory() {
+            if (isLoading || !hasMoreHistory) return;
+            isLoading = true;
+            loadMoreBtn.disabled = true;
+            loadMoreSpinner.style.display = 'inline-block';
+
+            const currentOffsetDate = getOldestDate();
+            if (!currentOffsetDate) {
+                isLoading = false;
+                hasMoreHistory = false;
+                updateLoadMoreButton();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/FoodTracker/LoadHistory?offsetDate=${currentOffsetDate}&pageSize=30`);
+                const newHtml = await response.text();
+
+                if (newHtml.trim().length === 0 || newHtml.includes("Không còn dữ liệu lịch sử.")) {
+                    hasMoreHistory = false;
+                } else {
+                    // Cập nhật trạng thái hasMore từ server (nếu PartialView có thể truyền)
+                    // Vì chúng ta đang dùng PartialView không có JSON wrapper, ta sẽ dùng cách kiểm tra nội dung
+                    historyContainer.insertAdjacentHTML('beforeend', newHtml);
+                    // Cần kiểm tra xem Partial View có chứa cờ ViewBag.HasMore hay không.
+                    // Trong trường hợp này, ta sẽ cần cải tiến logic LoadHistory (giống ReportController cũ),
+                    // nhưng để đơn giản, nếu không có đủ 30 kết quả trong lần tải tiếp theo, ta xem như hết.
+                    // Tạm thời, ta chỉ dựa vào việc có nội dung hay không.
+                    if (newHtml.length < 1000) { // Giả định 1KB là quá ít
+                         hasMoreHistory = false;
+                    }
+                }
+            } catch (e) {
+                console.error("Lỗi tải lịch sử:", e);
+                alert("Đã xảy ra lỗi khi tải dữ liệu lịch sử.");
+                hasMoreHistory = false;
+            } finally {
+                isLoading = false;
+                loadMoreBtn.disabled = false;
+                loadMoreSpinner.style.display = 'none';
+                updateLoadMoreButton();
+            }
+        }
+
+        if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMoreHistory);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mở accordion cho nhóm ngày mới nhất
+            const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
+            if (firstGroup) {
+                firstGroup.classList.add('show');
+            }
+            updateLoadMoreButton();
+        });
+    </script>
+}

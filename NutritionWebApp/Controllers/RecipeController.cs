@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NutritionWebApp.Models.DataAccess;
 using NutritionWebApp.Models.Entities;
 using NutritionWebApp.ViewModels;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json; // Để đọc/ghi JSON Ingredients/Instructions
 
 namespace NutritionWebApp.Controllers
@@ -52,6 +53,77 @@ namespace NutritionWebApp.Controllers
         //    ViewBag.CurrentCategory = category;
         //    return View(recipes);
         //}
+        // POST Model cho việc gửi review
+        public class RecipeReviewRequest
+        {
+            [Required]
+            public int RecipeId { get; set; }
+            [Required]
+            [Range(1, 5)]
+            public int Rating { get; set; }
+            public string? Comment { get; set; }
+        }
+
+        // POST: /Recipe/AddReview (F12)
+        [HttpPost]
+        public async Task<IActionResult> AddReview([FromBody] RecipeReviewRequest request)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return Json(new { success = false, error = "Yêu cầu đăng nhập." });
+
+            // 1. Kiểm tra tồn tại
+            var recipe = await _context.Recipes.FindAsync(request.RecipeId);
+            if (recipe == null) return Json(new { success = false, error = "Không tìm thấy công thức." });
+
+            // 2. Kiểm tra người dùng đã review chưa
+            var existingReview = await _context.RecipeReviews
+                .FirstOrDefaultAsync(r => r.RecipeId == request.RecipeId && r.UserId == userId.Value);
+
+            if (existingReview != null)
+            {
+                return Json(new { success = false, error = "Bạn đã đánh giá công thức này rồi." });
+            }
+
+            // 3. Thêm review mới
+            var newReview = new RecipeReview
+            {
+                RecipeId = request.RecipeId,
+                UserId = userId.Value,
+                Rating = request.Rating,
+                Comment = request.Comment,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.RecipeReviews.Add(newReview);
+            await _context.SaveChangesAsync();
+
+            // Cập nhật điểm trung bình (Tùy chọn: cần tính lại AVG Rating cho Recipe)
+
+            return Json(new { success = true });
+        }
+
+        // GET: /Recipe/GetReviews/{id}
+        [HttpGet]
+        public async Task<IActionResult> GetReviews(int id)
+        {
+            var reviews = await _context.RecipeReviews
+                .Where(r => r.RecipeId == id)
+                .Include(r => r.User) // Load thông tin người dùng
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new
+                {
+                    r.Rating,
+                    r.Comment,
+                    r.CreatedAt,
+                    UserName = r.User.FullName
+                })
+                .ToListAsync();
+
+            // Tính rating trung bình
+            double averageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+
+            return Json(new { reviews, averageRating, totalReviews = reviews.Count });
+        }
         [HttpGet]
         public async Task<IActionResult> Index(
                 string category = "all",

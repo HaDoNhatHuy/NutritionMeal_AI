@@ -1,0 +1,241 @@
+﻿@model List<NutritionWebApp.ViewModels.ChatSessionSummary>
+@{
+    ViewData["Title"] = "Trò chuyện với AI Assistant";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .chat-full-layout {
+            display: flex;
+            height: calc(100vh - 60px); /* Chiều cao trừ navbar */
+            overflow: hidden;
+            background: var(--soft-bg);
+        }
+
+        .sidebar {
+            width: 300px;
+            border-right: 1px solid var(--border-color);
+            background: var(--light-bg);
+            padding: 1rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .chat-body-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: var(--soft-bg);
+            min-height: 0;
+            max-height: 100%;
+        }
+
+        .chat-footer {
+            flex-shrink: 0;
+            padding: 1rem 1.5rem;
+            background: var(--light-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .session-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+            .session-item:hover {
+                background: #f0f9ff;
+                border-color: #bfdbfe;
+            }
+
+            .session-item.active {
+                background: var(--accent-color);
+                color: white;
+                border-color: var(--accent-color);
+            }
+
+        .input-group-chat {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #voiceInputBtn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+        }
+
+        #chatInput {
+            min-height: 38px;
+            max-height: 38px;
+        }
+    </style>
+}
+
+<div class="chat-full-layout">
+    <!-- CỘT TRÁI: LỊCH SỬ TRÒ CHUYỆN (Dùng Model là List<ChatSessionSummary>) -->
+    <div class="sidebar">
+        <h3 style="font-weight: 700;">💬 Lịch sử Trò chuyện</h3>
+        <button id="newChatBtn" class="btn btn-primary w-100 mb-3" onclick="window.location.href='/Chat/Index'">
+            + Tạo Chat Mới
+        </button>
+        <div id="sessionList">
+            @if (Model != null)
+            {
+                @foreach (var session in Model)
+                {
+                    var dateUrlFormat = session.SessionDate.ToString("yyyy-MM-dd");
+                    <div class="session-item" onclick="window.location.href='/Chat/ViewSession?date=@dateUrlFormat'">
+                        <div style="font-weight: 600;">@session.Title</div>
+                        <small class="text-muted">
+                            @(session.LastMessagePreview.Length > 30 ? session.LastMessagePreview.Substring(0, 30) + "..." : session.LastMessagePreview)
+                        </small>
+                        <span class="badge bg-secondary float-end">@session.MessageCount</span>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- CỘT PHẢI: KHUNG CHAT (Tái sử dụng các ID từ chatbox.js) -->
+    <div class="chat-main">
+        <div id="chatModeToggles" style="border-bottom: 1px solid var(--border-color); display: flex;">
+            <button id="showChatBtn" class="btn-warning" style="flex: 1; padding: 1rem; font-weight: 600; border: none; background: #fff;">💬 Chat Assistant</button>
+            <button id="showRecipeBtn" style="flex: 1; padding: 1rem; font-weight: 600; border: none; background: #f8f9fa;">🍽️ Công thức AI</button>
+        </div>
+
+        <div id="chatModeContent" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+            <button id="proactiveAdviceBtn" style="background: white; border: 1px solid var(--border-color); padding: 1rem; font-weight: 600;">
+                ✨ Lời khuyên dinh dưỡng hôm nay
+            </button>
+            <div class="chat-body-content" id="chatBody">
+                <!-- Messages will be appended here by chatbox.js -->
+            </div>
+            <div class="chat-footer">
+                <div class="input-group-chat">
+                    <input type="text" id="chatInput" class="form-control" placeholder="Hỏi AI về dinh dưỡng..." autocomplete="off" />
+                    <button class="btn btn-secondary" id="voiceInputBtn">🎤</button>
+                    <button class="btn btn-success" id="sendBtn">Gửi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- COPY CONTENT CỦA recipeModeContent TỪ _Layout.cshtml (Dòng 520) -->
+        <div id="recipeModeContent" style="display: none; flex-direction: column; flex: 1; padding: 1.5rem; overflow-y: auto;">
+            <h4>Nhập Yêu Cầu Công Thức</h4>
+            <div class="mb-3">
+                <label for="recipeRequest" class="form-label">Bạn muốn món ăn như thế nào?</label>
+                <input type="text" class="form-control" id="recipeRequest"
+                       placeholder="VD: Dưới 400 kcal, giàu protein">
+            </div>
+            <button class="btn w-100 mb-3 btn-warning" id="generateRecipeBtn"
+                    onclick="requestRecipe()">
+                ✨ Tạo công thức
+            </button>
+            <div id="recipeResultContainer"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Logic JS cho Chatbox (tái sử dụng từ chatbox.js)
+
+        // HÀM SWITCH MODE (Cần tái định nghĩa vì Chat/Index không có floating popup)
+        function switchChatMode(mode) {
+            const chatModeContent = document.getElementById('chatModeContent');
+            const recipeModeContent = document.getElementById('recipeModeContent');
+            const showChatBtn = document.getElementById('showChatBtn');
+            const showRecipeBtn = document.getElementById('showRecipeBtn');
+
+            if (mode === 'chat') {
+                chatModeContent.style.display = 'flex';
+                recipeModeContent.style.display = 'none';
+                showChatBtn.classList.add('btn-warning');
+                showRecipeBtn.classList.remove('btn-warning');
+                showChatBtn.style.background = '#fff';
+                showRecipeBtn.style.background = '#f8f9fa';
+            } else if (mode === 'recipe') {
+                chatModeContent.style.display = 'none';
+                recipeModeContent.style.display = 'flex';
+                showChatBtn.classList.remove('btn-warning');
+                showRecipeBtn.classList.add('btn-warning');
+                showChatBtn.style.background = '#f8f9fa';
+                showRecipeBtn.style.background = '#fff';
+            }
+        }
+
+        // Cần đảm bảo các sự kiện chuyển mode được gán lại
+        document.getElementById('showChatBtn').addEventListener('click', () => switchChatMode('chat'));
+        document.getElementById('showRecipeBtn').addEventListener('click', () => switchChatMode('recipe'));
+
+        // Load initial greeting
+        loadChatHistory();
+
+        // --- LOGIC GHI ÂM (F4) ---
+        const voiceInputBtn = document.getElementById('voiceInputBtn');
+        let recognition;
+
+        if (voiceInputBtn && 'webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'vi-VN'; // Ngôn ngữ tiếng Việt
+
+            recognition.onstart = function() {
+                voiceInputBtn.textContent = '🔴 Đang nghe...';
+                voiceInputBtn.disabled = true;
+                voiceInputBtn.style.backgroundColor = 'red';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results.transcript;
+                document.getElementById('chatInput').value = transcript;
+                voiceInputBtn.textContent = '🎤';
+                voiceInputBtn.disabled = false;
+                voiceInputBtn.style.backgroundColor = '#3498db';
+                // Tự động gửi tin nhắn sau khi nhận diện
+                sendMessage();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Lỗi nhận diện giọng nói:', event.error);
+                voiceInputBtn.textContent = '🎤';
+                voiceInputBtn.disabled = false;
+                voiceInputBtn.style.backgroundColor = '#3498db';
+                if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                    alert('Lỗi nhận diện giọng nói. Vui lòng kiểm tra quyền truy cập microphone.');
+                }
+            };
+
+            recognition.onend = function() {
+                voiceInputBtn.textContent = '🎤';
+                voiceInputBtn.disabled = false;
+                voiceInputBtn.style.backgroundColor = '#3498db';
+            };
+
+            voiceInputBtn.addEventListener('click', function() {
+                 if (typeof isWaitingForAI === 'undefined' || !isWaitingForAI) {
+                    recognition.start();
+                    document.getElementById('chatInput').focus();
+                }
+            });
+        } else if (voiceInputBtn) {
+            // Ẩn nút nếu trình duyệt không hỗ trợ Web Speech API
+            voiceInputBtn.style.display = 'none';
+        }
+    </script>
+}
