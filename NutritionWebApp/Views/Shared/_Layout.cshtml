@@ -118,6 +118,7 @@
                             <ul class="dropdown-menu" aria-labelledby="libraryDropdown">
                                 <li><a class="dropdown-item" asp-controller="Recipe" asp-action="Index">Công Thức Nấu Ăn</a></li>
                                 <li><a class="dropdown-item" asp-controller="Workout" asp-action="Library">Thư Viện Bài Tập</a></li>
+                                <li><a class="dropdown-item" asp-controller="HealthTips" asp-action="Index">Kiến thức sức khỏe</a></li>
                             </ul>
                         </li>
 
@@ -243,7 +244,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/chatbox.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @* Chỉ load chatbox.js khi KHÔNG phải trang Chat *@   
+    @if (ViewContext.RouteData.Values["controller"]?.ToString() != "Chat")
+    {
+        <script src="~/js/chatbox.js"></script>
+    }
+    @* <script src="~/js/chatbox.js"></script> *@
+    @await RenderSectionAsync("Scripts", required: false)     
 </body>
 </html>

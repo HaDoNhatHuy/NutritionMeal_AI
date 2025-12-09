@@ -86,14 +86,15 @@
         }
 
         // .instructions-text {
-        //     max-height: 0;
-        //     overflow: hidden;
-        //     transition: max-height 0.5s ease-in-out;
-        //     margin-top: 10px;
-        //     border-top: 1px dashed #e2e8f0;
-        //     padding-top: 10px;
-        //     font-size: 0.9rem;
-        // }
+            // max-height: 0;
+            // overflow: hidden;
+            // transition: max-height 0.5s ease-in-out;
+            // margin-top: 10px;
+            // border-top: 1px dashed #e2e8f0;
+            // padding-top: 10px;
+            // font-size: 0.9rem;
+            //
+        }
 
         .instructions-text {
             overflow: hidden;
@@ -266,12 +267,15 @@
                                 </div>
                             }
                         </div>
-                        <div class="card-footer mt-3">
-                            <button class="btn btn-sm btn-success w-100 mt-2"
-                                    onclick="saveToSchedule('@ex.Id', '@ex.Name', '@ex.BodyPart', this)">
-                                ➕ Thêm vào Lịch trình Cá nhân
-                            </button>
-                        </div>
+                        @{
+                            // <div class="card-footer mt-3">
+                            //     <button class="btn btn-sm btn-success w-100 mt-2"
+                            //             onclick="saveToSchedule('@ex.Id', '@ex.Name', '@ex.BodyPart', this)">
+                            //         ➕ Thêm vào Lịch trình Cá nhân
+                            //     </button>
+                            // </div>
+                        }
+
                     </div>
                 }
             </div>
@@ -313,51 +317,53 @@
             });
         });
     </script>
-    <script>
-        // LOGIC LƯU BÀI TẬP VÀO LỊCH TRÌNH (F10)
-        async function saveToSchedule(exerciseId, exerciseName, bodyPart, button) {
-            if (@(Context.Session.GetInt32("UserId") ?? 0) === 0) {
-                 alert('Vui lòng đăng nhập để lưu bài tập.');
-                 return;
-            }
+    @{
+        // <script>
+        //     // LOGIC LƯU BÀI TẬP VÀO LỊCH TRÌNH (F10)
+        //     async function saveToSchedule(exerciseId, exerciseName, bodyPart, button) {
+        //         if (@(Context.Session.GetInt32("UserId") ?? 0) === 0) {
+        //              alert('Vui lòng đăng nhập để lưu bài tập.');
+        //              return;
+        //         }
 
-            const originalText = button.textContent;
-            button.disabled = true;
-            button.textContent = 'Đang lưu...';
+        //         const originalText = button.textContent;
+        //         button.disabled = true;
+        //         button.textContent = 'Đang lưu...';
 
-            const payload = {
-                ExerciseId: exerciseId,
-                ExerciseName: exerciseName,
-                BodyPart: bodyPart
-            };
+        //         const payload = {
+        //             ExerciseId: exerciseId,
+        //             ExerciseName: exerciseName,
+        //             BodyPart: bodyPart
+        //         };
 
-            try {
-                const response = await fetch('/Workout/SaveCustomExercise', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
+        //         try {
+        //             const response = await fetch('/Workout/SaveCustomExercise', {
+        //                 method: 'POST',
+        //                 headers: { 'Content-Type': 'application/json' },
+        //                 body: JSON.stringify(payload)
+        //             });
+        //             const data = await response.json();
 
-                if (data.success) {
-                    button.textContent = '✅ Đã Lưu';
-                    button.classList.remove('btn-success');
-                    button.classList.add('btn-secondary');
-                } else {
-                    alert('Lỗi: ' + data.error);
-                    button.textContent = originalText;
-                }
-            } catch (error) {
-                alert('Lỗi kết nối.');
-                button.textContent = originalText;
-            } finally {
-                button.disabled = false;
-                setTimeout(() => {
-                    if(button.textContent !== '✅ Đã Lưu') {
-                         button.textContent = originalText;
-                    }
-                }, 3000);
-            }
-        }
-    </script>
+        //             if (data.success) {
+        //                 button.textContent = '✅ Đã Lưu';
+        //                 button.classList.remove('btn-success');
+        //                 button.classList.add('btn-secondary');
+        //             } else {
+        //                 alert('Lỗi: ' + data.error);
+        //                 button.textContent = originalText;
+        //             }
+        //         } catch (error) {
+        //             alert('Lỗi kết nối.');
+        //             button.textContent = originalText;
+        //         } finally {
+        //             button.disabled = false;
+        //             setTimeout(() => {
+        //                 if(button.textContent !== '✅ Đã Lưu') {
+        //                      button.textContent = originalText;
+        //                 }
+        //             }, 3000);
+        //         }
+        //     }
+        // </script>
+    }
 }

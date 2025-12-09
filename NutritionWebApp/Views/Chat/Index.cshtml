@@ -8,7 +8,7 @@
     <style>
         .chat-full-layout {
             display: flex;
-            height: calc(100vh - 60px); /* Chiều cao trừ navbar */
+            height: calc(100vh - 60px);
             overflow: hidden;
             background: var(--soft-bg);
         }
@@ -52,6 +52,7 @@
             transition: background 0.2s;
             cursor: pointer;
             border: 1px solid transparent;
+            position: relative;
         }
 
             .session-item:hover {
@@ -63,6 +64,47 @@
                 background: var(--accent-color);
                 color: white;
                 border-color: var(--accent-color);
+            }
+
+                .session-item.active .text-muted {
+                    color: rgba(255,255,255,0.8) !important;
+                }
+
+                .session-item.active .badge {
+                    background-color: rgba(255,255,255,0.3) !important;
+                }
+
+        /* ✅ NÚT XÓA */
+        .delete-session-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: #e74c3c;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        .session-item:hover .delete-session-btn {
+            opacity: 1;
+        }
+
+        .delete-session-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .session-item.active .delete-session-btn {
+            color: white;
+        }
+
+            .session-item.active .delete-session-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
             }
 
         .input-group-chat {
@@ -83,24 +125,46 @@
             min-height: 38px;
             max-height: 38px;
         }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+            .empty-state h4 {
+                color: var(--primary-color);
+                margin-bottom: 1rem;
+            }
+
+        .chat-date-header {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 600;
+        }
     </style>
 }
 
 <div class="chat-full-layout">
-    <!-- CỘT TRÁI: LỊCH SỬ TRÒ CHUYỆN (Dùng Model là List<ChatSessionSummary>) -->
+    <!-- CỘT TRÁI: LỊCH SỬ TRÒ CHUYỆN -->
     <div class="sidebar">
         <h3 style="font-weight: 700;">💬 Lịch sử Trò chuyện</h3>
-        <button id="newChatBtn" class="btn btn-primary w-100 mb-3" onclick="window.location.href='/Chat/Index'">
+        <button id="newChatBtn" class="btn btn-primary w-100 mb-3">
             + Tạo Chat Mới
         </button>
         <div id="sessionList">
-            @if (Model != null)
+            @if (Model != null && Model.Any())
             {
                 @foreach (var session in Model)
                 {
-                    var dateUrlFormat = session.SessionDate.ToString("yyyy-MM-dd");
-                    <div class="session-item" onclick="window.location.href='/Chat/ViewSession?date=@dateUrlFormat'">
-                        <div style="font-weight: 600;">@session.Title</div>
+                    var dateStr = session.SessionDate.ToString("yyyy-MM-dd");
+                    <div class="session-item" data-date="@dateStr">
+                        <button class="delete-session-btn" onclick="deleteSession(event, '@dateStr')" title="Xóa cuộc trò chuyện">
+                            🗑️
+                        </button>
+                        <div style="font-weight: 600; padding-right: 30px;">@session.Title</div>
                         <small class="text-muted">
                             @(session.LastMessagePreview.Length > 30 ? session.LastMessagePreview.Substring(0, 30) + "..." : session.LastMessagePreview)
                         </small>
@@ -108,10 +172,14 @@
                     </div>
                 }
             }
+            else
+            {
+                <div class="text-muted text-center mt-3">Chưa có lịch sử chat</div>
+            }
         </div>
     </div>
 
-    <!-- CỘT PHẢI: KHUNG CHAT (Tái sử dụng các ID từ chatbox.js) -->
+    <!-- CỘT PHẢI: KHUNG CHAT -->
     <div class="chat-main">
         <div id="chatModeToggles" style="border-bottom: 1px solid var(--border-color); display: flex;">
             <button id="showChatBtn" class="btn-warning" style="flex: 1; padding: 1rem; font-weight: 600; border: none; background: #fff;">💬 Chat Assistant</button>
@@ -123,7 +191,11 @@
                 ✨ Lời khuyên dinh dưỡng hôm nay
             </button>
             <div class="chat-body-content" id="chatBody">
-                <!-- Messages will be appended here by chatbox.js -->
+                <!-- Messages loaded by JS -->
+                <div class="empty-state">
+                    <h4>👋 Chào bạn!</h4>
+                    <p>Tôi là <strong>NutritionAI</strong>. Hãy cho tôi biết bạn muốn hỏi gì về chế độ ăn uống hoặc mục tiêu của mình nhé.</p>
+                </div>
             </div>
             <div class="chat-footer">
                 <div class="input-group-chat">
@@ -134,7 +206,7 @@
             </div>
         </div>
 
-        <!-- COPY CONTENT CỦA recipeModeContent TỪ _Layout.cshtml (Dòng 520) -->
+        <!-- RECIPE MODE CONTENT -->
         <div id="recipeModeContent" style="display: none; flex-direction: column; flex: 1; padding: 1.5rem; overflow-y: auto;">
             <h4>Nhập Yêu Cầu Công Thức</h4>
             <div class="mb-3">
@@ -142,8 +214,7 @@
                 <input type="text" class="form-control" id="recipeRequest"
                        placeholder="VD: Dưới 400 kcal, giàu protein">
             </div>
-            <button class="btn w-100 mb-3 btn-warning" id="generateRecipeBtn"
-                    onclick="requestRecipe()">
+            <button class="btn w-100 mb-3 btn-warning" id="generateRecipeBtn">
                 ✨ Tạo công thức
             </button>
             <div id="recipeResultContainer"></div>
@@ -153,9 +224,381 @@
 
 @section Scripts {
     <script>
-        // Logic JS cho Chatbox (tái sử dụng từ chatbox.js)
+        let currentSessionDate = null;
+        let isWaitingForAI = false;
 
-        // HÀM SWITCH MODE (Cần tái định nghĩa vì Chat/Index không có floating popup)
+        // --- HÀM FORMAT MARKDOWN ---
+        function formatMarkdown(text) {
+            if (!text) return '';
+            let formatted = text;
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/^\s*[\*-]\s+(.*)$/gm, '<li>$1</li>');
+            formatted = formatted.replace(/(<li>.*?<\/li>(\s*<br>\s*|)*)+/g, (match) => {
+                let listContent = match.replace(/<br>/g, '');
+                return `<ul>${listContent}</ul>`;
+            });
+            formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
+            formatted = formatted.replace(/\n\n/g, '</p><p>');
+            formatted = formatted.replace(/\n/g, '<br>');
+            if (!formatted.startsWith('<ul') && !formatted.startsWith('<p>')) {
+                formatted = '<p>' + formatted + '</p>';
+            }
+            return formatted;
+        }
+
+        // --- HÀM SCROLL TO BOTTOM ---
+        function scrollToBottom() {
+            const chatBody = document.getElementById('chatBody');
+            if (!chatBody) return;
+            chatBody.scrollTop = chatBody.scrollHeight;
+            requestAnimationFrame(() => {
+                chatBody.scrollTop = chatBody.scrollHeight;
+                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 50);
+            });
+        }
+
+        // --- HÀM APPEND MESSAGE ---
+        function appendMessage(sender, message, isTyping = false) {
+            const chatBody = document.getElementById('chatBody');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+
+            if (isTyping) {
+                msgDiv.id = 'typingIndicator';
+                msgDiv.innerHTML = `
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                `;
+            } else {
+                msgDiv.innerHTML = formatMarkdown(message);
+            }
+
+            chatBody.appendChild(msgDiv);
+            setTimeout(() => scrollToBottom(), 50);
+            return msgDiv;
+        }
+
+        // --- ✅ HÀM LOAD LỊCH SỬ CHAT THEO DATE (FIXED) ---
+        async function loadChatSession(date) {
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Đang tải...</p></div>';
+
+            try {
+                const response = await fetch(`/Chat/GetSessionMessages?date=${date}`);
+                const data = await response.json();
+
+                // ✅ Kiểm tra lỗi
+                if (data.error) {
+                    chatBody.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+
+                chatBody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    chatBody.innerHTML = '<div class="empty-state"><p>Không có tin nhắn nào trong phiên này.</p></div>';
+                    return;
+                }
+
+                // Hiển thị header ngày
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'chat-date-header';
+                dateHeader.textContent = `📅 ${new Date(date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+                chatBody.appendChild(dateHeader);
+
+                // ✅ Hiển thị tin nhắn (dùng lowercase: msg.role, msg.content)
+                data.forEach(msg => {
+                    appendMessage(msg.role.toLowerCase(), msg.content, false);
+                });
+
+                currentSessionDate = date;
+
+                // Đánh dấu active
+                document.querySelectorAll('.session-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.date === date) {
+                        item.classList.add('active');
+                    }
+                });
+
+                scrollToBottom();
+            } catch (error) {
+                console.error('Lỗi load chat:', error);
+                chatBody.innerHTML = '<div class="alert alert-danger">Lỗi tải lịch sử chat. Vui lòng thử lại.</div>';
+            }
+        }
+
+        // --- ✅ HÀM XÓA CUỘC TRÒ CHUYỆN ---
+        async function deleteSession(event, date) {
+            event.stopPropagation(); // Ngăn trigger click vào session item
+
+            if (!confirm('Bạn có chắc muốn xóa cuộc trò chuyện này?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Chat/DeleteSession', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: date })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Xóa item khỏi sidebar
+                    const sessionItem = document.querySelector(`.session-item[data-date="${date}"]`);
+                    if (sessionItem) {
+                        sessionItem.remove();
+                    }
+
+                    // Nếu đang xem session này, reset về greeting
+                    if (currentSessionDate === date) {
+                        loadNewChatGreeting();
+                    }
+
+                    // Kiểm tra nếu không còn session nào
+                    const remainingSessions = document.querySelectorAll('.session-item').length;
+                    if (remainingSessions === 0) {
+                        document.getElementById('sessionList').innerHTML = '<div class="text-muted text-center mt-3">Chưa có lịch sử chat</div>';
+                    }
+                } else {
+                    alert('Lỗi: ' + (result.error || 'Không thể xóa cuộc trò chuyện'));
+                }
+            } catch (error) {
+                console.error('Lỗi xóa session:', error);
+                alert('Lỗi kết nối. Vui lòng thử lại.');
+            }
+        }
+
+        // --- LOAD GREETING CHO CHAT MỚI ---
+        function loadNewChatGreeting() {
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML = '';
+            appendMessage('ai', 'Chào bạn! 👋 Tôi là **NutritionAI**. Hãy cho tôi biết bạn muốn hỏi gì về chế độ ăn uống hoặc mục tiêu của mình nhé.', false);
+            currentSessionDate = null;
+            document.querySelectorAll('.session-item').forEach(item => item.classList.remove('active'));
+        }
+
+        // --- SEND MESSAGE ---
+        async function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const question = chatInput.value.trim();
+
+            if (question === '' || isWaitingForAI) return;
+
+            appendMessage('user', question);
+            chatInput.value = '';
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
+            isWaitingForAI = true;
+
+            const typingElement = appendMessage('ai', '', true);
+
+            try {
+                const response = await fetch('/Chat/GetAdvice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const data = await response.json();
+                typingElement.remove();
+
+                if (data.error) {
+                    appendMessage('ai', `Lỗi AI: ${data.error}`, false);
+                } else {
+                    const newAiMessage = appendMessage('ai', '', false);
+                    typeResponse(newAiMessage, data.advice);
+
+                    // Reload sidebar nếu là chat mới
+                    if (!currentSessionDate) {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                }
+            } catch (error) {
+                typingElement.remove();
+                appendMessage('ai', 'Lỗi kết nối. Vui lòng thử lại.', false);
+            } finally {
+                isWaitingForAI = false;
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // --- TYPING ANIMATION ---
+        function typeResponse(element, text) {
+            let index = 0;
+            element.innerHTML = '';
+
+            const interval = setInterval(() => {
+                if (index < text.length) {
+                    element.innerHTML += text.charAt(index) === '\n' ? '<br>' : text.charAt(index);
+                    scrollToBottom();
+                    index++;
+                } else {
+                    element.innerHTML = formatMarkdown(text);
+                    clearInterval(interval);
+                    isWaitingForAI = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('chatInput').disabled = false;
+                    scrollToBottom();
+                    document.getElementById('chatInput').focus();
+                }
+            }, 20);
+        }
+
+        // --- PROACTIVE ADVICE ---
+        async function getProactiveAdvice() {
+            if (isWaitingForAI) return;
+
+            isWaitingForAI = true;
+            const btn = document.getElementById('proactiveAdviceBtn');
+            btn.disabled = true;
+
+            appendMessage('user', 'Hãy cho tôi lời khuyên dinh dưỡng hôm nay!');
+            const typingElement = appendMessage('ai', '', true);
+
+            try {
+                const response = await fetch('/Chat/GetProactiveAdvice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json();
+                typingElement.remove();
+
+                if (data.error) {
+                    appendMessage('ai', `Lỗi AI: ${data.error}`, false);
+                } else {
+                    const newAiMessage = appendMessage('ai', '', false);
+                    typeResponse(newAiMessage, data.advice);
+                }
+            } catch (error) {
+                typingElement.remove();
+                appendMessage('ai', 'Lỗi kết nối.', false);
+            } finally {
+                btn.disabled = false;
+                isWaitingForAI = false;
+            }
+        }
+
+        // --- RECIPE GENERATOR ---
+        async function requestRecipe() {
+            const request = document.getElementById('recipeRequest').value.trim();
+            const resultContainer = document.getElementById('recipeResultContainer');
+            const generateBtn = document.getElementById('generateRecipeBtn');
+
+            if (request === "") {
+                resultContainer.innerHTML = '<div class="alert alert-danger">Vui lòng nhập yêu cầu!</div>';
+                return;
+            }
+
+            resultContainer.innerHTML = '<div class="alert alert-info"><span class="spinner-border spinner-border-sm me-2"></span>Đang tạo công thức...</div>';
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/Chat/GenerateRecipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request: request })
+                });
+
+                const data = await response.json();
+                generateBtn.disabled = false;
+
+                if (data.error) {
+                    resultContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+
+                renderRecipeResult(data);
+            } catch (error) {
+                generateBtn.disabled = false;
+                resultContainer.innerHTML = '<div class="alert alert-danger">Lỗi kết nối.</div>';
+            }
+        }
+
+        function renderRecipeResult(data) {
+            const resultContainer = document.getElementById('recipeResultContainer');
+            const ingredientsHtml = data.Ingredients.map(item => `<li>${item}</li>`).join('');
+            const instructionsHtml = data.Instructions.map(item => `<li>${item}</li>`).join('');
+            const recipeDataString = JSON.stringify(data).replace(/"/g, '&quot;');
+
+            resultContainer.innerHTML = `
+            <div class="card">
+                <h5>${data.Title}</h5>
+                <p class="text-muted">${data.Description}</p>
+                <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+                    <div class="row text-center" style="font-size: 0.875rem;">
+                        <div class="col-3"><strong>Calo</strong><br>${data.CaloriesTotal.toFixed(0)}</div>
+                        <div class="col-3"><strong>P</strong><br>${data.ProteinGrams.toFixed(1)}g</div>
+                        <div class="col-3"><strong>C</strong><br>${data.CarbGrams.toFixed(1)}g</div>
+                        <div class="col-3"><strong>F</strong><br>${data.FatGrams.toFixed(1)}g</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Nguyên liệu</h6>
+                    <ul>${ingredientsHtml}</ul>
+                    <h6>Hướng dẫn</h6>
+                    <ol>${instructionsHtml}</ol>
+                    <div class="alert alert-warning mt-3">
+                        <strong>Lời khuyên:</strong> ${data.Advice}
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <button class="btn btn-sm btn-success" onclick='saveAiRecipe(${recipeDataString})'>Lưu Thực Đơn</button>
+                    <button class="btn btn-sm btn-primary" onclick='saveAiRecipe(${recipeDataString}, true)'>Lưu & Chia sẻ Cộng đồng</button>
+                </div>
+            </div>`;
+            document.getElementById('recipeModeContent').scrollTop = 0;
+        }
+
+        async function saveAiRecipe(data, isPublic = false) {
+            let cookingTimeValue = 30;
+            if (data.CookingTime) {
+                if (typeof data.CookingTime === 'number') {
+                    cookingTimeValue = data.CookingTime;
+                } else if (typeof data.CookingTime === 'string') {
+                    const match = data.CookingTime.match(/\d+/);
+                    if (match) cookingTimeValue = parseInt(match);
+                }
+            }
+
+            const payload = {
+                RecipeName: data.Title,
+                Description: data.Description,
+                Category: "AI Generated",
+                CookingTime: cookingTimeValue,
+                Calories: data.CaloriesTotal,
+                Protein: data.ProteinGrams,
+                Carbs: data.CarbGrams,
+                Fat: data.FatGrams,
+                Ingredients: data.Ingredients,
+                Instructions: data.Instructions,
+                IsPublic: isPublic
+            };
+
+            try {
+                const response = await fetch('/Recipe/ReviewAndSaveRecipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    window.location.href = res.redirectUrl;
+                }
+            } catch (e) {
+                alert("Lỗi: " + e);
+            }
+        }
+
+        // --- MODE SWITCH ---
         function switchChatMode(mode) {
             const chatModeContent = document.getElementById('chatModeContent');
             const recipeModeContent = document.getElementById('recipeModeContent');
@@ -179,21 +622,14 @@
             }
         }
 
-        // Cần đảm bảo các sự kiện chuyển mode được gán lại
-        document.getElementById('showChatBtn').addEventListener('click', () => switchChatMode('chat'));
-        document.getElementById('showRecipeBtn').addEventListener('click', () => switchChatMode('recipe'));
-
-        // Load initial greeting
-        loadChatHistory();
-
-        // --- LOGIC GHI ÂM (F4) ---
+        // --- VOICE INPUT ---
         const voiceInputBtn = document.getElementById('voiceInputBtn');
         let recognition;
 
         if (voiceInputBtn && 'webkitSpeechRecognition' in window) {
             recognition = new webkitSpeechRecognition();
             recognition.continuous = false;
-            recognition.lang = 'vi-VN'; // Ngôn ngữ tiếng Việt
+            recognition.lang = 'vi-VN';
 
             recognition.onstart = function() {
                 voiceInputBtn.textContent = '🔴 Đang nghe...';
@@ -202,12 +638,11 @@
             };
 
             recognition.onresult = function(event) {
-                const transcript = event.results.transcript;
+                const transcript = event.results[0].transcript;
                 document.getElementById('chatInput').value = transcript;
                 voiceInputBtn.textContent = '🎤';
                 voiceInputBtn.disabled = false;
                 voiceInputBtn.style.backgroundColor = '#3498db';
-                // Tự động gửi tin nhắn sau khi nhận diện
                 sendMessage();
             };
 
@@ -228,14 +663,43 @@
             };
 
             voiceInputBtn.addEventListener('click', function() {
-                 if (typeof isWaitingForAI === 'undefined' || !isWaitingForAI) {
+                if (!isWaitingForAI) {
                     recognition.start();
                     document.getElementById('chatInput').focus();
                 }
             });
         } else if (voiceInputBtn) {
-            // Ẩn nút nếu trình duyệt không hỗ trợ Web Speech API
             voiceInputBtn.style.display = 'none';
         }
+
+        // --- EVENT LISTENERS ---
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        document.getElementById('proactiveAdviceBtn').addEventListener('click', getProactiveAdvice);
+        document.getElementById('showChatBtn').addEventListener('click', () => switchChatMode('chat'));
+        document.getElementById('showRecipeBtn').addEventListener('click', () => switchChatMode('recipe'));
+        document.getElementById('generateRecipeBtn').addEventListener('click', requestRecipe);
+        document.getElementById('newChatBtn').addEventListener('click', loadNewChatGreeting);
+
+        // --- CLICK VÀO SESSION ITEM ĐỂ LOAD CHAT ---
+        document.querySelectorAll('.session-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Không trigger nếu click vào nút xóa
+                if (e.target.classList.contains('delete-session-btn')) return;
+
+                const date = this.dataset.date;
+                loadChatSession(date);
+            });
+        });
+
+        // --- LOAD INITIAL STATE ---
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNewChatGreeting();
+        });
     </script>
 }

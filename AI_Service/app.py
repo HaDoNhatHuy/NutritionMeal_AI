@@ -490,21 +490,21 @@ def generate_meal_plan():
         dietary_restrictions = data.get('dietaryRestrictions', 'Không')
         goal = data.get('goal', 'Duy trì')
 
-        # ✅ FIX 1: Giới hạn duration tối đa 7 ngày để tránh timeout
         if duration > 7:
             duration = 7
         
-        # ✅ FIX 2: Prompt ngắn gọn hơn, yêu cầu AI trả về nhanh
+        # --- SỬA ĐỔI 1: Tối ưu Prompt để giảm lượng Token ---
         prompt = f"""
-Tạo thực đơn {duration} ngày. NGẮN GỌN, CHỈ THÔNG TIN CẦN THIẾT.
+Tạo thực đơn {duration} ngày.
+NGẮN GỌN, CHỈ THÔNG TIN CẦN THIẾT ĐỂ GIẢM TOKEN.
 
 **MỤC TIÊU/NGÀY:** {daily_calories} kcal | P:{daily_protein}g C:{daily_carbs}g F:{daily_fat}g
 **SỐ BỮA:** {meal_count} | **NGÂN SÁCH:** {budget} | **HẠN CHẾ:** {dietary_restrictions}
 
 **YÊU CẦU:**
 - Món ăn Việt Nam, dễ nấu
-- Đa dạng, không lặp
-- Cân đối dinh dưỡng
+- **Instructions**: RẤT NGẮN GỌN (dưới 10 từ).
+- JSON Format chuẩn.
 
 **JSON FORMAT (CHỈ TRẢ JSON):**
 {{
@@ -518,51 +518,71 @@ Tạo thực đơn {duration} ngày. NGẮN GỌN, CHỈ THÔNG TIN CẦN THIẾ
         {{
           "mealType": "Bữa Sáng",
           "dishName": "Phở gà",
-          "ingredients": ["200g phở", "100g gà", "Rau thơm"],
-          "instructions": "Luộc gà, trụng phở, múc nước dùng",
+          "ingredients": ["Phở", "Gà", "Rau"],
+          "instructions": "Luộc gà, chan nước dùng.", 
           "calories": 450,
           "protein": 30,
           "carbs": 55,
           "fat": 8,
-          "prepTime": "20 phút",
-          "cost": "25,000 VND"
+          "prepTime": "20m",
+          "cost": "25k"
         }}
       ],
       "dailyTotal": {{"calories": {daily_calories}, "protein": {daily_protein}, "carbs": {daily_carbs}, "fat": {daily_fat}}}
     }}
   ],
   "groceryList": [
-    {{"item": "Gà", "quantity": "500g", "estimatedCost": "40,000 VND"}}
+    {{"item": "Gà", "quantity": "500g", "estimatedCost": "40k"}}
   ],
-  "totalEstimatedCost": "300,000 VND",
-  "tips": ["Ăn đủ bữa", "Uống nhiều nước"]
+  "totalEstimatedCost": "300k"
 }}
 """
         
-        # ✅ FIX 3: Tăng timeout cho model
+        # --- SỬA ĐỔI 2: Tăng Max Output Tokens ---
         generation_config = genai.types.GenerationConfig(
             temperature=0.7,
-            max_output_tokens=4096  # Giới hạn output để tránh quá dài
+            # Tăng từ 4096 lên 8192 (Gemini 1.5 Flash hỗ trợ output lớn hơn)
+            max_output_tokens=8192 
         )
         
         response = model.generate_content(
             [prompt],
             generation_config=generation_config,
-            request_options={'timeout': 60}  # Timeout 60 giây
+            request_options={'timeout': 120} # Tăng timeout lên 120s phòng khi mạng chậm
         )
         
-        raw_text = response.text.strip()
+        # --- SỬA ĐỔI 3: Kiểm tra Safety & Finish Reason trước khi lấy text ---
+        if response.prompt_feedback and response.prompt_feedback.block_reason:
+             return jsonify({"error": f"AI Blocked: {response.prompt_feedback.block_reason}"}), 500
+
+        # Kiểm tra nếu response có candidates
+        if not response.candidates:
+             return jsonify({"error": "AI không trả về kết quả nào."}), 500
+
+        # Truy cập text an toàn hơn
+        try:
+            raw_text = response.text.strip()
+        except Exception as e:
+            # Nếu truy cập .text lỗi, kiểm tra parts
+            if response.candidates[0].finish_reason == 2: # MAX_TOKENS
+                 return jsonify({"error": "Kế hoạch quá dài, AI bị ngắt quãng. Vui lòng giảm số ngày (VD: 3 ngày)."}), 500
+            return jsonify({"error": f"Lỗi đọc phản hồi AI: {str(e)}"}), 500
+
         json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
         
         if not json_match:
             return jsonify({"error": "AI không trả JSON hợp lệ", "raw": raw_text[:300]}), 500
         
         json_str = json_match.group(0)
-        plan_data = json.loads(json_str)
+        try:
+            plan_data = json.loads(json_str)
+        except json.JSONDecodeError:
+             return jsonify({"error": "JSON bị lỗi cú pháp (có thể do bị cắt giữa chừng)", "raw": raw_text[-200:]}), 500
         
         return jsonify(plan_data)
         
     except Exception as e:
+        print(f"Server Error: {str(e)}") # Log lỗi ra console server
         return jsonify({"error": f"Lỗi Meal Planner: {str(e)}"}), 500
 
 if __name__ == '__main__':

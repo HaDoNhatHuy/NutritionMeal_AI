@@ -164,18 +164,15 @@
         }
 
         @@keyframes slideIn {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .date-header {
@@ -384,25 +381,22 @@
         }
 
         @@media (max-width: 768px) {
-            .nutrition-grid
+            .nutrition-grid {
+                grid-template-columns: 1fr;
+            }
 
-        {
-            grid-template-columns: 1fr;
-        }
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
 
-        .stats-overview {
-            grid-template-columns: 1fr;
-        }
+            .meal-nutrition {
+                flex-direction: column;
+                gap: 10px;
+            }
 
-        .meal-nutrition {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .report-header h1 {
-            font-size: 2rem;
-        }
-
+            .report-header h1 {
+                font-size: 2rem;
+            }
         }
         /* ===== LOADING SKELETON ===== */
         .skeleton-loader {
@@ -441,16 +435,13 @@
         }
 
         @@keyframes loading {
-            0%
+            0% {
+                background-position: 200% 0;
+            }
 
-        {
-            background-position: 200% 0;
-        }
-
-        100% {
-            background-position: -200% 0;
-        }
-
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         /* Chart Responsive */
@@ -492,19 +483,16 @@
             }
 
         @@media (max-width: 768px) {
-            .chart-container
+            .chart-container {
+                min-height: 250px;
+            }
 
-        {
-            min-height: 250px;
-        }
-
-        .chart-download-btn {
-            top: 10px;
-            right: 10px;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-        }
-
+            .chart-download-btn {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
         }
         /* Thêm vào Report/Index.cshtml style section */
         .chart-download-btn {
@@ -829,7 +817,6 @@
         <p id="noMoreHistory" class="text-muted mt-3" style="display: none;">Không còn dữ liệu lịch sử.</p>
     </div>
 </div>
-</div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -837,7 +824,7 @@
         const tdeeTarget = parseFloat('@ViewBag.TDEE');
 
         // Biểu đồ Calorie theo ngày
-        const dailyData = JSON.parse('@Html.Raw(ViewBag.DailyDataJson)');
+        const dailyData = JSON.parse('@Html.Raw(ViewBag.DailyDataJson ?? "[]")');
         const dailyDates = dailyData.map(d => d.Date);
         const dailyCalories = dailyData.map(d => d.TotalCalories);
         const tdeeLine = dailyDates.map(() => tdeeTarget);
@@ -888,7 +875,7 @@
         });
 
         // Biểu đồ theo tuần
-        const weeklyData = JSON.parse('@Html.Raw(ViewBag.WeeklyDataJson)');
+        const weeklyData = JSON.parse('@Html.Raw(ViewBag.WeeklyDataJson ?? "[]")');
         if (weeklyData.length > 0) {
             new Chart(document.getElementById('weeklyChart'), {
                 type: 'bar',
@@ -910,7 +897,7 @@
         }
 
         // Biểu đồ theo tháng
-        const monthlyData = JSON.parse('@Html.Raw(ViewBag.MonthlyDataJson)');
+        const monthlyData = JSON.parse('@Html.Raw(ViewBag.MonthlyDataJson ?? "[]")');
         if (monthlyData.length > 0) {
             new Chart(document.getElementById('monthlyChart'), {
                 type: 'bar',
@@ -964,7 +951,7 @@
         });
 
         // Biểu đồ Loại bữa ăn
-        const mealTypeData = JSON.parse('@Html.Raw(ViewBag.MealTypeDataJson)');
+        const mealTypeData = JSON.parse('@Html.Raw(ViewBag.MealTypeDataJson ?? "[]")');
         const mealLabels = mealTypeData.map(d => {
             switch (d.MealType) {
                 case 'BuaSang': return '🌅 Bữa Sáng';
@@ -1005,8 +992,7 @@
         });
 
         // Logic Chart Cân nặng/Mỡ (F11)
-        const rawBodyChartData = JSON.parse('@Html.Raw(ViewBag.BodyChartDataJson)');
-
+        const rawBodyChartData = JSON.parse('@Html.Raw(ViewBag.BodyChartDataJson ?? "[]")');
         if (rawBodyChartData.length > 0) {
             const dataLabels = rawBodyChartData.map(d => d.Date);
             const weights = rawBodyChartData.map(d => d.Weight);
@@ -1054,9 +1040,10 @@
                     }
                 }
             });
+        }
 
         // Biểu đồ theo giờ trong ngày
-        const hourlyData = JSON.parse('@Html.Raw(ViewBag.HourlyDataJson)');
+        const hourlyData = JSON.parse('@Html.Raw(ViewBag.HourlyDataJson ?? "[]")');
         const hourLabels = hourlyData.map(d => `${d.Hour}:00`);
 
         new Chart(document.getElementById('hourlyChart'), {
@@ -1074,11 +1061,11 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, 
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { 
+                    legend: {
                         display: true,
-                        position: window.innerWidth < 768 ? 'bottom' : 'top' 
+                        position: window.innerWidth < 768 ? 'bottom' : 'top'
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -1101,7 +1088,7 @@
                         grid: { color: 'rgba(0, 0, 0, 0.05)' },
                         ticks: {
                             font: {
-                                size: window.innerWidth < 768 ? 10 : 12 
+                                size: window.innerWidth < 768 ? 10 : 12
                              },
                             callback: function(value) {
                                 return value + ' kcal';
@@ -1114,7 +1101,7 @@
                             font: {
                                 size: window.innerWidth < 768 ? 10 : 12
                             },
-                            maxRotation: window.innerWidth < 768 ? 45 : 0 
+                            maxRotation: window.innerWidth < 768 ? 45 : 0
                         }
                     }
                 }
@@ -1153,12 +1140,20 @@
 
         // Hàm kiểm tra và cập nhật trạng thái nút Load More
         function updateLoadMoreButton() {
-            if (!hasMoreHistory) {
-                loadMoreBtn.style.display = 'none';
-                noMoreHistory.style.display = 'block';
+            // Chỉ thực hiện nếu nút Tải thêm tồn tại
+            if (loadMoreBtn) {
+                if (!hasMoreHistory) {
+                    loadMoreBtn.style.display = 'none';
+                    // Cần kiểm tra noMoreHistory cũng tồn tại nếu nó có thể bị null
+                    if (noMoreHistory) noMoreHistory.style.display = 'block';
+                } else {
+                    loadMoreBtn.style.display = 'inline-block';
+                    if (noMoreHistory) noMoreHistory.style.display = 'none';
+                }
             } else {
-                loadMoreBtn.style.display = 'inline-block';
-                noMoreHistory.style.display = 'none';
+                // Nếu nút loadMoreBtn không tồn tại ngay từ đầu, đảm bảo thông báo
+                // không còn lịch sử vẫn hiện (nếu nó được định nghĩa)
+                if (noMoreHistory) noMoreHistory.style.display = 'block';
             }
         }
 
@@ -1171,8 +1166,9 @@
             if (isLoading || !hasMoreHistory || isLoadingMore) return;
 
             isLoading = true;
-            loadMoreBtn.disabled = true;
-            loadMoreSpinner.style.display = 'inline-block';
+            // Sửa lỗi: Thêm kiểm tra null trước khi truy cập thuộc tính
+            if (loadMoreBtn) loadMoreBtn.disabled = true;
+            if (loadMoreSpinner) loadMoreSpinner.style.display = 'inline-block';
 
             // Lấy ngày offset: Ngày của nhóm dữ liệu cũ nhất hiện tại
             const currentOffsetDate = getOldestDate();
@@ -1213,13 +1209,16 @@
             } catch (e) {
                 console.error("Lỗi tải lịch sử:", e);
                 // Xử lý lỗi
-                noMoreHistory.textContent = "Đã xảy ra lỗi khi tải dữ liệu.";
-                noMoreHistory.style.display = 'block';
+                if (noMoreHistory) {
+                    noMoreHistory.textContent = "Đã xảy ra lỗi khi tải dữ liệu.";
+                    noMoreHistory.style.display = 'block';
+                }
                 hasMoreHistory = false;
             } finally {
                 isLoading = false;
-                loadMoreBtn.disabled = false;
-                loadMoreSpinner.style.display = 'none';
+                // Sửa lỗi: Thêm kiểm tra null khi kết thúc
+                if (loadMoreBtn) loadMoreBtn.disabled = false;
+                if (loadMoreSpinner) loadMoreSpinner.style.display = 'none';
 
                 // Cập nhật trạng thái lần cuối
                 updateLoadMoreButton();
@@ -1227,23 +1226,28 @@
         }
 
         // Gắn sự kiện cho nút
-        loadMoreBtn.addEventListener('click', loadMoreHistory);
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', loadMoreHistory);
+        }
 
         // KHI LOAD TRANG BAN ĐẦU:
         document.addEventListener('DOMContentLoaded', function() {
             // Bắt buộc mở accordion cho nhóm ngày mới nhất trong lần tải đầu tiên
-            const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
-            if (firstGroup) {
-                 // Mở mặc định ngày gần nhất
-                 firstGroup.classList.add('show');
+            if (historyContainer) {
+                const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
+                if (firstGroup) {
+                     // Mở mặc định ngày gần nhất
+                     firstGroup.classList.add('show');
+                }
+
+                // Kiểm tra xem có đủ 30 ngày để tải thêm không
+                const initialGroups = historyContainer.querySelectorAll('.date-group');
+                // Nếu số lượng nhóm ít hơn 30, khả năng đã load hết
+                if (initialGroups.length === 0) {
+                    hasMoreHistory = false;
+                }
             }
 
-            // Kiểm tra xem có đủ 30 ngày để tải thêm không
-            const initialGroups = historyContainer.querySelectorAll('.date-group');
-            // Nếu số lượng nhóm ít hơn 30, khả năng đã load hết
-            if (initialGroups.length === 0) {
-                hasMoreHistory = false;
-            }
             updateLoadMoreButton();
 
             // Kiểm tra xem liệu có thể tải thêm ngay sau khi tải lần đầu không (dùng offset cuối cùng)
@@ -1253,18 +1257,25 @@
 
     </script>
     <script>
-                // ===== LOADING STATE MANAGEMENT =====
+        // ===== LOADING STATE MANAGEMENT =====
         document.addEventListener('DOMContentLoaded', function() {
             const skeleton = document.getElementById('skeletonLoader');
-            const mainContent = document.getElementById('mainContent');
+
+            // REMOVED: const mainContent = document.getElementById('mainContent');
+            // Phần tử này không tồn tại trong HTML
 
             // Show skeleton initially
-            skeleton.classList.add('show');
+            if (skeleton) {
+                skeleton.classList.add('show');
+            }
 
             // Hide skeleton after charts render
             setTimeout(() => {
-                skeleton.classList.remove('show');
-                mainContent.style.display = 'block';
+                if (skeleton) {
+                    skeleton.classList.remove('show');
+                }
+                // REMOVED: mainContent.style.display = 'block';
+                // Không cần thiết vì content đã hiển thị mặc định
             }, 800);
         });
 
@@ -1288,7 +1299,8 @@
                 { id: 'monthlyChart', name: 'Bieu-Do-Thang' },
                 { id: 'macroPieChart', name: 'Phan-Bo-Macros' },
                 { id: 'mealTypePieChart', name: 'Phan-Bo-Bua-An' },
-                { id: 'hourlyChart', name: 'Bieu-Do-Theo-Gio' }
+                { id: 'hourlyChart', name: 'Bieu-Do-Theo-Gio' },
+                { id: 'weightBodyFatChart', name: 'Bieu-Do-Can-Nang-Mo' }
             ];
 
             charts.forEach(chart => {

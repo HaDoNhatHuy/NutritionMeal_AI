@@ -16,14 +16,14 @@ namespace NutritionWebApp.Controllers
             _context = context;
             _settingsController = new SettingsController(context);
         }
-        // GET: /Chat/Index (Thay thế cho Chatbox Popup và chuyển hướng từ History cũ) (F3)
+
+        // GET: /Chat/Index - Trang chat chính với sidebar lịch sử
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (!userId.HasValue) return RedirectToAction("Login", "Account");
 
-            // Tái sử dụng logic tải các phiên chat [9]
             var sessions = await _context.ChatHistory
                 .Where(c => c.UserId == userId.Value)
                 .GroupBy(c => c.Timestamp.Date)
@@ -37,36 +37,31 @@ namespace NutritionWebApp.Controllers
                 .OrderByDescending(s => s.SessionDate)
                 .ToListAsync();
 
-            // Sẽ render View mới: Views/Chat/Index.cshtml
             return View("Index", sessions);
         }
 
-        //// Lịch sử chat - Hiển thị theo ngày (không cần AI summary)
-        //[HttpGet]
-        //public async Task<IActionResult> History()
-        //{
-        //    var userId = HttpContext.Session.GetInt32("UserId");
-        //    if (!userId.HasValue) return RedirectToAction("Login", "Account");
+        // ✅ API endpoint để load tin nhắn theo ngày (AJAX) - FIXED CASE-SENSITIVE
+        [HttpGet]
+        public async Task<IActionResult> GetSessionMessages(DateTime date)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return Json(new { error = "Chưa đăng nhập" });
 
-        //    // Nhóm tin nhắn theo ngày
-        //    var sessions = await _context.ChatHistory
-        //        .Where(c => c.UserId == userId.Value)
-        //        .GroupBy(c => c.Timestamp.Date)
-        //        .Select(g => new ChatSessionSummary
-        //        {
-        //            SessionDate = g.Key,
-        //            // Tiêu đề đơn giản: "Trò chuyện ngày DD/MM/YYYY"
-        //            Title = "Trò chuyện ngày " + g.Key.ToString("dd/MM/yyyy"),
-        //            MessageCount = g.Count(),
-        //            LastMessagePreview = g.OrderByDescending(x => x.Timestamp).First().Content
-        //        })
-        //        .OrderByDescending(s => s.SessionDate)
-        //        .ToListAsync();
+            var messages = await _context.ChatHistory
+                .Where(c => c.UserId == userId.Value && c.Timestamp.Date == date.Date)
+                .OrderBy(c => c.Timestamp)
+                .Select(c => new {
+                    role = c.Role,        // ✅ Lowercase để JS đọc được
+                    content = c.Content,  // ✅ Lowercase
+                    timestamp = c.Timestamp
+                })
+                .ToListAsync();
 
-        //    return View("ConversationList", sessions);
-        //}
+            return Json(messages);
+        }
 
-        // Xem chi tiết một phiên chat theo ngày
+        // Xem chi tiết một phiên chat theo ngày (giữ lại cho trường hợp cần)
         [HttpGet]
         public async Task<IActionResult> ViewSession(DateTime date)
         {
@@ -82,7 +77,7 @@ namespace NutritionWebApp.Controllers
             return View("ConversationDetail", messages);
         }
 
-        // Xóa một phiên chat theo ngày
+        // ✅ Xóa một phiên chat theo ngày (GIỮ NGUYÊN - ĐÃ ĐÚNG)
         [HttpPost]
         public async Task<IActionResult> DeleteSession([FromBody] Dictionary<string, string> payload)
         {
@@ -106,7 +101,7 @@ namespace NutritionWebApp.Controllers
             return Json(new { success = true });
         }
 
-        // Gửi câu hỏi đến AI (giữ nguyên)
+        // Gửi câu hỏi đến AI
         [HttpPost]
         public async Task<IActionResult> GetAdvice([FromBody] Dictionary<string, string> payload)
         {
@@ -173,7 +168,7 @@ namespace NutritionWebApp.Controllers
                 chat_context = chatHistoryContext
             };
 
-            // Gọi Flask AI
+            // Gửi Flask AI
             using var client = new HttpClient();
             var jsonContent = new StringContent(
                 System.Text.Json.JsonSerializer.Serialize(chatPayload),
@@ -204,7 +199,7 @@ namespace NutritionWebApp.Controllers
             return Content(jsonString, "application/json");
         }
 
-        // Lời khuyên chủ động (giữ nguyên)
+        // Lời khuyên chủ động
         [HttpPost]
         public async Task<IActionResult> GetProactiveAdvice()
         {
@@ -281,7 +276,7 @@ namespace NutritionWebApp.Controllers
             return Content(jsonString, "application/json");
         }
 
-        // Tạo công thức món ăn (giữ nguyên)
+        // Tạo công thức món ăn
         [HttpPost]
         public async Task<IActionResult> GenerateRecipe([FromBody] Dictionary<string, string> payload)
         {
@@ -327,5 +322,4 @@ namespace NutritionWebApp.Controllers
             return Content(jsonString, "application/json");
         }
     }
-    
 }
