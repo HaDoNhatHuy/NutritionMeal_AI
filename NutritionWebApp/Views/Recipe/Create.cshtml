@@ -110,17 +110,22 @@
                     <label class="form-label">Calo</label>
                     <input type="number" id="calories" class="form-control" value="@Model.Calories.ToString("F0")" required>
                 </div>
-                <div class="review-item">
+                @* <div class="review-item">
                     <label class="form-label">Protein (g)</label>
                     <input type="number" step="0.1" id="protein" class="form-control" value="@Model.Protein.ToString("F1")" required>
+                </div> *@
+                <div class="review-item">
+                    <label class="form-label">Protein (g)</label>
+                    <input type="number" step="0.1" id="protein" class="form-control"
+                           value="@Model.Protein.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)" required>
                 </div>
                 <div class="review-item">
                     <label class="form-label">Carbs (g)</label>
-                    <input type="number" step="0.1" id="carbs" class="form-control" value="@Model.Carbs.ToString("F1")" required>
+                    <input type="number" step="0.1" id="carbs" class="form-control" value="@Model.Carbs.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)" required>
                 </div>
                 <div class="review-item">
                     <label class="form-label">Fat (g)</label>
-                    <input type="number" step="0.1" id="fat" class="form-control" value="@Model.Fat.ToString("F1")" required>
+                    <input type="number" step="0.1" id="fat" class="form-control" value="@Model.Fat.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)" required>
                 </div>
             </div>
 
@@ -164,74 +169,74 @@
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.disabled = true;
 
-            // Chuyển đổi textarea thành List<string>
+            // Lấy dữ liệu
             const ingredientsText = document.getElementById('ingredients').value.trim();
             const instructionsText = document.getElementById('instructions').value.trim();
-            // Trong script submit form
-            const formData = new FormData();
-            // Append các field JSON
-            for (const key in payload) {
-                if(key === 'Ingredients' || key === 'Instructions') {
-                     // JSON array needs special handling if using FromForm with List,
-                     // but simpler to just send JSON string if Backend expects object,
-                     // however since we mixed File upload, we need FormData.
-                     // Let's append individual items or use a hack to send complex object
-                     // UPDATE: Đổi Controller nhận [FromForm] thì List<string> hơi khó.
-                     // Giải pháp nhanh: Gửi JSON string cho Ingredients
-                     payload[key].forEach((item, index) => formData.append(`${key}[${index}]`, item));
-                } else {
-                    formData.append(key, payload[key]);
-                }
-            }
-            // Append Image
-            const imageFile = document.getElementById('recipeImage').files[0];
-            if (imageFile) {
-                formData.append('RecipeImage', imageFile);
-            }
+            const imageFile = document.getElementById('recipeImage').files[0]; // FIX: Lấy file đầu tiên
 
-            // Đổi fetch header, bỏ Content-Type json đi để browser tự set multipart
-            const response = await fetch('/Recipe/Save', {
-                method: 'POST',
-                body: formData
-            });
+            // Validation
+            const recipeName = document.getElementById('recipeName').value.trim();
+            const calories = parseFloat(document.getElementById('calories').value) || 0;
 
-            const payload = {
-                RecipeName: document.getElementById('recipeName').value.trim(),
-                Description: document.getElementById('description').value.trim(),
-                Category: document.getElementById('category').value,
-                CookingTime: parseInt(document.getElementById('cookingTime').value) || 0,
-                Calories: parseFloat(document.getElementById('calories').value) || 0,
-                Protein: parseFloat(document.getElementById('protein').value) || 0,
-                Carbs: parseFloat(document.getElementById('carbs').value) || 0,
-                Fat: parseFloat(document.getElementById('fat').value) || 0,
-                IsPublic: document.getElementById('isPublic').checked,
-                Ingredients: ingredientsText.split('\n').map(item => item.trim()).filter(item => item.length > 0),
-                Instructions: instructionsText.split('\n').map(item => item.trim()).filter(item => item.length > 0)
-            };
-
-            if (!payload.RecipeName || payload.Calories <= 0) {
+            if (!recipeName || calories <= 0) {
                 alert("Vui lòng nhập tên công thức và calo.");
                 saveBtn.disabled = false;
                 return;
             }
 
+            // Tạo FormData
+            const formData = new FormData();
+            formData.append('RecipeName', recipeName);
+            formData.append('Description', document.getElementById('description').value.trim());
+            formData.append('Category', document.getElementById('category').value);
+            formData.append('CookingTime', parseInt(document.getElementById('cookingTime').value) || 0);
+            formData.append('Calories', calories);
+            formData.append('Protein', parseFloat(document.getElementById('protein').value) || 0);
+            formData.append('Carbs', parseFloat(document.getElementById('carbs').value) || 0);
+            formData.append('Fat', parseFloat(document.getElementById('fat').value) || 0);
+            formData.append('IsPublic', document.getElementById('isPublic').checked);
+
+            // Thêm Ingredients (mỗi item là một entry riêng)
+            const ingredients = ingredientsText.split('\n')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+
+            ingredients.forEach((item) => {
+                formData.append('Ingredients', item);
+            });
+
+            // Thêm Instructions
+            const instructions = instructionsText.split('\n')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+
+            instructions.forEach((item) => {
+                formData.append('Instructions', item);
+            });
+
+            // Thêm Ảnh (nếu có)
+            if (imageFile) {
+                formData.append('RecipeImage', imageFile);
+            }
+
             try {
                 const response = await fetch('/Recipe/Save', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: formData
+                    // KHÔNG THÊM Content-Type header - browser tự động set
                 });
+
                 const data = await response.json();
 
                 if (data.success) {
                     alert('✅ Đã lưu công thức thành công!');
-                    // Chuyển hướng đến trang chi tiết công thức vừa lưu
                     window.location.href = `/Recipe/Details/${data.recipeId}`;
                 } else {
-                    alert('Lỗi lưu công thức: ' + data.error);
+                    alert('Lỗi lưu công thức: ' + (data.error || 'Không xác định'));
                 }
             } catch (error) {
-                alert('Lỗi kết nối hoặc xử lý server.');
+                console.error('Error:', error);
+                alert('Lỗi kết nối hoặc xử lý server: ' + error.message);
             } finally {
                 saveBtn.disabled = false;
             }

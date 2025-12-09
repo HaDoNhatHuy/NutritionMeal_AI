@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link href="/css/chatbox.css" rel="stylesheet" />
     @await RenderSectionAsync("Styles", required: false)
+    <style>
+        .user-dropdown-toggle {
+            cursor: pointer;
+            font-weight: 600;
+            color: #333;
+        }
+
+            .user-dropdown-toggle:hover {
+                opacity: 0.8;
+            }
+
+    </style>
 </head>
 <body>
     <header>
@@ -94,6 +106,7 @@
                             <ul class="dropdown-menu" aria-labelledby="trackingDropdown">
                                 <li><a class="dropdown-item" asp-controller="FoodTracker" asp-action="Index">🍎 Theo Dõi Bữa Ăn</a></li>
                                 <li><a class="dropdown-item" asp-controller="WaterTracker" asp-action="Index">💧 Theo Dõi Nước</a></li>
+                                <li><a class="dropdown-item" asp-controller="BodyMeasurement" asp-action="Index">⚖️ Theo Dõi Cân nặng</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" asp-controller="Habits" asp-action="Index">✅ Quản lý Thói Quen</a></li>
                             </ul>
@@ -133,13 +146,36 @@
                     <div class="d-flex align-items-center">
                         @if (Context.Session.GetInt32("UserId").HasValue)
                         {
-                            <div class="user-info me-3">
+                            @* <div class="user-info me-3">
                                 <span class="user-greeting">👋</span>
                                 <span class="user-name">@Context.Session.GetString("FullName")</span>
                             </div>
                             <a asp-controller="Account" asp-action="Logout" class="btn btn-modern btn-logout">
                                 🚪 Đăng xuất
-                            </a>
+                            </a> *@
+                            <div class="dropdown me-3">
+                                <a class="d-flex align-items-center user-dropdown-toggle" href="#" id="userDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration:none;">
+                                    <span class="user-greeting">👋</span>
+                                    <span class="user-name ms-1">@Context.Session.GetString("FullName")</span>
+                                    <span class="ms-1">▾</span>
+                                </a>
+
+                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Settings" asp-action="ViewStats">
+                                            ❤️ Hồ sơ sức khỏe
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Logout">
+                                            🚪 Đăng xuất
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
                         }
                         else
                         {

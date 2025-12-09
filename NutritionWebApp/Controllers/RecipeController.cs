@@ -320,44 +320,44 @@ namespace NutritionWebApp.Controllers
         }
 
         // POST: /Recipe/Save - Lưu công thức từ form hoặc từ kết quả AI
-        [HttpPost]
-        public async Task<IActionResult> Save([FromBody] SaveRecipeRequest request)
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (!userId.HasValue) return Json(new { error = "Yêu cầu đăng nhập." });
+        //[HttpPost]
+        //public async Task<IActionResult> Save([FromBody] SaveRecipeRequest request)
+        //{
+        //    var userId = HttpContext.Session.GetInt32("UserId");
+        //    if (!userId.HasValue) return Json(new { error = "Yêu cầu đăng nhập." });
 
-            if (string.IsNullOrEmpty(request.RecipeName) || request.Calories <= 0)
-            {
-                return Json(new { success = false, error = "Tên công thức và Calo là bắt buộc." });
-            }
+        //    if (string.IsNullOrEmpty(request.RecipeName) || request.Calories <= 0)
+        //    {
+        //        return Json(new { success = false, error = "Tên công thức và Calo là bắt buộc." });
+        //    }
 
-            // Chuyển đổi List<string> Ingredients/Instructions thành JSON string để lưu vào DB [4]
-            var ingredientsJson = JsonSerializer.Serialize(request.Ingredients);
-            var instructionsJson = JsonSerializer.Serialize(request.Instructions);
+        //    // Chuyển đổi List<string> Ingredients/Instructions thành JSON string để lưu vào DB [4]
+        //    var ingredientsJson = JsonSerializer.Serialize(request.Ingredients);
+        //    var instructionsJson = JsonSerializer.Serialize(request.Instructions);
 
-            var newRecipe = new Recipe
-            {
-                CreatedByUserId = userId.Value,
-                RecipeName = request.RecipeName,
-                Description = request.Description,
-                Category = request.Category,
-                Calories = request.Calories,
-                Protein = request.Protein,
-                Carbs = request.Carbs,
-                Fat = request.Fat,
-                Ingredients = ingredientsJson,
-                Instructions = instructionsJson,
-                CookingTime = request.CookingTime,
-                IsPublic = request.IsPublic,
-                Likes = 0,
-                CreatedAt = DateTime.Now
-            };
+        //    var newRecipe = new Recipe
+        //    {
+        //        CreatedByUserId = userId.Value,
+        //        RecipeName = request.RecipeName,
+        //        Description = request.Description,
+        //        Category = request.Category,
+        //        Calories = request.Calories,
+        //        Protein = request.Protein,
+        //        Carbs = request.Carbs,
+        //        Fat = request.Fat,
+        //        Ingredients = ingredientsJson,
+        //        Instructions = instructionsJson,
+        //        CookingTime = request.CookingTime,
+        //        IsPublic = request.IsPublic,
+        //        Likes = 0,
+        //        CreatedAt = DateTime.Now
+        //    };
 
-            _context.Recipes.Add(newRecipe);
-            await _context.SaveChangesAsync();
+        //    _context.Recipes.Add(newRecipe);
+        //    await _context.SaveChangesAsync();
 
-            return Json(new { success = true, recipeId = newRecipe.RecipeId });
-        }
+        //    return Json(new { success = true, recipeId = newRecipe.RecipeId });
+        //}
 
         // NEW: Action trung gian để lưu kết quả AI từ chatbox vào TempData và chuyển hướng
         // Endpoint này được gọi từ chatbox.js sau khi AI tạo công thức thành công

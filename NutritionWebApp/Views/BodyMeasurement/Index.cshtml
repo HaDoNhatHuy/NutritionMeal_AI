@@ -209,6 +209,11 @@
         document.getElementById('addMeasurementForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            // Thêm logic xử lý ảnh vào FormData trước khi gửi (F6)
+            const beforeImage = document.getElementById('beforeImage').files;
+            const afterImage = document.getElementById('afterImage').files;
+            if (beforeImage) { formData.append('BeforeImage', beforeImage); }
+            if (afterImage) { formData.append('AfterImage', afterImage); }
             const payload = {};
             formData.forEach((value, key) => {
                 // Chuyển đổi sang số nếu không phải MeasureDate
@@ -222,8 +227,9 @@
             try {
                 const response = await fetch('/BodyMeasurement/Add', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(validPayload)
+                    // headers: { 'Content-Type': 'application/json' },
+                    // body: JSON.stringify(validPayload)
+                    body: formData
                 });
                 const data = await response.json();
                 if (data.success) {
