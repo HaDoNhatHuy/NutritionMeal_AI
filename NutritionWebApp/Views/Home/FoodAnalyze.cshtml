@@ -101,7 +101,7 @@
             border: none;
             border-radius: 15px;
             padding: 15px 50px;
-            font-size: 1.2rem;
+            /* font-size: 1.2rem; */
             font-weight: 700;
             color: white;
             box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
@@ -332,6 +332,148 @@
 
         }
     </style>
+    <style>
+        /* --- THÊM VÀO CUỐI PHẦN STYLE --- */
+
+        /* Style cho nút Pro */
+        .analyze-btn.btn-pro {
+            background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #d4af37 100%); /* Màu vàng Gold */
+            color: #5c3a00; /* Chữ màu nâu đậm cho dễ đọc trên nền vàng */
+            position: relative;
+            overflow: visible; /* Để hiển thị tag PRO bay ra ngoài */
+            border: 1px solid #ecc94b;
+        }
+
+            .analyze-btn.btn-pro:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(214, 158, 46, 0.5); /* Bóng màu vàng */
+            }
+
+        /* Tag PRO nhỏ gắn trên nút */
+        .pro-badge {
+            position: absolute;
+            top: -12px;
+            right: -10px;
+            background: #e53e3e; /* Màu đỏ */
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: bounce 2s infinite;
+        }
+
+        @@keyframes bounce {
+            0%, 100%
+
+        {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-3px);
+        }
+
+        }
+
+        /* --- CUSTOM MODAL NÂNG CẤP PRO --- */
+        .pro-modal-overlay {
+            display: none; /* Mặc định ẩn */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+            .pro-modal-overlay.show {
+                display: flex;
+                opacity: 1;
+            }
+
+        .pro-modal-card {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 25px;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-top: 8px solid #FDB931;
+        }
+
+        .pro-modal-overlay.show .pro-modal-card {
+            transform: scale(1);
+        }
+
+        .pro-icon-large {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .pro-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 10px;
+            background: -webkit-linear-gradient(#FDB931, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pro-desc {
+            color: #718096;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(135deg, #FDB931 0%, #d4af37 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+
+            .btn-upgrade:hover {
+                transform: scale(1.05);
+                box-shadow: 0 15px 30px rgba(212, 175, 55, 0.5);
+            }
+
+        .btn-close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #a0aec0;
+            cursor: pointer;
+        }
+
+            .btn-close-modal:hover {
+                color: #4a5568;
+            }
+    </style>
 }
 <div class="analyze-section">
     <div class="container analyze-container">
@@ -366,7 +508,7 @@
 
             @* <input type="file" id="foodImage" accept="image/*" capture="environment" class="file-input" /> *@
             @* <input type="file" id="foodImage" accept="image/*" capture="user" class="file-input" /> *@
-            <input type="file" id="foodImage" accept="image/*" capture="camera" class="file-input" />
+            <input type="file" id="foodImage" accept="image/*" class="file-input" />
 
             @* ✅ THÊM: Tips Section *@
             <div id="analysisTips" style="display: none; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
@@ -384,13 +526,23 @@
                     🔍 Phân tích ngay
                 </button>
             </div> *@
-            <div class="text-center d-flex justify-content-center gap-3 mt-4">
+            @* <div class="text-center d-flex justify-content-center gap-3 mt-4">
                 <button class="analyze-btn btn-success" id="analyzeSimpleBtn" onclick="analyze(false)">
                     Phân tích (Calories)
                 </button>
                 <button class="analyze-btn btn-primary" id="analyzeDeepBtn" onclick="analyze(true)"
                         style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
                     Phân tích Chuyên sâu
+                </button>
+            </div> *@
+            <div class="text-center d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                <button class="analyze-btn btn-success" id="analyzeSimpleBtn" onclick="analyze(false)">
+                    🔍 Phân tích Cơ bản
+                </button>
+
+                <button class="analyze-btn btn-pro" id="analyzeDeepBtn" onclick="showUpgradeModal()">
+                    <span class="pro-badge">PRO</span>
+                    🔒 Phân tích Chuyên sâu
                 </button>
             </div>
         </div>
@@ -409,6 +561,33 @@
         </div>
         <div class="loading-text">🤖 AI đang phân tích...</div>
         <div class="loading-subtext" id="loadingSubtext">Vui lòng chờ trong giây lát</div>
+    </div>
+</div>
+
+<!-- NÂNG CẤP PRO MODAL -->
+<div class="pro-modal-overlay" id="upgradeModal" onclick="closeUpgradeModal(event)">
+    <div class="pro-modal-card">
+        <button class="btn-close-modal" onclick="document.getElementById('upgradeModal').classList.remove('show')">&times;</button>
+
+        <div class="pro-icon-large">👑</div>
+        <h2 class="pro-title">Mở khóa Phân tích Chuyên sâu</h2>
+        <p class="pro-desc">
+            Tính năng này cung cấp chi tiết <strong>Vitamin, Khoáng chất, Cảnh báo dị ứng</strong> và <strong>Lộ trình đốt calo</strong> cá nhân hóa.
+        </p>
+
+        <ul style="text-align: left; margin-bottom: 25px; color: #4a5568; list-style: none; padding-left: 10px;">
+            <li style="margin-bottom: 8px;">✅ Phân tích thành phần vi lượng</li>
+            <li style="margin-bottom: 8px;">✅ Phát hiện chất gây dị ứng</li>
+            <li style="margin-bottom: 8px;">✅ Gợi ý bài tập đốt calo chính xác</li>
+        </ul>
+
+        <button class="btn-upgrade" onclick="goToPayment()">
+            Nâng cấp ngay - Chỉ 49k/tháng
+        </button>
+
+        <p style="margin-top: 15px; font-size: 0.85rem; color: #a0aec0; cursor: pointer;">
+            <u>Khôi phục giao dịch mua</u>
+        </p>
     </div>
 </div>
 
@@ -672,6 +851,36 @@
                 </div>
                 `;
             }
+        }
+    </script>
+    <script>
+                // Hàm mở Modal nâng cấp
+        function showUpgradeModal() {
+            // Ngăn chặn hành động mặc định (không gửi request phân tích)
+            const modal = document.getElementById('upgradeModal');
+            modal.style.display = 'flex';
+            // Timeout nhỏ để kích hoạt transition CSS
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+
+        // Hàm đóng Modal khi click ra ngoài hoặc nút đóng
+        function closeUpgradeModal(event) {
+            const modal = document.getElementById('upgradeModal');
+            // Nếu click vào lớp phủ (overlay) hoặc nút đóng thì mới đóng
+            if (event.target === modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300); // Chờ animation kết thúc
+            }
+        }
+
+        // Hàm giả lập chuyển trang thanh toán
+        function goToPayment() {
+            alert("Chức năng đang phát triển! Sắp ra mắt cổng thanh toán.");
+            // Sau này bạn thay bằng: window.location.href = '/Payment/Plans';
         }
     </script>
 }

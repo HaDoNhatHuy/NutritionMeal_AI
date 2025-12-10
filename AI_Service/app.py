@@ -67,7 +67,7 @@ def analyze_food():
             "carbs": số thực (gram),
             "fat": số thực (gram),
             "warning": true/false,
-            "burn_time": "Cần chạy X phút" (nếu warning=true, X=calories/10),
+            "burn_time": "Tương đương: cần chạy X phút để tiêu hao hết lượng calories này" (nếu warning=true, X=calories/10),
             "advice": "Lời khuyên ngắn gọn",
             "detailed_components": [
                 {{ "name": "Thành phần 1", "calories": 100, "protein": 5.0 }},
@@ -94,7 +94,7 @@ def analyze_food():
             "carbs": số thực (gram),
             "fat": số thực (gram),
             "warning": true/false,
-            "burn_time": "Cần chạy X phút" (nếu warning=true, X=calories/10),
+            "burn_time": "Tương đương: cần chạy X phút để tiêu hao hết lượng calories này" (nếu warning=true, X=calories/10),
             "advice": "Lời khuyên ngắn gọn"
             }}
             """
@@ -124,7 +124,7 @@ def analyze_food():
         # Bổ sung burn_time nếu AI bỏ sót
         if data.get("warning") and "calories" in data and not data.get("burn_time"):
             minutes = int(data["calories"] / 10)
-            data["burn_time"] = f"Cần chạy bộ {minutes} phút"
+            data["burn_time"] = f"Tương đương: cần chạy bộ {minutes} phút để tiêu hao hết lượng calories này"
             
         return jsonify(data)
 
