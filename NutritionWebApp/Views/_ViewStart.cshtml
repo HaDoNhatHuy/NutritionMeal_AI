@@ -1,3 +1,4 @@
 ﻿@{
-    Layout = "_Layout";
+    var isMobile = Context.Items["IsMobile"] as bool? ?? false;
+    Layout = isMobile ? "_LayoutMobile" : "_Layout";
 }

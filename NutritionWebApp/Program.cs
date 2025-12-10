@@ -45,6 +45,18 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// Middleware để detect mobile và chuyển layout
+app.Use(async (context, next) =>
+{
+    var userAgent = context.Request.Headers["User-Agent"].ToString();
+    var isMobile = userAgent.Contains("Mobile") ||
+                   userAgent.Contains("Android") ||
+                   userAgent.Contains("iPhone");
+
+    context.Items["IsMobile"] = isMobile;
+    await next();
+});
+
 app.UseRouting();
 
 app.UseSession();  // Dùng Session
