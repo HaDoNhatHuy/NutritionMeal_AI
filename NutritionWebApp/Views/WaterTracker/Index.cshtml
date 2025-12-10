@@ -10,7 +10,7 @@
     <style>
         .water-tracker-wrapper {
             min-height: 100vh;
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            /* background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); */
             padding: 40px 0;
         }
 
@@ -284,7 +284,9 @@
 
             <!-- Today's Logs -->
             <div class="today-logs">
-                <h4 class="section-title">📝 Lịch sử hôm nay</h4>
+                <h4 class="section-title">📝 Lịch sử hôm nay
+                    <a asp-controller="WaterTracker" asp-action="History">Xem chi tiết 30 ngày</a>
+                </h4>
                 <div id="logsContainer">
                     @if (ViewBag.TodayIntake.WaterLogs.Count == 0)
                     {
@@ -326,7 +328,7 @@
             updateProgress();
             renderWeeklyChart();
         });
-        
+
         // FIX BUG 3.2: Định nghĩa hàm showAchievementModal
         function showAchievementModal(title, message) {
             // Tùy chọn: Sử dụng alert đơn giản để tránh lỗi 'is not defined'
@@ -489,12 +491,12 @@
         }
 
         function renderWeeklyChart() {
-            @{
-                var jsonOptions = new System.Text.Json.JsonSerializerOptions
-                    {
-                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
-                    };
-            }
+        @{
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                {
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                };
+        }
             const history = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.History, jsonOptions));
 
             const dates = history.map(h => new Date(h.IntakeDate).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }));

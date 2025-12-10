@@ -150,7 +150,7 @@
 <div class="chat-full-layout">
     <!-- CỘT TRÁI: LỊCH SỬ TRÒ CHUYỆN -->
     <div class="sidebar">
-        <h3 style="font-weight: 700;">💬 Lịch sử Trò chuyện</h3>
+        @* <h3 style="font-weight: 700;">💬 Lịch sử Trò chuyện</h3> *@
         <button id="newChatBtn" class="btn btn-primary w-100 mb-3">
             + Tạo Chat Mới
         </button>
@@ -162,7 +162,7 @@
                     var dateStr = session.SessionDate.ToString("yyyy-MM-dd");
                     <div class="session-item" data-date="@dateStr">
                         <button class="delete-session-btn" onclick="deleteSession(event, '@dateStr')" title="Xóa cuộc trò chuyện">
-                            🗑️
+                            ❌
                         </button>
                         <div style="font-weight: 600; padding-right: 30px;">@session.Title</div>
                         <small class="text-muted">
