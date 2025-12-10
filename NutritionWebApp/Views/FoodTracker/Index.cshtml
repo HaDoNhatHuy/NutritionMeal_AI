@@ -1,7 +1,7 @@
 ﻿@model NutritionWebApp.Controllers.FoodTrackerController.ManualFoodLogRequest
 @{
     ViewData["Title"] = "Ghi nhận Bữa Ăn Thủ Công";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
     // Tái sử dụng meal type options từ Home/Index hoặc Report [6]
     var mealTypes = new List<string> { "BuaSang", "BuaTrua", "BuaToi", "AnVat" };
     var historyModel = ViewBag.HistoryByDate as Dictionary<DateTime, List<NutritionWebApp.Models.Entities.FoodHistory>>;
@@ -517,6 +517,51 @@
                 color: white;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             }
+
+        @@media (max-width: 576px) {
+            .analyze-section
+
+        {
+            padding: 0;
+        }
+
+        .analyze-container {
+            padding: 0;
+        }
+
+        .page-title {
+            display: none; /* Ẩn tiêu đề lớn để tiết kiệm chỗ */
+        }
+
+        .upload-card {
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            min-height: 80vh;
+            padding: 20px;
+        }
+
+        .upload-area {
+            background-color: #f3f4f6;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            height: 350px; /* Cố định chiều cao vùng camera */
+        }
+
+        /* Đẩy nút phân tích xuống dưới cùng để dễ bấm bằng ngón cái */
+        .analyze-btn {
+            position: fixed;
+            bottom: 90px; /* Trên thanh nav bottom */
+            left: 20px;
+            right: 20px;
+            width: calc(100% - 40px);
+            z-index: 100;
+            padding: 18px;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        }
     </style>
     <style>
         .food-tracker-wrapper {

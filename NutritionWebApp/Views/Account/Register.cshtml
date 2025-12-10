@@ -292,24 +292,31 @@
     }
 
     @@media (max-width: 576px) {
-        .auth-header
+        .auth-wrapper {
+            padding: 0;
+            background: white; /* Bỏ gradient nền, dùng nền trắng */
+            align-items: flex-start; /* Đẩy lên trên cùng */
+        }
 
-    {
-        padding: 40px 25px;
-    }
+        .auth-container {
+            max-width: 100%;
+        }
 
-    .auth-body {
-        padding: 30px 25px;
-    }
+        .auth-card {
+            border-radius: 0; /* Bỏ bo góc */
+            box-shadow: none; /* Bỏ đổ bóng */
+            min-height: 100vh; /* Full chiều cao màn hình */
+        }
 
-    .auth-title {
-        font-size: 1.8rem;
-    }
+        .auth-header {
+            padding: 60px 25px 40px; /* Tăng padding top */
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
 
-    .auth-icon {
-        font-size: 3rem;
-    }
-
+        .auth-body {
+            padding: 30px 25px;
+        }
     }
 </style>
 

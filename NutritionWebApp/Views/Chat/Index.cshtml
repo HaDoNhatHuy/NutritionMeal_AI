@@ -1,7 +1,7 @@
 ﻿@model List<NutritionWebApp.ViewModels.ChatSessionSummary>
 @{
     ViewData["Title"] = "Trò chuyện với AI Assistant";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @section Styles {
@@ -144,6 +144,40 @@
             margin: 1.5rem 0 1rem;
             font-weight: 600;
         }
+        @@media (max-width: 768px) {
+            /* Ẩn Sidebar lịch sử trên mobile, chỉ hiện khi user bấm nút menu */
+            .sidebar
+
+        {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            height: 100%;
+            width: 80%;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.active {
+            display: block;
+        }
+
+        .chat-full-layout {
+            height: calc(100vh - 140px); /* Trừ đi header và bottom nav */
+        }
+
+        .chat-main {
+            border-radius: 0;
+        }
+
+        /* Thêm nút Hamburger để mở sidebar */
+        .mobile-chat-menu-btn {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        }
     </style>
 }
 
@@ -181,6 +215,9 @@
 
     <!-- CỘT PHẢI: KHUNG CHAT -->
     <div class="chat-main">
+        <button class="btn btn-sm btn-outline-secondary d-md-none mobile-chat-menu-btn" onclick="toggleSidebar()">
+            📂 Lịch sử
+        </button>
         <div id="chatModeToggles" style="border-bottom: 1px solid var(--border-color); display: flex;">
             <button id="showChatBtn" class="btn-warning" style="flex: 1; padding: 1rem; font-weight: 600; border: none; background: #fff;">💬 Chat Assistant</button>
             <button id="showRecipeBtn" style="flex: 1; padding: 1rem; font-weight: 600; border: none; background: #f8f9fa;">🍽️ Công thức AI</button>
@@ -224,6 +261,9 @@
 
 @section Scripts {
     <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
         let currentSessionDate = null;
         let isWaitingForAI = false;
 

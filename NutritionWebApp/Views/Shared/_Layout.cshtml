@@ -32,64 +32,7 @@
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
-                </button>
-                @* <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                🏠 Phân tích món ăn
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="HealthTips" asp-action="Index">
-                                💡 Kiến thức sức khỏe
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Exercise" asp-action="Index">
-                                💪 Bài tập
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Settings" asp-action="ViewStats">
-                                ⚙️ Hồ sơ
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Report" asp-action="Index">
-                                📊 Báo cáo
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Chat" asp-action="History">
-                                💬 Lịch sử chat
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex align-items-center">
-                        @if (Context.Session.GetInt32("UserId").HasValue)
-                        {
-                            <div class="user-info me-3">
-                                <span class="user-greeting">👋</span>
-                                <span class="user-name">@Context.Session.GetString("FullName")</span>
-                            </div>
-                            <a asp-controller="Account" asp-action="Logout" class="btn btn-modern btn-logout">
-                                🚪 Đăng xuất
-                            </a>
-                        }
-                        else
-                        {
-                            <div class="auth-buttons">
-                                <a asp-controller="Account" asp-action="Login" class="btn btn-modern btn-login">
-                                    🔐 Đăng nhập
-                                </a>
-                                <a asp-controller="Account" asp-action="Register" class="btn btn-modern btn-register">
-                                    ✨ Đăng ký
-                                </a>
-                            </div>
-                        }
-                    </div>
-                </div> *@
+                </button>               
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 

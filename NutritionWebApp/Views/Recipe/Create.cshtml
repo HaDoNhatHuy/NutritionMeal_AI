@@ -1,7 +1,7 @@
 ﻿@model NutritionWebApp.ViewModels.SaveRecipeRequest
 @{
     ViewData["Title"] = "Tạo Công thức Mới";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
     var isAIGenerated = TempData.Peek("AI_Recipe_Result") != null;
     var categories = ViewBag.Categories as List<string>;
 }

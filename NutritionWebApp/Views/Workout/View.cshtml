@@ -2,7 +2,7 @@
 @using System.Text.Json
 @{
     ViewData["Title"] = "Kế Hoạch Tập Luyện";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
     var planData = (JsonElement)ViewBag.PlanData;
     var plan = ViewBag.Plan;
     var progress = (ViewBag.Progress as List<WorkoutProgress>) ?? new List<WorkoutProgress>();

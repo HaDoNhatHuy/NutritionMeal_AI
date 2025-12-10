@@ -1,7 +1,7 @@
 ﻿@model NutritionWebApp.Models.Entities.User
 @{
     ViewData["Title"] = "Tổng quan Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
     // Ép kiểu Macros để dễ truy cập
     var goals = ViewBag.MacroGoals as NutritionWebApp.Controllers.SettingsController.MacroGoals;
 }
@@ -55,6 +55,34 @@
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        @@media (max-width: 768px) {
+            .dashboard-wrapper
+
+        {
+            padding: 20px 0; /* Giảm padding */
+        }
+
+        .welcome-header h1 {
+            font-size: 1.8rem; /* Giảm kích thước chữ */
+        }
+
+        /* Biến hàng ngang thành hàng dọc hoặc slider */
+        .stat-card-dashboard {
+            margin-bottom: 15px;
+            padding: 20px;
+        }
+
+        .row.g-4 {
+            --bs-gutter-y: 1rem;
+        }
+
+        /* Quick Actions thành dạng lưới nhỏ hơn */
+        .btn-lg {
+            padding: 15px !important;
+            font-size: 1rem;
+        }
+
         }
     </style>
 }
