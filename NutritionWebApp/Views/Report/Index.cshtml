@@ -6,6 +6,7 @@
 
 @section Styles {
     <style>
+        /* GIỮ NGUYÊN TOÀN BỘ CSS CŨ CỦA BẠN */
         body {
             background: linear-gradient(to bottom, #f8fafc 0%, #e8f5e9 100%);
             min-height: 100vh;
@@ -69,6 +70,7 @@
                 border-color: white;
             }
 
+        /* Stats Overview */
         .stats-overview {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -125,6 +127,7 @@
             font-weight: 600;
         }
 
+        /* Card & Chart Styles */
         .card {
             border-radius: 20px;
             border: none;
@@ -132,6 +135,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             margin-bottom: 30px;
             overflow: hidden;
+            height: 100%; /* Thêm height 100% để các card bằng nhau */
         }
 
         .card-title {
@@ -143,14 +147,22 @@
             border-bottom: 3px solid #f0fdf4;
         }
 
+        /* ĐIỀU CHỈNH CHART CONTAINER: Giảm chiều cao mặc định xuống */
         .chart-container {
             position: relative;
-            padding: 20px;
+            padding: 15px;
             background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
             border-radius: 12px;
             margin-top: 10px;
+            min-height: 250px; /* Giảm từ 300px xuống 250px */
+            height: auto !important;
         }
 
+            .chart-container canvas {
+                max-height: 300px !important; /* Giới hạn chiều cao max để chart không quá to */
+            }
+
+        /* History & Meal Items */
         .history-section {
             background: white;
             border-radius: 20px;
@@ -307,6 +319,7 @@
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
+        /* Nutrition Goal Grid */
         .nutrition-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -380,6 +393,7 @@
             font-weight: 500;
         }
 
+        /* Responsive & Utilities */
         @@media (max-width: 768px) {
             .nutrition-grid {
                 grid-template-columns: 1fr;
@@ -397,8 +411,20 @@
             .report-header h1 {
                 font-size: 2rem;
             }
+
+            .chart-container {
+                min-height: 250px;
+            }
+
+            .chart-download-btn {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
         }
-        /* ===== LOADING SKELETON ===== */
+
+        /* Skeleton */
         .skeleton-loader {
             display: none;
             margin: 2rem 0;
@@ -444,57 +470,7 @@
             }
         }
 
-        /* Chart Responsive */
-        .chart-container {
-            position: relative;
-            padding: 20px;
-            background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
-            border-radius: 12px;
-            margin-top: 10px;
-            height: auto !important; /* Override */
-            min-height: 300px;
-        }
-
-            .chart-container canvas {
-                max-height: 400px !important;
-            }
-
         /* Download Button */
-        .chart-download-btn {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: white;
-            border: 2px solid #10b981;
-            color: #10b981;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-            .chart-download-btn:hover {
-                background: #10b981;
-                color: white;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            }
-
-        @@media (max-width: 768px) {
-            .chart-container {
-                min-height: 250px;
-            }
-
-            .chart-download-btn {
-                top: 10px;
-                right: 10px;
-                padding: 6px 12px;
-                font-size: 0.85rem;
-            }
-        }
-        /* Thêm vào Report/Index.cshtml style section */
         .chart-download-btn {
             position: absolute;
             top: 15px;
@@ -532,17 +508,10 @@
 
 <div class="container">
     <div class="skeleton-loader" id="skeletonLoader">
-        <div class="skeleton-card">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-chart"></div>
-        </div>
-        <div class="skeleton-card">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-chart"></div>
-        </div>
+        <div class="skeleton-card"><div class="skeleton-title"></div><div class="skeleton-chart"></div></div>
+        <div class="skeleton-card"><div class="skeleton-title"></div><div class="skeleton-chart"></div></div>
     </div>
 
-    <!-- THỐNG KÊ TỔNG QUAN -->
     <div class="stats-overview">
         <div class="stat-card green">
             <div class="stat-icon">🍽️</div>
@@ -569,83 +538,10 @@
         </div>
     </div>
 
-    <div class="row">
-        <!-- BIỂU ĐỒ CALORIE THEO NGÀY -->
-        <div class="col-12 mb-4">
+    <div class="row mb-4">
+        <div class="col-12">
             <div class="card p-4">
-                <h4 class="card-title">🔥 Lượng Calo Theo Ngày</h4>
-                <div class="chart-container">
-                    <canvas id="dailyCalorieChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ THEO TUẦN -->
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">📊 Trung Bình Theo Tuần</h4>
-                <div class="chart-container">
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ THEO THÁNG -->
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">📅 Trung Bình Theo Tháng</h4>
-                <div class="chart-container">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ MACROS -->
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">🥗 Phân Bổ Macros</h4>
-                <div class="chart-container">
-                    <canvas id="macroPieChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ LOẠI BỮA ĂN -->
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">🍴 Phân Bổ Theo Bữa Ăn</h4>
-                <div class="chart-container">
-                    <canvas id="mealTypePieChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ THEO GIỜ -->
-        <div class="col-12 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">⏰ Phân Bổ Calo Theo Giờ Trong Ngày</h4>
-                <div class="chart-container">
-                    <canvas id="hourlyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ CÂN NẶNG & MỠ -->
-        <div class="col-12 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">📉 Biểu đồ Cân nặng/Mỡ</h4>
-                <div class="chart-container">
-                    <canvas id="weightBodyFatChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MỤC TIÊU MACROS -->
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">🎯 Mục Tiêu Macros Hàng Ngày</h4>
+                <h4 class="card-title text-center">🎯 Mục Tiêu Macros Hàng Ngày</h4>
                 @if (ViewBag.MacroGoals != null)
                 {
                     var goals = (NutritionWebApp.Controllers.SettingsController.MacroGoals)ViewBag.MacroGoals;
@@ -677,7 +573,7 @@
                 }
                 else
                 {
-                    <div class="alert-custom">
+                    <div class="alert-custom text-center">
                         ⚠️ Vui lòng cập nhật thông tin trong <strong>Cài đặt</strong> để xem Mục tiêu Macros.
                     </div>
                 }
@@ -685,136 +581,99 @@
         </div>
     </div>
 
-    <!-- LỊCH SỬ PHÂN TÁCH THEO NGÀY -->
-    @* <div class="history-section">
-        <h4 class="card-title">📖 Lịch Sử Ăn Uống Chi Tiết</h4>
-
-        @if (ViewBag.HistoryByDate != null)
-        {
-            var historyByDate = (Dictionary<DateTime, List<NutritionWebApp.Models.Entities.FoodHistory>>)ViewBag.HistoryByDate;
-
-            @foreach (var dateGroup in historyByDate)
-            {
-                var totalCal = dateGroup.Value.Sum(f => f.Calories);
-                var totalProtein = dateGroup.Value.Sum(f => f.Protein);
-                var totalCarbs = dateGroup.Value.Sum(f => f.Carbs);
-                var totalFat = dateGroup.Value.Sum(f => f.Fat);
-
-                <div class="date-group">
-                    <div class="date-header">
-                        <span>📅 @dateGroup.Key.ToString("dddd, dd/MM/yyyy")</span>
-                        <span class="date-total">@totalCal.ToString("F0") kcal</span>
-                    </div>
-
-                    @foreach (var item in dateGroup.Value)
-                    {
-                        string mealClass = item.MealType switch
-                        {
-                            "BuaSang" => "breakfast",
-                            "BuaTrua" => "lunch",
-                            "BuaToi" => "dinner",
-                            _ => "snack"
-                        };
-
-                        string mealLabel = item.MealType switch
-                        {
-                            "BuaSang" => "🌅 Sáng",
-                            "BuaTrua" => "☀️ Trưa",
-                            "BuaToi" => "🌙 Tối",
-                            _ => "🍪 Ăn vặt"
-                        };
-
-                        <div class="meal-item @mealClass">
-                            <div class="meal-info">
-                                <div class="meal-name">
-                                    @item.FoodName
-                                    <span class="meal-type-badge @mealClass">@mealLabel</span>
-                                </div>
-                                <div class="meal-time">⏰ @item.AnalyzedAt.ToString("HH:mm")</div>
-                            </div>
-                            <div class="meal-nutrition">
-                                <div class="nutrition-badge">
-                                    <div class="nutrition-badge-value">@item.Protein.ToString("F0")g</div>
-                                    <div class="nutrition-badge-label">Protein</div>
-                                </div>
-                                <div class="nutrition-badge">
-                                    <div class="nutrition-badge-value">@item.Carbs.ToString("F0")g</div>
-                                    <div class="nutrition-badge-label">Carbs</div>
-                                </div>
-                                <div class="nutrition-badge">
-                                    <div class="nutrition-badge-value">@item.Fat.ToString("F0")g</div>
-                                    <div class="nutrition-badge-label">Fat</div>
-                                </div>
-                                <span class="calorie-badge">@item.Calories.ToString("F0") kcal</span>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Tổng kết ngày -->
-                    <div style="background: #f0fdf4; padding: 15px; border-radius: 12px; margin-top: 10px;">
-                        <div class="d-flex justify-content-around text-center">
-                            <div>
-                                <strong style="color: #fb923c;">@totalProtein.ToString("F0")g</strong>
-                                <small class="d-block text-muted">Protein</small>
-                            </div>
-                            <div>
-                                <strong style="color: #10b981;">@totalCarbs.ToString("F0")g</strong>
-                                <small class="d-block text-muted">Carbs</small>
-                            </div>
-                            <div>
-                                <strong style="color: #8b5cf6;">@totalFat.ToString("F0")g</strong>
-                                <small class="d-block text-muted">Fat</small>
-                            </div>
-                            <div>
-                                <strong style="color: #10b981;">@totalCal.ToString("F0") kcal</strong>
-                                <small class="d-block text-muted">Tổng Calo</small>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card p-4 h-100">
+                <h4 class="card-title">🔥 Xu Hướng Calo Nạp Vào</h4>
+                <div class="chart-container">
+                    <canvas id="dailyCalorieChart"></canvas>
                 </div>
-            }
-        }
-        else
-        {
-            <div class="alert alert-info">
-                Chưa có dữ liệu lịch sử ăn uống.
             </div>
-        }
-    </div> *@
-    <!-- 1. CONTAINER CHỨA LỊCH SỬ -->
-    <div id="historyContainer">
-        @if (ViewBag.HistoryByDate != null)
-        {
-            // Ép kiểu tường minh cho biến cục bộ
-            var historyModel = (Dictionary<DateTime,
-            List<NutritionWebApp.Models.Entities.FoodHistory>>)ViewBag.HistoryByDate;
+        </div>
 
-            // Sử dụng biến đã ép kiểu để gọi Partial View
-            await Html.RenderPartialAsync("_FoodHistoryPartial", historyModel);
-        }
-        else
-        {
-            <div class="alert alert-info">
-                Chưa có dữ liệu lịch sử ăn uống.
+        <div class="col-lg-6 mb-4">
+            <div class="card p-4 h-100">
+                <h4 class="card-title">📉 Cân nặng & Tỷ lệ Mỡ</h4>
+                <div class="chart-container">
+                    <canvas id="weightBodyFatChart"></canvas>
+                </div>
             </div>
-        }
+        </div>
     </div>
 
-    <!-- 2. NÚT TẢI THÊM -->
-    <div class="text-center mt-4" id="loadMoreArea">
-        @* Chúng ta sẽ ẩn nút này bằng JS nếu không còn dữ liệu *@
-        <button id="loadMoreBtn" class="btn btn-primary" style="
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 15px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        ">
-            <span id="loadMoreSpinner" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
-            Tải thêm lịch sử trước đó
-        </button>
-        <p id="noMoreHistory" class="text-muted mt-3" style="display: none;">Không còn dữ liệu lịch sử.</p>
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card p-4 h-100">
+                <h4 class="card-title">📊 Trung Bình Theo Tuần</h4>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card p-4 h-100">
+                <h4 class="card-title">📅 Trung Bình Theo Tháng</h4>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card p-4 h-100">
+                <h4 class="card-title">🥗 Tỷ Lệ Macros Thực Tế</h4>
+                <div class="chart-container">
+                    <canvas id="macroPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card p-4 h-100">
+                <h4 class="card-title">🍴 Phân Bổ Calo Theo Bữa</h4>
+                <div class="chart-container">
+                    <canvas id="mealTypePieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card p-4">
+                <h4 class="card-title">⏰ Thói Quen Ăn Uống Theo Giờ</h4>
+                <div class="chart-container" style="max-height: 300px;">
+                    <canvas id="hourlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3 class="mb-4 text-center" style="color: #1f2937; font-weight: 700;">📖 Nhật Ký Ăn Uống</h3>
+
+            <div id="historyContainer">
+                @if (ViewBag.HistoryByDate != null)
+                {
+                    var historyModel = (Dictionary<DateTime, List<NutritionWebApp.Models.Entities.FoodHistory>>)ViewBag.HistoryByDate;
+                    await Html.RenderPartialAsync("_FoodHistoryPartial", historyModel);
+                }
+                else
+                {
+                    <div class="alert alert-info text-center">Chưa có dữ liệu lịch sử ăn uống.</div>
+                }
+            </div>
+
+            <div class="text-center mt-4 mb-5" id="loadMoreArea">
+                <button id="loadMoreBtn" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; padding: 12px 30px; border-radius: 15px; font-weight: 600; transition: all 0.3s ease;">
+                    <span id="loadMoreSpinner" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
+                    Tải thêm lịch sử trước đó
+                </button>
+                <p id="noMoreHistory" class="text-muted mt-3" style="display: none;">Không còn dữ liệu lịch sử.</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -822,13 +681,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const tdeeTarget = parseFloat('@ViewBag.TDEE');
-
         // Biểu đồ Calorie theo ngày
         const dailyData = JSON.parse('@Html.Raw(ViewBag.DailyDataJson ?? "[]")');
         const dailyDates = dailyData.map(d => d.Date);
         const dailyCalories = dailyData.map(d => d.TotalCalories);
         const tdeeLine = dailyDates.map(() => tdeeTarget);
-
         new Chart(document.getElementById('dailyCalorieChart'), {
             type: 'line',
             data: {
@@ -960,7 +817,6 @@
                 default: return '🍪 Ăn Vặt';
             }
         });
-
         new Chart(document.getElementById('mealTypePieChart'), {
             type: 'doughnut',
             data: {
@@ -991,13 +847,12 @@
             }
         });
 
-        // Logic Chart Cân nặng/Mỡ (F11)
+        // Logic Chart Cân nặng/Mỡ
         const rawBodyChartData = JSON.parse('@Html.Raw(ViewBag.BodyChartDataJson ?? "[]")');
         if (rawBodyChartData.length > 0) {
             const dataLabels = rawBodyChartData.map(d => d.Date);
             const weights = rawBodyChartData.map(d => d.Weight);
             const bodyFats = rawBodyChartData.map(d => d.BodyFat);
-
             new Chart(document.getElementById('weightBodyFatChart'), {
                 type: 'line',
                 data: {
@@ -1045,7 +900,6 @@
         // Biểu đồ theo giờ trong ngày
         const hourlyData = JSON.parse('@Html.Raw(ViewBag.HourlyDataJson ?? "[]")');
         const hourLabels = hourlyData.map(d => `${d.Hour}:00`);
-
         new Chart(document.getElementById('hourlyChart'), {
             type: 'bar',
             data: {
@@ -1087,93 +941,61 @@
                         beginAtZero: true,
                         grid: { color: 'rgba(0, 0, 0, 0.05)' },
                         ticks: {
-                            font: {
-                                size: window.innerWidth < 768 ? 10 : 12
-                             },
-                            callback: function(value) {
-                                return value + ' kcal';
-                            }
+                            font: { size: window.innerWidth < 768 ? 10 : 12 },
+                            callback: function(value) { return value + ' kcal'; }
                         }
                     },
                     x: {
                         grid: { display: false },
                         ticks: {
-                            font: {
-                                size: window.innerWidth < 768 ? 10 : 12
-                            },
+                            font: { size: window.innerWidth < 768 ? 10 : 12 },
                             maxRotation: window.innerWidth < 768 ? 45 : 0
                         }
                     }
                 }
             }
         });
-    </script>
-    <script>
-        // --- KHAI BÁO BIẾN CẦN THIẾT ---
+
+        // --- KHAI BÁO BIẾN CẦN THIẾT CHO HISTORY ---
         const historyContainer = document.getElementById('historyContainer');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         const loadMoreSpinner = document.getElementById('loadMoreSpinner');
         const noMoreHistory = document.getElementById('noMoreHistory');
         let isLoading = false;
+        let hasMoreHistory = true;
 
-        // Mặc định tải 30 ngày. Chúng ta sẽ lấy ngày cũ nhất từ dữ liệu đã tải lần đầu
-        let offsetDate = new Date(); // Khởi tạo tạm thời
-        let hasMoreHistory = true; // Mặc định cho lần tải đầu tiên
-
-        // Hàm lấy ngày cũ nhất từ các thẻ HTML hiện tại (dữ liệu ban đầu)
         function getOldestDate() {
-            // Chọn thẻ cuối cùng có class .date-group
             const oldestGroup = historyContainer.querySelector('.date-group:last-child');
             if (oldestGroup) {
-                // Lấy giá trị data-date đã lưu trong Bước 1.1
                 const dateString = oldestGroup.getAttribute('data-date');
-                if (dateString) {
-                    // Thêm 1 ngày để đảm bảo query chỉ lấy dữ liệu CŨ HƠN
-                    const date = new Date(dateString);
-                    // Đảm bảo không lấy lại ngày này, nên dùng chính ngày đó làm offset (Controller đã xử lý < parsedOffsetDate)
-                    return dateString;
-                }
+                if (dateString) { return dateString; }
             }
-            // Nếu không tìm thấy, trả về null hoặc một ngày rất xa để kết thúc
             return null;
         }
 
-        // Hàm kiểm tra và cập nhật trạng thái nút Load More
         function updateLoadMoreButton() {
-            // Chỉ thực hiện nếu nút Tải thêm tồn tại
             if (loadMoreBtn) {
                 if (!hasMoreHistory) {
                     loadMoreBtn.style.display = 'none';
-                    // Cần kiểm tra noMoreHistory cũng tồn tại nếu nó có thể bị null
                     if (noMoreHistory) noMoreHistory.style.display = 'block';
                 } else {
                     loadMoreBtn.style.display = 'inline-block';
                     if (noMoreHistory) noMoreHistory.style.display = 'none';
                 }
             } else {
-                // Nếu nút loadMoreBtn không tồn tại ngay từ đầu, đảm bảo thông báo
-                // không còn lịch sử vẫn hiện (nếu nó được định nghĩa)
                 if (noMoreHistory) noMoreHistory.style.display = 'block';
             }
         }
 
-        // Thêm debouncing và loading state
         let isLoadingMore = false;
-
-
-        // --- HÀM CHÍNH: TẢI THÊM LỊCH SỬ ---
         async function loadMoreHistory() {
             if (isLoading || !hasMoreHistory || isLoadingMore) return;
-
             isLoading = true;
-            // Sửa lỗi: Thêm kiểm tra null trước khi truy cập thuộc tính
             if (loadMoreBtn) loadMoreBtn.disabled = true;
             if (loadMoreSpinner) loadMoreSpinner.style.display = 'inline-block';
 
-            // Lấy ngày offset: Ngày của nhóm dữ liệu cũ nhất hiện tại
             const currentOffsetDate = getOldestDate();
             if (!currentOffsetDate) {
-                // Nếu không có ngày cũ nhất (database trống hoặc đã load hết)
                 isLoadingMore = false;
                 hasMoreHistory = false;
                 updateLoadMoreButton();
@@ -1181,34 +1003,15 @@
             }
 
             try {
-                // Gọi AJAX đến Controller LoadHistory
                 const response = await fetch(`/Report/LoadHistory?offsetDate=${currentOffsetDate}&pageSize=30`);
-                // Controller trả về chuỗi HTML đã render
                 const newHtml = await response.text();
-
-                // Kiểm tra xem HTML có nội dung hay không
                 if (newHtml.trim().length === 0 || !newHtml.includes('date-group')) {
                     hasMoreHistory = false;
                 } else {
-                    // Thêm nội dung HTML mới vào container
                     historyContainer.insertAdjacentHTML('beforeend', newHtml);
-
-                    // Tạm thời, chúng ta sẽ giả định nếu lượng data trả về
-                    // ÍT HƠN PageSize (30 ngày), tức là đã load hết.
-                    // (Đây là một cách kiểm tra nhanh, bạn có thể cần kiểm tra chính xác hơn)
-                    // Do chúng ta đang sử dụng Partial View, việc kiểm tra hasMore trên server
-                    // và truyền qua AJAX Header/JSON wrapper phức tạp hơn.
-
-                    // Cách đơn giản nhất: Nếu sau khi load, getOldestDate() không thay đổi,
-                    // tức là không có thêm dữ liệu.
-                    // Tuy nhiên, vì chúng ta không thể kiểm tra HasMore trên PartialView,
-                    // ta sẽ dựa vào việc nếu lần tải tiếp theo không có nội dung.
-                    // Đối với lần tải này, nếu HTML có nội dung, chúng ta tạm giữ hasMore = true.
                 }
-
             } catch (e) {
                 console.error("Lỗi tải lịch sử:", e);
-                // Xử lý lỗi
                 if (noMoreHistory) {
                     noMoreHistory.textContent = "Đã xảy ra lỗi khi tải dữ liệu.";
                     noMoreHistory.style.display = 'block';
@@ -1216,66 +1019,32 @@
                 hasMoreHistory = false;
             } finally {
                 isLoading = false;
-                // Sửa lỗi: Thêm kiểm tra null khi kết thúc
                 if (loadMoreBtn) loadMoreBtn.disabled = false;
                 if (loadMoreSpinner) loadMoreSpinner.style.display = 'none';
-
-                // Cập nhật trạng thái lần cuối
                 updateLoadMoreButton();
             }
         }
 
-        // Gắn sự kiện cho nút
         if (loadMoreBtn) {
             loadMoreBtn.addEventListener('click', loadMoreHistory);
         }
 
-        // KHI LOAD TRANG BAN ĐẦU:
         document.addEventListener('DOMContentLoaded', function() {
-            // Bắt buộc mở accordion cho nhóm ngày mới nhất trong lần tải đầu tiên
             if (historyContainer) {
                 const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
-                if (firstGroup) {
-                     // Mở mặc định ngày gần nhất
-                     firstGroup.classList.add('show');
-                }
-
-                // Kiểm tra xem có đủ 30 ngày để tải thêm không
+                if (firstGroup) { firstGroup.classList.add('show'); }
                 const initialGroups = historyContainer.querySelectorAll('.date-group');
-                // Nếu số lượng nhóm ít hơn 30, khả năng đã load hết
-                if (initialGroups.length === 0) {
-                    hasMoreHistory = false;
-                }
+                if (initialGroups.length === 0) { hasMoreHistory = false; }
             }
-
             updateLoadMoreButton();
-
-            // Kiểm tra xem liệu có thể tải thêm ngay sau khi tải lần đầu không (dùng offset cuối cùng)
-            // Nếu getOldestDate() không trả về null, tức là có ít nhất 1 nhóm ngày đã được hiển thị,
-            // cho phép nút Load More được kích hoạt cho lần tải tiếp theo.
         });
 
-    </script>
-    <script>
         // ===== LOADING STATE MANAGEMENT =====
         document.addEventListener('DOMContentLoaded', function() {
             const skeleton = document.getElementById('skeletonLoader');
-
-            // REMOVED: const mainContent = document.getElementById('mainContent');
-            // Phần tử này không tồn tại trong HTML
-
-            // Show skeleton initially
-            if (skeleton) {
-                skeleton.classList.add('show');
-            }
-
-            // Hide skeleton after charts render
+            if (skeleton) { skeleton.classList.add('show'); }
             setTimeout(() => {
-                if (skeleton) {
-                    skeleton.classList.remove('show');
-                }
-                // REMOVED: mainContent.style.display = 'block';
-                // Không cần thiết vì content đã hiển thị mặc định
+                if (skeleton) { skeleton.classList.remove('show'); }
             }, 800);
         });
 
@@ -1283,7 +1052,6 @@
         function downloadChartAsPNG(chartId, filename) {
             const canvas = document.getElementById(chartId);
             if (!canvas) return;
-
             const url = canvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.download = filename + '.png';
@@ -1291,7 +1059,6 @@
             link.click();
         }
 
-        // Thêm nút download cho mỗi biểu đồ
         document.addEventListener('DOMContentLoaded', function() {
             const charts = [
                 { id: 'dailyCalorieChart', name: 'Bieu-Do-Calo-Hang-Ngay' },
@@ -1316,7 +1083,6 @@
             });
         });
 
-        // ===== MAKE CHARTS RESPONSIVE =====
         Chart.defaults.responsive = true;
         Chart.defaults.maintainAspectRatio = false;
     </script>
