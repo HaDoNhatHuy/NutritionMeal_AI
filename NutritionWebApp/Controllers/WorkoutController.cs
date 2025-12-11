@@ -318,6 +318,8 @@ namespace NutritionWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Library(string bodyPart = "all", string equipment = "all", string target = "all")
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return RedirectToAction("Login", "Account");
             // 1. Lấy dữ liệu cho các dropdown bộ lọc
             ViewBag.BodyParts = await _exerciseDbService.GetBodyPartList();
             ViewBag.Equipments = await _exerciseDbService.GetEquipmentList();

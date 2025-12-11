@@ -106,6 +106,9 @@ namespace NutritionWebApp.Controllers
         }
         public IActionResult FoodAnalyze()
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return RedirectToAction("Login", "Account");
+
             return View();
         }
 

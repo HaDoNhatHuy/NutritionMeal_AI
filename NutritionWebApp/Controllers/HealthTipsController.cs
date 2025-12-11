@@ -7,6 +7,8 @@ namespace NutritionWebApp.Controllers
         // Trang chủ Health Tips
         public IActionResult Index()
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return RedirectToAction("Login", "Account");
             return View();
         }
 
