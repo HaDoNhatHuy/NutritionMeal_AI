@@ -56,33 +56,29 @@
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
+
         @@media (max-width: 768px) {
-            .dashboard-wrapper
+            .dashboard-wrapper {
+                padding: 20px 0; /* Giảm padding */
+            }
 
-        {
-            padding: 20px 0; /* Giảm padding */
-        }
+            .welcome-header h1 {
+                font-size: 1.8rem; /* Giảm kích thước chữ */
+            }
+            /* Biến hàng ngang thành hàng dọc hoặc slider */
+            .stat-card-dashboard {
+                margin-bottom: 15px;
+                padding: 20px;
+            }
 
-        .welcome-header h1 {
-            font-size: 1.8rem; /* Giảm kích thước chữ */
-        }
-
-        /* Biến hàng ngang thành hàng dọc hoặc slider */
-        .stat-card-dashboard {
-            margin-bottom: 15px;
-            padding: 20px;
-        }
-
-        .row.g-4 {
-            --bs-gutter-y: 1rem;
-        }
-
-        /* Quick Actions thành dạng lưới nhỏ hơn */
-        .btn-lg {
-            padding: 15px !important;
-            font-size: 1rem;
-        }
-
+            .row.g-4 {
+                --bs-gutter-y: 1rem;
+            }
+            /* Quick Actions thành dạng lưới nhỏ hơn */
+            .btn-lg {
+                padding: 15px !important;
+                font-size: 1rem;
+            }
         }
     </style>
 }
@@ -96,7 +92,7 @@
 
         <!-- HÀNG 1: TỔNG QUAN HÔM NAY -->
         <div class="row g-4 mb-5">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="stat-card-dashboard" style="border-color: #10b981;">
                     <h4 class="text-success">Tổng Calo Hôm nay</h4>
                     <div class="stat-value-dashboard">@ViewBag.TotalCaloriesToday.ToString("F0") kcal</div>
@@ -111,14 +107,17 @@
                     }
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="stat-card-dashboard" style="border-color: #3b82f6;">
                     <h4 class="text-primary">Cân nặng Hiện tại</h4>
                     <div class="stat-value-dashboard">@(Model.Weight.HasValue ? Model.Weight.Value.ToString("F1") : "--") kg</div>
-                    <p class="text-muted">Lần đo gần nhất: @Model.Weight.ToString()</p>
+                    <p class="text-muted">Lần đo gần nhất: @ViewBag.MeasureDate.ToString("dd-MM-yyyy")</p>
                     <a asp-controller="BodyMeasurement" asp-action="Index" class="btn btn-sm btn-outline-primary mt-2">Xem chi tiết</a>
                 </div>
-            </div>
+            </div>            
+        </div>
+        <!-- HÀNG 1.1: MACRO -->
+        <div class="row g-4 mb-5">
             <div class="col-md-4">
                 <div class="stat-card-dashboard" style="border-color: #fb923c;">
                     <h4 style="color: #fb923c;">Protein Đã nạp</h4>
@@ -129,6 +128,42 @@
                         <p class="text-muted">Mục tiêu: @goals.ProteinGrams.ToString("F0") g</p>
                         <div class="progress-bar-container">
                             <div class="progress-fill" style="width: @percentage.ToString("F0")%; background-color: #fb923c;"></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Mục tiêu Macros chưa thiết lập.</p>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card-dashboard" style="border-color: #10b981;">
+                    <h4 style="color: #10b981;">Carb Đã nạp</h4>
+                    <div class="stat-value-dashboard">@ViewBag.TotalCarbsToday.ToString("F0") g</div>
+                    @if (goals != null)
+                    {
+                        var percentage = Math.Min((ViewBag.TotalCarbsToday / goals.CarbGrams) * 100, 100);
+                        <p class="text-muted">Mục tiêu: @goals.CarbGrams.ToString("F0") g</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: @percentage.ToString("F0")%; background-color: #10b981;"></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Mục tiêu Macros chưa thiết lập.</p>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card-dashboard" style="border-color: #8b5cf6;">
+                    <h4 style="color: #8b5cf6;">Fat Đã nạp</h4>
+                    <div class="stat-value-dashboard">@ViewBag.TotalFatToday.ToString("F0") g</div>
+                    @if (goals != null)
+                    {
+                        var percentage = Math.Min((ViewBag.TotalFatToday / goals.FatGrams) * 100, 100);
+                        <p class="text-muted">Mục tiêu: @goals.FatGrams.ToString("F0") g</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: @percentage.ToString("F0")%; background-color: #8b5cf6;"></div>
                         </div>
                     }
                     else

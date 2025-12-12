@@ -144,8 +144,9 @@
             margin: 1.5rem 0 1rem;
             font-weight: 600;
         }
+        /* ===== MOBILE RESPONSIVE FIXES ===== */
         @@media (max-width: 768px) {
-            /* Ẩn Sidebar lịch sử trên mobile, chỉ hiện khi user bấm nút menu */
+            /* Sidebar ẩn mặc định trên mobile */
             .sidebar
 
         {
@@ -153,28 +154,126 @@
             position: fixed;
             z-index: 1050;
             height: 100%;
-            width: 80%;
+            width: 85%;
+            max-width: 300px;
             left: 0;
             top: 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            background: var(--light-bg);
         }
 
+        /* Hiển thị sidebar khi active */
         .sidebar.active {
             display: block;
+            animation: slideIn 0.3s ease-out;
         }
 
+        /* Animation cho sidebar */
+        @@keyframes slideIn {
+            from
+
+        {
+            transform: translateX(-100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+
+        }
+
+        /* Overlay để đóng sidebar khi click bên ngoài */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+        /* Nút đóng sidebar */
+        .sidebar-close-btn {
+            display: block;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            z-index: 10;
+            padding: 5px 10px;
+        }
+
+            .sidebar-close-btn:hover {
+                color: #333;
+            }
+
+        /* Nút mở sidebar */
+        .mobile-chat-menu-btn {
+            display: block;
+            margin: 10px;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Điều chỉnh layout chính */
         .chat-full-layout {
-            height: calc(100vh - 140px); /* Trừ đi header và bottom nav */
+            height: calc(100vh - 140px);
+            flex-direction: column;
         }
 
         .chat-main {
             border-radius: 0;
+            width: 100%;
         }
 
-        /* Thêm nút Hamburger để mở sidebar */
-        .mobile-chat-menu-btn {
-            display: block;
-            margin-bottom: 10px;
+        /* Điều chỉnh chat input trên mobile */
+        #chatInput {
+            font-size: 16px; /* Tránh zoom trên iOS */
+        }
+
+        .input-group-chat {
+            gap: 5px;
+        }
+
+        #sendBtn, #voiceInputBtn {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        /* Các nút toggle mode */
+        #chatModeToggles button {
+            padding: 0.75rem !important;
+            font-size: 0.9rem;
+        }
+
+        /* Session item trên mobile */
+        .session-item {
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Recipe mode trên mobile */
+        #recipeModeContent {
+            padding: 1rem !important;
+        }
+
+        }
+
+        /* Ẩn nút đóng trên desktop */
+        @@media (min-width: 769px) {
+            .sidebar-close-btn, .mobile-chat-menu-btn, .sidebar-overlay
+
+        {
+            display: none !important;
         }
 
         }
@@ -215,7 +314,7 @@
 
     <!-- CỘT PHẢI: KHUNG CHAT -->
     <div class="chat-main">
-        <button class="btn btn-sm btn-outline-secondary d-md-none mobile-chat-menu-btn" onclick="toggleSidebar()">
+        <button class="btn btn-sm btn-outline-primary mobile-chat-menu-btn" onclick="toggleSidebar()">
             📂 Lịch sử
         </button>
         <div id="chatModeToggles" style="border-bottom: 1px solid var(--border-color); display: flex;">
@@ -740,6 +839,61 @@
         // --- LOAD INITIAL STATE ---
         document.addEventListener('DOMContentLoaded', function() {
             loadNewChatGreeting();
+        });
+    </script>
+    <script>
+                // ===== MOBILE SIDEBAR TOGGLE =====
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Đóng sidebar khi click vào overlay
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tạo overlay element nếu chưa có
+            if (!document.querySelector('.sidebar-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                overlay.addEventListener('click', closeSidebar);
+                document.body.appendChild(overlay);
+            }
+
+            // Thêm nút đóng vào sidebar nếu chưa có
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && !sidebar.querySelector('.sidebar-close-btn')) {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'sidebar-close-btn';
+                closeBtn.innerHTML = '✕';
+                closeBtn.setAttribute('aria-label', 'Đóng lịch sử');
+                closeBtn.addEventListener('click', closeSidebar);
+                sidebar.insertBefore(closeBtn, sidebar.firstChild);
+            }
+
+            // Đóng sidebar khi chọn một session (chỉ trên mobile)
+            document.querySelectorAll('.session-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('delete-session-btn')) return;
+
+                    const date = this.dataset.date;
+                    loadChatSession(date);
+
+                    // Đóng sidebar trên mobile sau khi chọn
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
         });
     </script>
 }

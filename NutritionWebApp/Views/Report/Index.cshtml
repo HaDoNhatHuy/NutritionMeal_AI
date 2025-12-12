@@ -1,12 +1,10 @@
 ﻿@model List<NutritionWebApp.Models.Entities.FoodHistory>
 @{
     ViewData["Title"] = "Thống kê Dinh dưỡng";
-    // Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @section Styles {
     <style>
-        /* GIỮ NGUYÊN TOÀN BỘ CSS CŨ CỦA BẠN */
         body {
             background: linear-gradient(to bottom, #f8fafc 0%, #e8f5e9 100%);
             min-height: 100vh;
@@ -70,7 +68,6 @@
                 border-color: white;
             }
 
-        /* Stats Overview */
         .stats-overview {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -127,7 +124,6 @@
             font-weight: 600;
         }
 
-        /* Card & Chart Styles */
         .card {
             border-radius: 20px;
             border: none;
@@ -135,7 +131,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             margin-bottom: 30px;
             overflow: hidden;
-            height: 100%; /* Thêm height 100% để các card bằng nhau */
+            height: 100%;
         }
 
         .card-title {
@@ -147,22 +143,191 @@
             border-bottom: 3px solid #f0fdf4;
         }
 
-        /* ĐIỀU CHỈNH CHART CONTAINER: Giảm chiều cao mặc định xuống */
         .chart-container {
             position: relative;
             padding: 15px;
             background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
             border-radius: 12px;
             margin-top: 10px;
-            min-height: 250px; /* Giảm từ 300px xuống 250px */
+            min-height: 250px;
             height: auto !important;
         }
 
             .chart-container canvas {
-                max-height: 300px !important; /* Giới hạn chiều cao max để chart không quá to */
+                max-height: 300px !important;
             }
 
-        /* History & Meal Items */
+        /* ==== MACRO PROGRESS CARDS ==== */
+        .macro-progress-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .macro-progress-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .macro-progress-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            }
+
+            .macro-progress-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--macro-color) 0%, var(--macro-color-light) 100%);
+            }
+
+            .macro-progress-card.protein {
+                --macro-color: #fb923c;
+                --macro-color-light: #fdba74;
+            }
+
+            .macro-progress-card.carbs {
+                --macro-color: #10b981;
+                --macro-color-light: #34d399;
+            }
+
+            .macro-progress-card.fat {
+                --macro-color: #8b5cf6;
+                --macro-color-light: #a78bfa;
+            }
+
+        .macro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .macro-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--macro-color);
+        }
+
+        .macro-percentage {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .macro-values {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .macro-current {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .macro-target {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .macro-unit {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--macro-color) 0%, var(--macro-color-light) 100%);
+            border-radius: 20px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+            .progress-bar-fill::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, transparent 100%);
+                border-radius: 20px;
+            }
+
+            .progress-bar-fill.over-target {
+                background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+            }
+
+        .macro-status {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+            .macro-status.on-track {
+                color: #10b981;
+            }
+
+            .macro-status.over {
+                color: #ef4444;
+            }
+
+            .macro-status.under {
+                color: #f59e0b;
+            }
+
+        .goal-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 15px 0;
+        }
+
+        .alert-custom {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: none;
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        /* History Section */
         .history-section {
             background: white;
             border-radius: 20px;
@@ -176,15 +341,18 @@
         }
 
         @@keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .date-header {
@@ -319,112 +487,32 @@
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
-        /* Nutrition Goal Grid */
-        .nutrition-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        .nutrition-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 2px solid;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-            .nutrition-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            }
-
-            .nutrition-card.protein {
-                border-color: #fb923c;
-                color: #fb923c;
-            }
-
-            .nutrition-card.carbs {
-                border-color: #10b981;
-                color: #10b981;
-            }
-
-            .nutrition-card.fat {
-                border-color: #8b5cf6;
-                color: #8b5cf6;
-            }
-
-        .nutrition-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            opacity: 0.8;
-            margin-bottom: 8px;
-        }
-
-        .nutrition-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #1f2937;
-            margin: 0;
-        }
-
-        .goal-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin: 15px 0;
-        }
-
-        .alert-custom {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: none;
-            border-left: 4px solid #f59e0b;
-            border-radius: 12px;
-            padding: 20px;
-            color: #92400e;
-            font-weight: 500;
-        }
-
-        /* Responsive & Utilities */
         @@media (max-width: 768px) {
-            .nutrition-grid {
-                grid-template-columns: 1fr;
-            }
+            .macro-progress-grid
 
-            .stats-overview {
-                grid-template-columns: 1fr;
-            }
-
-            .meal-nutrition {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .report-header h1 {
-                font-size: 2rem;
-            }
-
-            .chart-container {
-                min-height: 250px;
-            }
-
-            .chart-download-btn {
-                top: 10px;
-                right: 10px;
-                padding: 6px 12px;
-                font-size: 0.85rem;
-            }
+        {
+            grid-template-columns: 1fr;
         }
 
-        /* Skeleton */
+        .stats-overview {
+            grid-template-columns: 1fr;
+        }
+
+        .meal-nutrition {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .report-header h1 {
+            font-size: 2rem;
+        }
+
+        .chart-container {
+            min-height: 250px;
+        }
+
+        }
+
         .skeleton-loader {
             display: none;
             margin: 2rem 0;
@@ -461,16 +549,18 @@
         }
 
         @@keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
+            0%
 
-            100% {
-                background-position: -200% 0;
-            }
+        {
+            background-position: 200% 0;
         }
 
-        /* Download Button */
+        100% {
+            background-position: -200% 0;
+        }
+
+        }
+
         .chart-download-btn {
             position: absolute;
             top: 15px;
@@ -556,18 +646,56 @@
                         </span>
                     </div>
 
-                    <div class="nutrition-grid">
-                        <div class="nutrition-card protein">
-                            <div class="nutrition-label">Protein</div>
-                            <h5 class="nutrition-value">@goals.ProteinGrams.ToString("F0")g</h5>
+                    <div class="macro-progress-grid">
+                        @* PROTEIN CARD *@
+                        <div class="macro-progress-card protein">
+                            <div class="macro-header">
+                                <span class="macro-name">🥩 Protein</span>
+                                <span class="macro-percentage">@goals.ProteinPct.ToString("F0")%</span>
+                            </div>
+                            <div class="macro-values">
+                                <span class="macro-current" id="proteinCurrent">0</span>
+                                <span class="macro-target">/ @goals.ProteinGrams.ToString("F0")</span>
+                                <span class="macro-unit">g</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="proteinProgress" style="width: 0%"></div>
+                            </div>
+                            <div class="macro-status" id="proteinStatus"></div>
                         </div>
-                        <div class="nutrition-card carbs">
-                            <div class="nutrition-label">Carbs</div>
-                            <h5 class="nutrition-value">@goals.CarbGrams.ToString("F0")g</h5>
+
+                        @* CARBS CARD *@
+                        <div class="macro-progress-card carbs">
+                            <div class="macro-header">
+                                <span class="macro-name">🌾 Carbs</span>
+                                <span class="macro-percentage">@goals.CarbPct.ToString("F0")%</span>
+                            </div>
+                            <div class="macro-values">
+                                <span class="macro-current" id="carbsCurrent">0</span>
+                                <span class="macro-target">/ @goals.CarbGrams.ToString("F0")</span>
+                                <span class="macro-unit">g</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="carbsProgress" style="width: 0%"></div>
+                            </div>
+                            <div class="macro-status" id="carbsStatus"></div>
                         </div>
-                        <div class="nutrition-card fat">
-                            <div class="nutrition-label">Fat</div>
-                            <h5 class="nutrition-value">@goals.FatGrams.ToString("F0")g</h5>
+
+                        @* FAT CARD *@
+                        <div class="macro-progress-card fat">
+                            <div class="macro-header">
+                                <span class="macro-name">🥑 Fat</span>
+                                <span class="macro-percentage">@goals.FatPct.ToString("F0")%</span>
+                            </div>
+                            <div class="macro-values">
+                                <span class="macro-current" id="fatCurrent">0</span>
+                                <span class="macro-target">/ @goals.FatGrams.ToString("F0")</span>
+                                <span class="macro-unit">g</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="fatProgress" style="width: 0%"></div>
+                            </div>
+                            <div class="macro-status" id="fatStatus"></div>
                         </div>
                     </div>
                 }
@@ -582,69 +710,11 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-12 mb-4">
             <div class="card p-4 h-100">
                 <h4 class="card-title">🔥 Xu Hướng Calo Nạp Vào</h4>
                 <div class="chart-container">
                     <canvas id="dailyCalorieChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4 h-100">
-                <h4 class="card-title">📉 Cân nặng & Tỷ lệ Mỡ</h4>
-                <div class="chart-container">
-                    <canvas id="weightBodyFatChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4 h-100">
-                <h4 class="card-title">📊 Trung Bình Theo Tuần</h4>
-                <div class="chart-container">
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4 h-100">
-                <h4 class="card-title">📅 Trung Bình Theo Tháng</h4>
-                <div class="chart-container">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4 h-100">
-                <h4 class="card-title">🥗 Tỷ Lệ Macros Thực Tế</h4>
-                <div class="chart-container">
-                    <canvas id="macroPieChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card p-4 h-100">
-                <h4 class="card-title">🍴 Phân Bổ Calo Theo Bữa</h4>
-                <div class="chart-container">
-                    <canvas id="mealTypePieChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card p-4">
-                <h4 class="card-title">⏰ Thói Quen Ăn Uống Theo Giờ</h4>
-                <div class="chart-container" style="max-height: 300px;">
-                    <canvas id="hourlyChart"></canvas>
                 </div>
             </div>
         </div>
@@ -680,283 +750,146 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // ===== FIX: Kiểm tra canvas tồn tại trước khi tạo chart =====
+        function createChartIfExists(canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+            if (canvas && canvas.getContext) {
+                try {
+                    return new Chart(canvas, config);
+                } catch (error) {
+                    console.error(`Error creating chart ${canvasId}:`, error);
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // ===== MACRO PROGRESS ANIMATION =====
+        function updateMacroProgress(macroName, current, target) {
+            const percentage = Math.min((current / target) * 100, 150);
+            const overTarget = current > target;
+
+            const currentEl = document.getElementById(`${macroName}Current`);
+            const progressEl = document.getElementById(`${macroName}Progress`);
+            const statusEl = document.getElementById(`${macroName}Status`);
+
+            if (!currentEl || !progressEl || !statusEl) return;
+
+            // Animate number
+            let start = 0;
+            const duration = 1000;
+            const startTime = Date.now();
+
+            function animateNumber() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value = start + (current - start) * progress;
+                currentEl.textContent = Math.round(value);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateNumber);
+                }
+            }
+            animateNumber();
+
+            // Update progress bar
+            setTimeout(() => {
+                progressEl.style.width = Math.min(percentage, 100) + '%';
+                if (overTarget) {
+                    progressEl.classList.add('over-target');
+                }
+            }, 100);
+
+            // Update status
+            setTimeout(() => {
+                if (current >= target * 0.9 && current <= target * 1.1) {
+                    statusEl.textContent = '✅ Đạt mục tiêu';
+                    statusEl.className = 'macro-status on-track';
+                } else if (current > target) {
+                    statusEl.textContent = `⚠️ Vượt ${Math.round(current - target)}g`;
+                    statusEl.className = 'macro-status over';
+                } else {
+                    statusEl.textContent = `📊 Còn ${Math.round(target - current)}g`;
+                    statusEl.className = 'macro-status under';
+                }
+            }, 1100);
+        }
+
+        // ===== CALCULATE TODAY'S MACROS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const macroTotals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.MacroTotals ?? new { totalProtein = 0, totalCarbs = 0, totalFat = 0 }));
+
+        @if (ViewBag.MacroGoals != null)
+        {
+            var goals = (NutritionWebApp.Controllers.SettingsController.MacroGoals)ViewBag.MacroGoals;
+            @:const proteinGoal = @goals.ProteinGrams.ToString("F0");
+            @:const carbsGoal = @goals.CarbGrams.ToString("F0");
+            @:const fatGoal = @goals.FatGrams.ToString("F0");
+
+            @:setTimeout(() => {
+            @:updateMacroProgress('protein', macroTotals.totalProtein, proteinGoal);
+            @:updateMacroProgress('carbs', macroTotals.totalCarbs, carbsGoal);
+            @:updateMacroProgress('fat', macroTotals.totalFat, fatGoal);
+            @:}, 300);
+        }
+        });
+
+        // ===== DAILY CALORIE CHART =====
         const tdeeTarget = parseFloat('@ViewBag.TDEE');
-        // Biểu đồ Calorie theo ngày
         const dailyData = JSON.parse('@Html.Raw(ViewBag.DailyDataJson ?? "[]")');
-        const dailyDates = dailyData.map(d => d.Date);
-        const dailyCalories = dailyData.map(d => d.TotalCalories);
-        const tdeeLine = dailyDates.map(() => tdeeTarget);
-        new Chart(document.getElementById('dailyCalorieChart'), {
-            type: 'line',
-            data: {
-                labels: dailyDates,
-                datasets: [{
-                    label: 'Calo nạp vào',
-                    data: dailyCalories,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointBackgroundColor: '#10b981',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }, {
-                    label: 'Mục tiêu TDEE',
-                    data: tdeeLine,
-                    borderColor: '#f59e0b',
-                    borderDash: [10, 5],
-                    tension: 0,
-                    pointRadius: 0,
-                    fill: false,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { display: true, position: 'top' },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        cornerRadius: 8
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
 
-        // Biểu đồ theo tuần
-        const weeklyData = JSON.parse('@Html.Raw(ViewBag.WeeklyDataJson ?? "[]")');
-        if (weeklyData.length > 0) {
-            new Chart(document.getElementById('weeklyChart'), {
-                type: 'bar',
-                data: {
-                    labels: weeklyData.map(d => d.Label),
-                    datasets: [{
-                        label: 'TB Calo/Tuần',
-                        data: weeklyData.map(d => d.AvgCalories),
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
+        if (dailyData && dailyData.length > 0) {
+            const dailyDates = dailyData.map(d => d.Date);
+            const dailyCalories = dailyData.map(d => d.TotalCalories);
+            const tdeeLine = dailyDates.map(() => tdeeTarget);
 
-        // Biểu đồ theo tháng
-        const monthlyData = JSON.parse('@Html.Raw(ViewBag.MonthlyDataJson ?? "[]")');
-        if (monthlyData.length > 0) {
-            new Chart(document.getElementById('monthlyChart'), {
-                type: 'bar',
-                data: {
-                    labels: monthlyData.map(d => d.Label),
-                    datasets: [{
-                        label: 'TB Calo/Tháng',
-                        data: monthlyData.map(d => d.AvgCalories),
-                        backgroundColor: '#8b5cf6',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-
-        // Biểu đồ Macros
-        const macroTotals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.MacroTotals));
-        new Chart(document.getElementById('macroPieChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Protein', 'Carbs', 'Fat'],
-                datasets: [{
-                    data: [macroTotals.totalProtein, macroTotals.totalCarbs, macroTotals.totalFat],
-                    backgroundColor: ['#fb923c', '#10b981', '#8b5cf6'],
-                    borderWidth: 0,
-                    hoverOffset: 15
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.parsed;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const pct = ((value / total) * 100).toFixed(1);
-                                return `${context.label}: ${value.toFixed(0)}g (${pct}%)`;
-                            }
-                        }
-                    }
-                },
-                cutout: '65%'
-            }
-        });
-
-        // Biểu đồ Loại bữa ăn
-        const mealTypeData = JSON.parse('@Html.Raw(ViewBag.MealTypeDataJson ?? "[]")');
-        const mealLabels = mealTypeData.map(d => {
-            switch (d.MealType) {
-                case 'BuaSang': return '🌅 Bữa Sáng';
-                case 'BuaTrua': return '☀️ Bữa Trưa';
-                case 'BuaToi': return '🌙 Bữa Tối';
-                default: return '🍪 Ăn Vặt';
-            }
-        });
-        new Chart(document.getElementById('mealTypePieChart'), {
-            type: 'doughnut',
-            data: {
-                labels: mealLabels,
-                datasets: [{
-                    data: mealTypeData.map(d => d.TotalCalories),
-                    backgroundColor: ['#f59e0b', '#10b981', '#8b5cf6', '#3b82f6'],
-                    borderWidth: 0,
-                    hoverOffset: 15
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.parsed;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const pct = ((value / total) * 100).toFixed(1);
-                                return `${context.label}: ${value.toFixed(0)} kcal (${pct}%)`;
-                            }
-                        }
-                    }
-                },
-                cutout: '65%'
-            }
-        });
-
-        // Logic Chart Cân nặng/Mỡ
-        const rawBodyChartData = JSON.parse('@Html.Raw(ViewBag.BodyChartDataJson ?? "[]")');
-        if (rawBodyChartData.length > 0) {
-            const dataLabels = rawBodyChartData.map(d => d.Date);
-            const weights = rawBodyChartData.map(d => d.Weight);
-            const bodyFats = rawBodyChartData.map(d => d.BodyFat);
-            new Chart(document.getElementById('weightBodyFatChart'), {
+            createChartIfExists('dailyCalorieChart', {
                 type: 'line',
                 data: {
-                    labels: dataLabels,
-                    datasets: [
-                        {
-                            label: 'Cân nặng (kg)',
-                            data: weights,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'yWeight',
-                            fill: false
-                        },
-                        {
-                            label: '% Mỡ cơ thể',
-                            data: bodyFats,
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'yFat',
-                            fill: false
-                        }
-                    ]
+                    labels: dailyDates,
+                    datasets: [{
+                        label: 'Calo nạp vào',
+                        data: dailyCalories,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }, {
+                        label: 'Mục tiêu TDEE',
+                        data: tdeeLine,
+                        borderColor: '#f59e0b',
+                        borderDash: [10, 5],
+                        tension: 0,
+                        pointRadius: 0,
+                        fill: false,
+                        borderWidth: 2
+                    }]
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        yWeight: {
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: 'Cân nặng (kg)' }
-                        },
-                        yFat: {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: '% Mỡ cơ thể' },
-                            grid: { drawOnChartArea: false }
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8
                         }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { grid: { display: false } }
                     }
                 }
             });
         }
 
-        // Biểu đồ theo giờ trong ngày
-        const hourlyData = JSON.parse('@Html.Raw(ViewBag.HourlyDataJson ?? "[]")');
-        const hourLabels = hourlyData.map(d => `${d.Hour}:00`);
-        new Chart(document.getElementById('hourlyChart'), {
-            type: 'bar',
-            data: {
-                labels: hourLabels,
-                datasets: [{
-                    label: 'Tổng Calo',
-                    data: hourlyData.map(d => d.TotalCalories),
-                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                    borderColor: '#10b981',
-                    borderWidth: 2,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: window.innerWidth < 768 ? 'bottom' : 'top'
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                const hour = hourlyData[context.dataIndex];
-                                return [
-                                    `Calo: ${hour.TotalCalories.toFixed(0)} kcal`,
-                                    `Số bữa: ${hour.Count}`
-                                ];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                        ticks: {
-                            font: { size: window.innerWidth < 768 ? 10 : 12 },
-                            callback: function(value) { return value + ' kcal'; }
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            font: { size: window.innerWidth < 768 ? 10 : 12 },
-                            maxRotation: window.innerWidth < 768 ? 45 : 0
-                        }
-                    }
-                }
-            }
-        });
-
-        // --- KHAI BÁO BIẾN CẦN THIẾT CHO HISTORY ---
+        // ===== HISTORY LOAD MORE =====
         const historyContainer = document.getElementById('historyContainer');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         const loadMoreSpinner = document.getElementById('loadMoreSpinner');
@@ -987,16 +920,14 @@
             }
         }
 
-        let isLoadingMore = false;
         async function loadMoreHistory() {
-            if (isLoading || !hasMoreHistory || isLoadingMore) return;
+            if (isLoading || !hasMoreHistory) return;
             isLoading = true;
             if (loadMoreBtn) loadMoreBtn.disabled = true;
             if (loadMoreSpinner) loadMoreSpinner.style.display = 'inline-block';
 
             const currentOffsetDate = getOldestDate();
             if (!currentOffsetDate) {
-                isLoadingMore = false;
                 hasMoreHistory = false;
                 updateLoadMoreButton();
                 return;
@@ -1029,24 +960,21 @@
             loadMoreBtn.addEventListener('click', loadMoreHistory);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (historyContainer) {
-                const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
-                if (firstGroup) { firstGroup.classList.add('show'); }
-                const initialGroups = historyContainer.querySelectorAll('.date-group');
-                if (initialGroups.length === 0) { hasMoreHistory = false; }
-            }
-            updateLoadMoreButton();
-        });
+        // ===== INITIAL SETUP =====
+        if (historyContainer) {
+            const firstGroup = historyContainer.querySelector('.date-group:first-child .collapse');
+            if (firstGroup) { firstGroup.classList.add('show'); }
+            const initialGroups = historyContainer.querySelectorAll('.date-group');
+            if (initialGroups.length === 0) { hasMoreHistory = false; }
+        }
+        updateLoadMoreButton();
 
         // ===== LOADING STATE MANAGEMENT =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const skeleton = document.getElementById('skeletonLoader');
-            if (skeleton) { skeleton.classList.add('show'); }
-            setTimeout(() => {
-                if (skeleton) { skeleton.classList.remove('show'); }
-            }, 800);
-        });
+        const skeleton = document.getElementById('skeletonLoader');
+        if (skeleton) { skeleton.classList.add('show'); }
+        setTimeout(() => {
+            if (skeleton) { skeleton.classList.remove('show'); }
+        }, 800);
 
         // ===== DOWNLOAD CHART AS PNG =====
         function downloadChartAsPNG(chartId, filename) {
@@ -1059,28 +987,21 @@
             link.click();
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const charts = [
-                { id: 'dailyCalorieChart', name: 'Bieu-Do-Calo-Hang-Ngay' },
-                { id: 'weeklyChart', name: 'Bieu-Do-Tuan' },
-                { id: 'monthlyChart', name: 'Bieu-Do-Thang' },
-                { id: 'macroPieChart', name: 'Phan-Bo-Macros' },
-                { id: 'mealTypePieChart', name: 'Phan-Bo-Bua-An' },
-                { id: 'hourlyChart', name: 'Bieu-Do-Theo-Gio' },
-                { id: 'weightBodyFatChart', name: 'Bieu-Do-Can-Nang-Mo' }
-            ];
+        // Add download buttons to charts
+        const chartsToDownload = [
+            { id: 'dailyCalorieChart', name: 'Bieu-Do-Calo-Hang-Ngay' }
+        ];
 
-            charts.forEach(chart => {
-                const container = document.getElementById(chart.id)?.parentElement;
-                if (container && !container.querySelector('.chart-download-btn')) {
-                    const btn = document.createElement('button');
-                    btn.className = 'chart-download-btn';
-                    btn.innerHTML = '📥 Tải xuống';
-                    btn.onclick = () => downloadChartAsPNG(chart.id, chart.name);
-                    container.style.position = 'relative';
-                    container.appendChild(btn);
-                }
-            });
+        chartsToDownload.forEach(chart => {
+            const container = document.getElementById(chart.id)?.parentElement;
+            if (container && !container.querySelector('.chart-download-btn')) {
+                const btn = document.createElement('button');
+                btn.className = 'chart-download-btn';
+                btn.innerHTML = '📥 Tải xuống';
+                btn.onclick = () => downloadChartAsPNG(chart.id, chart.name);
+                container.style.position = 'relative';
+                container.appendChild(btn);
+            }
         });
 
         Chart.defaults.responsive = true;

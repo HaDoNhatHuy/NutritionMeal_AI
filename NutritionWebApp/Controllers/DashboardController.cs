@@ -55,6 +55,12 @@ namespace NutritionWebApp.Controllers
 
             // 3. Lấy cân nặng hiện tại (lưu trong User entity)
             ViewBag.CurrentWeight = user.Weight;
+            var measurements = await _context.BodyMeasurements
+                .Where(m => m.UserId == userId.Value)
+                .OrderByDescending(m => m.MeasureDate)
+                .Take(30)
+                .ToListAsync();
+            ViewBag.MeasureDate = measurements.FirstOrDefault()?.MeasureDate;
 
             // 4. Lấy dữ liệu 7 ngày gần nhất cho biểu đồ nhỏ
             var last7Days = DateTime.Today.AddDays(-7);

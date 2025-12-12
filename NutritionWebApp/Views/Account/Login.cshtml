@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Đăng nhập";
     var showRegisterError = TempData["ShowRegisterForm"] as bool? ?? false;
+    Layout = "_LayoutAuth";
 }
 
 <style>
@@ -511,7 +512,7 @@
 
         <!-- SIGN UP FORM -->
         <div class="form-container sign-up">
-            <form asp-action="Register" asp-controller="Account" method="post" id="registerForm">
+            <form asp-action="Register" asp-controller="Account" method="post" id="registerForm" style="width:100%">
                 <h1>Đăng ký</h1>
                 <div class="social-icons">
                     <a href="#" class="icon">

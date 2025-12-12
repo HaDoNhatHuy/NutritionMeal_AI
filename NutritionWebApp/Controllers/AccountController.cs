@@ -89,7 +89,7 @@ namespace NutritionWebApp.Controllers
             return View("Login");
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

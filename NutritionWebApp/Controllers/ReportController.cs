@@ -149,12 +149,20 @@ namespace NutritionWebApp.Controllers
 
             ViewBag.HourlyDataJson = System.Text.Json.JsonSerializer.Serialize(hourlyData);
 
-            // 6. Tổng hợp Macros trung bình
-            var totalProtein = history.Sum(f => f.Protein);
-            var totalCarbs = history.Sum(f => f.Carbs);
-            var totalFat = history.Sum(f => f.Fat);
+            // ===== FIX: Tính Macros CHỈ CỦA HÔM NAY thay vì toàn bộ period =====
+            var today = DateTime.Today;
+            var todayHistory = history.Where(f => f.AnalyzedAt.Date == today).ToList();
 
-            ViewBag.MacroTotals = new { totalProtein, totalCarbs, totalFat };
+            var totalProteinToday = todayHistory.Sum(f => f.Protein);
+            var totalCarbsToday = todayHistory.Sum(f => f.Carbs);
+            var totalFatToday = todayHistory.Sum(f => f.Fat);
+
+            ViewBag.MacroTotals = new
+            {
+                totalProtein = totalProteinToday,
+                totalCarbs = totalCarbsToday,
+                totalFat = totalFatToday
+            };
 
             // 7. Thống kê tổng quan
             ViewBag.TotalMeals = history.Count;
@@ -173,24 +181,54 @@ namespace NutritionWebApp.Controllers
 
             ViewBag.HistoryByDate = historyByDate;
 
-            // 9. Bổ sung Logic tích hợp BodyMeasurement (F11)
+            // 9. Bổ sung Logic tích hợp BodyMeasurement
             var measurements = await _context.BodyMeasurements
                 .Where(m => m.UserId == userId.Value)
                 .OrderByDescending(m => m.MeasureDate)
                 .Take(30)
                 .ToListAsync();
 
-            // Truyền dữ liệu Body Measurement cho biểu đồ
             ViewBag.BodyChartDataJson = JsonSerializer.Serialize(
                 measurements.Select(m => new {
-                    Date = m.MeasureDate.ToString("dd/MM"), // Dùng format ngày tương tự DailyData
+                    Date = m.MeasureDate.ToString("dd/MM"),
                     Weight = m.Weight,
                     BodyFat = m.BodyFatPercentage
                 }).OrderBy(x => x.Date)
             );
 
+            // ===== BIỂU ĐỒ BỔ SUNG: Macro Trends (7 ngày) =====
+            var last7Days = DateTime.Today.AddDays(-7);
+            var macroTrendsData = history
+                .Where(f => f.AnalyzedAt >= last7Days)
+                .GroupBy(f => f.AnalyzedAt.Date)
+                .Select(g => new
+                {
+                    Date = g.Key.ToString("dd/MM"),
+                    Protein = g.Sum(f => f.Protein),
+                    Carbs = g.Sum(f => f.Carbs),
+                    Fat = g.Sum(f => f.Fat)
+                })
+                .OrderBy(d => d.Date)
+                .ToList();
+
+            ViewBag.MacroTrendsJson = JsonSerializer.Serialize(macroTrendsData);
+
+            // ===== BIỂU ĐỒ BỔ SUNG: Meal Distribution (Số bữa theo loại) =====
+            var mealDistribution = history
+                .GroupBy(f => f.MealType)
+                .Where(g => !string.IsNullOrEmpty(g.Key))
+                .Select(g => new
+                {
+                    MealType = g.Key,
+                    Count = g.Count()
+                })
+                .ToList();
+
+            ViewBag.MealDistributionJson = JsonSerializer.Serialize(mealDistribution);
+
             return View(history);
         }
+
         [HttpGet]
         public async Task<IActionResult> LoadHistory(string offsetDate, int pageSize = 30)
         {
@@ -199,30 +237,23 @@ namespace NutritionWebApp.Controllers
 
             if (!DateTime.TryParse(offsetDate, out DateTime parsedOffsetDate))
             {
-                // Nếu offsetDate không hợp lệ, hãy trả về rỗng (hoặc báo lỗi)
                 return Content("");
             }
 
-            // 1. Lấy dữ liệu cũ hơn ngày offsetDate
             var history = await _context.FoodHistory
-                // Lấy ngày nhỏ hơn ngày offset
                 .Where(f => f.UserId == userId.Value && f.AnalyzedAt.Date < parsedOffsetDate.Date)
                 .OrderByDescending(f => f.AnalyzedAt)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // 2. Kiểm tra còn dữ liệu tiếp theo không
-            bool hasMore = history.Count == pageSize; // Kiểm tra nhanh: nếu số lượng trả về bằng PageSize thì có thể còn
+            bool hasMore = history.Count == pageSize;
 
-            // 3. Nhóm dữ liệu vừa tải theo ngày
             var historyByDate = history
                 .GroupBy(f => f.AnalyzedAt.Date)
                 .ToDictionary(g => g.Key, g => g.OrderBy(f => f.AnalyzedAt).ToList());
 
-            // 4. Gửi cờ hasMore qua ViewBag để JS nhận biết
             ViewBag.HasMore = hasMore;
 
-            // 5. Render Partial View và trả về chuỗi HTML
             return PartialView("_FoodHistoryPartial", historyByDate);
         }
     }

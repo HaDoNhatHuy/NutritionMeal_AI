@@ -9,10 +9,113 @@
     <link rel="icon" type="image/x-icon" href="/icon.ico">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/mobile.css" asp-append-version="true" />
+
+    <style>
+        /* Container bọc Avatar để định vị menu */
+        .header-user-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Avatar thêm con trỏ chuột */
+        .header-avatar {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+            .header-avatar:hover {
+                opacity: 0.8;
+            }
+
+        /* Menu Dropdown */
+        .user-dropdown {
+            display: none; /* Mặc định ẩn */
+            position: absolute;
+            top: 115%; /* Nằm ngay dưới avatar */
+            right: 0;
+            width: 220px;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            padding: 8px 0;
+            z-index: 9999;
+            border: 1px solid #f0f0f0;
+        }
+
+            /* Class kích hoạt hiển thị */
+            .user-dropdown.active {
+                display: block;
+                animation: fadeInDrop 0.2s ease-out;
+            }
+
+        /* Header nhỏ trong dropdown */
+        .dropdown-header-info {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 5px;
+        }
+
+            .dropdown-header-info .user-name {
+                margin: 0;
+                font-weight: 600;
+                color: #333;
+                font-size: 0.95rem;
+            }
+
+        /* Các link trong dropdown */
+        .user-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            background: transparent; /* Reset bootstrap style */
+            border: none;
+            width: 100%;
+        }
+
+            .user-dropdown .dropdown-item:active,
+            .user-dropdown .dropdown-item:hover {
+                background-color: #f8f9fa;
+                color: #2c3e50;
+            }
+
+            .user-dropdown .dropdown-item span {
+                margin-right: 12px;
+                font-size: 1.1rem;
+            }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #f0f0f0;
+            margin: 5px 0;
+        }
+
+        .user-dropdown .text-danger {
+            color: #dc3545 !important;
+        }
+
+        @@keyframes fadeInDrop {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="mobile-body">
-    <!-- Mobile Header -->
     <header class="mobile-header">
         <div class="mobile-header-content">
             <button class="menu-toggle" id="menuToggle">
@@ -21,16 +124,34 @@
                 <span></span>
             </button>
             <div class="header-title">@ViewData["Title"]</div>
+
             @if (Context.Session.GetInt32("UserId").HasValue)
             {
-                <div class="header-avatar">
-                    <span>@Context.Session.GetString("FullName")?.Substring(0, 1)</span>
+                <div class="header-user-wrapper">
+                    <div class="header-avatar" id="userAvatarBtn">
+                        <span>@Context.Session.GetString("FullName")?.Substring(0, 1)</span>
+                    </div>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header-info">
+                            <p class="user-name">@Context.Session.GetString("FullName")</p>
+                        </div>
+
+                        <a asp-controller="Settings" asp-action="ViewStats" class="dropdown-item">
+                            <span>👤</span> Hồ sơ cá nhân
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <a asp-controller="Account" asp-action="Logout" class="dropdown-item text-danger">
+                            <span>🚪</span> Đăng Xuất
+                        </a>
+                    </div>
                 </div>
             }
         </div>
     </header>
 
-    <!-- Mobile Sidebar -->
     <div class="mobile-sidebar" id="mobileSidebar">
         <div class="sidebar-header">
             <div class="app-logo">🥗 Nutrition AI</div>
@@ -103,24 +224,15 @@
                 <span class="nav-text">Hồ Sơ</span>
             </a>
 
-            @if (Context.Session.GetInt32("UserId").HasValue)
-            {
-                <a asp-controller="Account" asp-action="Logout" class="nav-item logout">
-                    <span class="nav-icon">🚪</span>
-                    <span class="nav-text">Đăng Xuất</span>
-                </a>
-            }
         </nav>
     </div>
 
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
-    <!-- Main Content -->
     <main class="mobile-main">
         @RenderBody()
     </main>
 
-    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a asp-controller="Dashboard" asp-action="Index" class="bottom-nav-item">
             <span class="bottom-nav-icon">🏠</span>
@@ -146,6 +258,31 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/mobile.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Xử lý click Avatar để hiện/ẩn menu
+            const $avatarBtn = $('#userAvatarBtn');
+            const $userDropdown = $('#userDropdown');
+
+            if ($avatarBtn.length) {
+                $avatarBtn.on('click', function (e) {
+                    e.stopPropagation(); // Ngăn sự kiện lan ra ngoài
+                    $userDropdown.toggleClass('active');
+                });
+
+                // Đóng menu khi click bất kỳ đâu bên ngoài
+                $(document).on('click', function (e) {
+                    // Nếu click không phải vào avatar và cũng không phải vào chính dropdown
+                    if (!$avatarBtn.is(e.target) && $avatarBtn.has(e.target).length === 0 &&
+                        !$userDropdown.is(e.target) && $userDropdown.has(e.target).length === 0) {
+                        $userDropdown.removeClass('active');
+                    }
+                });
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
